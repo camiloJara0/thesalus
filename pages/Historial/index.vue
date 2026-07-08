@@ -1,0 +1,885 @@
+<script setup>
+import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue';
+import ExportarPDFs from '~/components/paginas/ExportarPDFs.vue';
+import ChartComponent from '~/components/molecules/Charts/ChartComponent.vue';
+import TablaNuxt from '~/components/organism/Table/TablaNuxt.vue';
+import Form from '~/components/organism/Forms/Form.vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useHistoriasStore } from '~/stores/Formularios/historias/Historia.js';
+import { useVarView } from "~/stores/varview.js";
+import { usePacientesStore } from "~/stores/Entidades/Paciente";
+import { useProfesionalStore } from '~/stores/Entidades/Profesional';
+import { useNotasStore } from '~/stores/Formularios/historias/Notas';
+import { historialManejoModales } from '~/composables/Historias/historialManejoModales';
+import { usePDFExporter } from '~/composables/Historias/exportarServicioPDF';
+import { formatDate } from '~/composables/Formulario/FormatearFecha';
+import { useConsultasTable } from '~/composables/Entidades/useConsultasTable';
+import { useDiagnosticosTable } from '~/composables/Entidades/useDiagnosticosTable';
+import { useEvolucionesTable } from '~/composables/Entidades/useEvolucionesTable';
+import { useNotasTable } from '~/composables/Entidades/useNotasTable';
+import { useTratamientosTable } from '~/composables/Entidades/useTratamientosTable';
+import { useMedicacionTable } from '~/composables/Entidades/useMedicacionTable';
+import { useNutricionTable } from '~/composables/Entidades/useNutricionTable';
+import { useTrabajoSocialTable } from '~/composables/Entidades/useTrabajoSocialTable';
+import { useKardexTable } from '~/composables/Entidades/useKardexTable';
+import { storeToRefs } from 'pinia';
+import { useCitaActions } from '~/composables/Entidades/Cita';
+import { useVerHistoriaBuilder } from '~/build/Historial/useVerHistoriaBuilder';
+import { useInsumoStore } from '~/stores/Entidades/Insumo';
+import { useInsumoActions } from '~/composables/Entidades/Insumo';
+import { useMovimientoBuilder } from '~/build/Historial/useMovimientoBuilder';
+import { traerFiltrosHistoria } from '~/Core/Historial/Historia/GetHistoria';
+
+// ============ STORES Y COMPOSABLES ============
+const varView = useVarView();
+const notificaciones = useNotificacionesStore()
+const historiasStore = useHistoriasStore();
+const notasStore = useNotasStore();
+const apiRest = useApiRest();
+const medicosStore = useProfesionalStore();
+const pacientesStore = usePacientesStore();
+const insumoStore = useInsumoStore()
+const store = useIndexedDBStore();
+const formularioItem = ref('')
+const actualizar = ref(false)
+const filtros = ref({})
+const { exportar } = usePDFExporter();
+
+const { NoEnviados, showActualizarRegistro } = storeToRefs(historiasStore)
+const { showModificarMovimiento } = storeToRefs(insumoStore)
+
+// ============ PERMISOS ============
+const permisos = computed(() => ({
+    ver: varView.getPermisos.includes('Historias_view'),
+    get: varView.getPermisos.includes('Historias_get'),
+    notas_ver: varView.getPermisos.includes('Notas_view'),
+    notas_put: varView.getPermisos.includes('Notas_put'),
+    evoluciones_ver: varView.getPermisos.includes('Evoluciones_view'),
+    evoluciones_put: varView.getPermisos.includes('Evoluciones_put'),
+    terapias_ver: varView.getPermisos.includes('Terapias_view'),
+    terapias_put: varView.getPermisos.includes('Terapias_put'),
+    diagnosticos_ver: varView.getPermisos.includes('Diagnosticos_view'),
+    tratamientos_ver: varView.getPermisos.includes('Tratamientos_view'),
+    tratamientos_put: varView.getPermisos.includes('Tratamientos_put'),
+    medicacion_ver: varView.getPermisos.includes('Medicacion_view'),
+    medicacion_put: varView.getPermisos.includes('Medicacion_put'),
+    medicina_ver: varView.getPermisos.includes('MedicinaGeneral_view'),
+    medicina_put: varView.getPermisos.includes('MedicinaGeneral_put'),
+    trabajo_ver: varView.getPermisos.includes('TrabajoSocial_view'),
+    trabajo_put: varView.getPermisos.includes('TrabajoSocial_put'),
+}));
+
+// ============ ESTADO DEL COMPONENTE ============
+const historiasList = ref([]);
+const pacienteSeleccionado = ref(null);
+const notas = ref([]);
+const analisis = ref([]);
+const tratamientos = ref([]);
+const medicinas = ref([]);
+const evoluciones = ref([]);
+const nutricion = ref([]);
+const diagnosticos = ref([]);
+const trabajosSocial = ref([]);
+const kardex = ref({});
+const historialCambioSonda = ref([])
+const examenesFisicos = ref([])
+const inventario = ref([])
+const id_paciente = ref('')
+
+const notasPendientes = ref([{ servicio: 'nose' }]);
+const medicos = ref([]);
+
+// ============ MODALES Y VISIBILITY ============
+const showHistorialCompleto = ref(false);
+const showTablas = ref(true)
+const showGraficas = ref(false)
+const showInventario = ref(false)
+const showItem = ref(false);
+const showPanel = ref(true)
+const refreshKey = ref(0);
+
+// ============ CARGAR DATOS INICIALES ============
+onMounted(async () => {
+    medicos.value = await medicosStore.traer();
+    await apiRest.getData('Kardex', 'kardex');
+    await cargarHistorias();
+    await historiasStore.traerNoEnviados()
+    filtros.value = await traerFiltrosHistoria()
+    varView.datosActualizados();
+});
+
+// ============ CARGAR HISTORIAS ============
+async function cargarHistorias(cambio) {
+    try {
+        historiasList.value = await historiasStore.datosHistoria;
+        await historiasStore.analisisInicial();
+        await historiasStore.traerNoEnviados()
+    } catch (error) {
+        console.error('Error cargando historias:', error);
+    }
+}
+
+// ============ SELECCIONAR Y CARGAR PACIENTE ============
+async function seleccionarPaciente(historial) {
+    historiasStore.analisisPaciente(historial.id)
+    pacienteSeleccionado.value = historial;
+    historiasStore.Formulario.Analisis.historia.name_paciente = historial.paciente;
+    historiasStore.Formulario.Analisis.historia.No_document_paciente = historial.cedula;
+    historiasStore.Formulario.Analisis.historia.id_paciente = historial.id;
+
+    await cargarDatosPaciente(historial.id);
+    showHistorialCompleto.value = true;
+}
+
+async function cambiarAGraficos() {
+    showTablas.value = false
+    showInventario.value = false
+    showGraficas.value = true
+}
+
+function cambiarTablas() {
+    showGraficas.value = false
+    showInventario.value = false
+    showTablas.value = true
+}
+
+async function cambiarInventario() {
+    showGraficas.value = false
+    showTablas.value = false
+
+    inventario.value = await insumoStore.traerInventarioAsignado(historiasStore.Formulario.Analisis.historia.id_paciente)
+    showInventario.value = true
+}
+
+
+// ============ CARGAR DATOS DEL PACIENTE ============
+async function cargarDatosPaciente(id) {
+    // varView.cargando = true;
+    try {
+        // Reiniciar arrays
+        notas.value = [];
+        analisis.value = [];
+        tratamientos.value = [];
+        medicinas.value = [];
+        evoluciones.value = [];
+        nutricion.value = [];
+        diagnosticos.value = [];
+        trabajosSocial.value = [];
+        examenesFisicos.value = [];
+        id_paciente.value = id
+
+        const allAnalisis = await store.listDatos(id, 'Analisis', 'historia.id_paciente') || [];
+
+        // Clasificar análisis por tipo
+        for (const a of allAnalisis) {
+            if (a.servicio?.plantilla === 'Evolucion') {
+                nutricion.value.push({ ...a, fecha: formatDate(a.created_at) });
+            } else if (a.servicio?.plantilla === 'Trabajo Social') {
+                trabajosSocial.value.push({ ...a, fecha: formatDate(a.created_at) });
+            } else if (a.servicio?.plantilla === 'Medicina') {
+                analisis.value.push({ ...a, fecha: formatDate(a.created_at) });
+            } else if (a.servicio?.plantilla === 'Nota') {
+                notas.value.push({ ...a });
+            } else if (a.servicio?.plantilla === 'Terapia') {
+                evoluciones.value.push({ ...a });
+            }
+
+            let tratamiento = await store.listDatos(a.id, 'Plan_manejo_procedimientos', 'id_analisis') || [];
+            tratamiento.map(t => {
+                tratamientos.value.push({
+                    ...t,
+                    ...a,
+                    id: t.id,
+                    fecha: formatDate(a.created_at)
+                })
+            })
+
+            let medicina = await store.listDatos(a.id, 'Plan_manejo_medicamentos', 'id_analisis') || [];
+            medicina.map(m => {
+                medicinas.value.push({
+                    ...m,
+                    ...a,
+                    id: m.id,
+                    fecha: formatDate(a.created_at)
+                })
+            })
+
+            let diagnostico = await store.listDatos(a.id, 'Diagnosticos', 'id_analisis') || [];
+            diagnostico.map(d => {
+                diagnosticos.value.push({
+                    ...d,
+                    ...a,
+                    fecha: formatDate(a.created_at)
+                })
+            })
+
+            if (a.examen_fisico) {
+                // Convertir altura a metros
+                const alturaMetros = a.examen_fisico.altura / 100;
+
+                // Calcular IMC
+                const imcPaciente = a.examen_fisico.peso / (alturaMetros ** 2);
+                const IMC = parseFloat(imcPaciente.toFixed(2))
+
+                // Formatear fecha
+                const fechaFormateada = new Date(a.examen_fisico.created_at)
+                    .toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+                // Agregar al arreglo con IMC y fecha formateada
+                examenesFisicos.value.push({
+                    x: fechaFormateada.split('/').reverse().join('-'),
+                    y: IMC,
+                    IMC,
+                    fecha: fechaFormateada.split('/').reverse().join('-')
+                });
+            }
+        }
+        // Insumos
+        inventario.value = await insumoStore.traerInventarioAsignado(id)
+
+        // Ordenar por fecha descendente
+        notas.value.sort((a, b) => new Date(b.fecha_nota) - new Date(a.fecha_nota));
+        analisis.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        nutricion.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        trabajosSocial.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    } catch (error) {
+        console.error('Error cargando datos del paciente:', error);
+    } finally {
+        varView.datosActualizados()
+    }
+}
+
+// ============ MANEJADOR DE MODALES ============
+const { loadItem } = historialManejoModales({
+    historiasStore,
+    showItem,
+    formularioItem,
+    varView,
+    actualizar,
+});
+
+const { actualizarHistoria } = useCitaActions({
+    fecha: null
+})
+
+function exportarServicio(servicio) {
+    varView.showExportarPDFs = true
+    varView.onlyPaciente = true
+    varView.id_pacientePDF = historiasStore.Formulario.Analisis.historia.id_paciente
+    varView.servicioPDF = servicio
+}
+
+watch(() => showItem.value,
+    async (estado) => {
+        if (!estado && varView.cambioEnApi) {
+                    historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+                    await historiasStore.analisisFiltrados({plantilla: varView.tipoHistoria === 'Medicina' ? 'Medicina' : varView.tipoHistoria === 'Evolucion' ? 'Evolucion' : varView.tipoHistoria === 'Trabajo Social' ? 'Trabajo Social' : varView.tipoHistoria === 'Nota' ? 'Nota' : varView.tipoHistoria === 'Terapia' ? 'Terapia' : varView.tipoHistoria === 'Tratamientos' ? 'Medicina' : 'Medicina'})
+                    cargarDatosPaciente(id_paciente.value)
+                    refreshKey.value += 1
+            // switch (varView.tipoHistoria) {
+            //     case 'Terapia':
+            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+            //         await historiasStore.analisisFiltrados({plantilla: 'Terapia'})
+            //         cargarDatosPaciente(id_paciente.value)
+            //         refreshKey.value += 1
+            //     case 'Medicamento':
+
+            //     case 'Tratamientos':
+            //         // await apiRest.getData('Plan_manejo_procedimientos', 'planManejoProcedimientos')
+            //         // tratamientos.value = await pacientesStore.listDatos(id_paciente.value, 'Plan_manejo_procedimientos')
+            //     case 'Consulta':
+            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+            //         await historiasStore.analisisFiltrados({plantilla: 'Medicina'})
+            //         cargarDatosPaciente(id_paciente.value)
+            //         refreshKey.value += 1
+            //     case 'Evolucion':
+            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+            //         await historiasStore.analisisFiltrados({plantilla: 'Evolucion'})
+            //         cargarDatosPaciente(id_paciente.value)
+            //         refreshKey.value += 1
+            //     case 'TrabajoSocial':
+            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+            //         await historiasStore.analisisFiltrados({plantilla: 'Trabajo Social'})
+            //         cargarDatosPaciente(id_paciente.value)
+            //         refreshKey.value += 1
+            //     case 'Nota':
+            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+            //         await historiasStore.analisisFiltrados({plantilla: 'Nota'})
+            //         cargarDatosPaciente(id_paciente.value)
+            //         refreshKey.value += 1
+            //     default:
+            //         console.log('Tipo de consulta no encontrado')
+
+            // }
+
+
+        }
+
+    }
+);
+
+// ============ CONFIGURACIONES DE TABLAS ============
+const consultasConfig = computed(() => {
+    const config = useConsultasTable(loadItem, exportar, exportarServicio, permisos.value.medicina_put);
+    return { ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: historiasStore.analisisFiltrados },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes' },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años }
+        ] };
+});
+
+const diagnosticosConfig = computed(() => {
+    const config = useDiagnosticosTable();
+    return { ...config.headerConfig, columns: config.columns };
+});
+
+const evolucionesConfig = computed(() => {
+    const config = useEvolucionesTable(loadItem, exportar, exportarServicio, permisos.value.terapias_ver, permisos.value.terapias_put);
+    return {
+        ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} }
+        ]
+    };
+});
+
+const notasConfig = computed(() => {
+    const config = useNotasTable(loadItem, exportar, exportarServicio, permisos.value.notas_put);
+    return { ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} }
+        ] };
+});
+
+const tratamientosConfig = computed(() => {
+    const config = useTratamientosTable(loadItem, exportar, exportarServicio, permisos.value.tratamientos_put);
+    return { ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales,  },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, }
+        ] };
+});
+
+const medicacionConfig = computed(() => {
+    const config = useMedicacionTable(loadItem, exportar, permisos.value.medicacion_put);
+    return { ...config.headerConfig, columns: config.columns, acciones: config.acciones };
+});
+
+const nutricionConfig = computed(() => {
+    const config = useNutricionTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put);
+    return { ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} }
+        ] };
+});
+
+const trabajoSocialConfig = computed(() => {
+    const config = useTrabajoSocialTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put);
+    return { ...config.headerConfig, columns: config.columns, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => {historiasStore.analisisFiltrados(filtros)} }
+        ] };
+});
+
+const kardexConfig = computed(() => {
+    const config = useKardexTable(loadItem);
+    return { ...config.headerConfig, columns: config.columns };
+});
+
+const {
+    columnsMovimiento
+} = useInsumoActions({ notificaciones })
+
+const propiedadesTablaMovimiento = computed(() => {
+    return {
+        titulo: "Movimientos relacionados a pacientes",
+        buscador: true,
+        excel: true,
+        data: inventario,
+        columns: columnsMovimiento,
+    }
+})
+
+const propiedadesFormularioVerMovimiento = computed(() => {
+    return useMovimientoBuilder({
+        storeId: "ModificarMovimiento",
+        storePinia: "Insumos",
+        show: showModificarMovimiento.value,
+        medicosList: [],
+        pacientesList: [],
+        optionsInsumosDevueltos: [],
+        optionsEquiposSeriales: [],
+        cerrarModal: () => { showModificarMovimiento.value = false }
+    })
+})
+
+// ============ COLUMNAS TABLA HISTORIAS ============
+const columnasHistorias = [
+    { accessorKey: "cedula", header: "Documento", ordenar: true },
+    { accessorKey: "paciente", header: "Nombre", ordenar: true },
+    {
+        accessorKey: 'estado',
+        header: 'Estado',
+        cell: ({ row }) => {
+            const estado = row.getValue('estado');
+            const color = estado === 'Creada' ? 'success' : estado === 'Nueva' ? 'neutral' : 'warning';
+            return h(UBadge, { variant: 'subtle', color, class: 'capitalize' }, () => estado);
+        }
+    },
+    {
+        id: 'actions',
+        cell: ({ row }) => h('div', { class: 'text-right' }, h(UButton, {
+            icon: 'i-lucide-arrow-right',
+            color: 'primary',
+            variant: 'ghost',
+            onClick: () => seleccionarPaciente(row.original)
+        }))
+    },
+];
+
+const propiedadesTablaPrincipal = computed(() => ({
+    titulo: 'Historias Clínicas',
+    data: historiasList,
+    columns: columnasHistorias,
+    filtros: [{ columna: 'estado', placeholder: 'Estado' }],
+    buttons: [
+        {
+            icon: 'lucide-file-down', accion: () => {
+                varView.showExportarPDFs = true
+                varView.onlyPaciente = false
+                varView.id_pacientePDF = ''
+                varView.servicioPDF = ''
+            }, texto: 'Exportar', color: 'primary', variant: 'subtle'
+        }
+    ]
+}));
+
+function cerrarModalVer() {
+    showItem.value = false
+}
+
+const propiedadesItemHistoria = computed(() => {
+    return useVerHistoriaBuilder({
+        storeId: 'ActualizarHistorias',
+        storePinia: 'Historias',
+        cerrarModal: cerrarModalVer,
+        formularioItem,
+        actualizar,
+        show: showItem,
+    })
+})
+
+</script>
+
+<template>
+    <FondoDefault>
+        <Form :Propiedades="propiedadesItemHistoria" />
+        <Form v-if="varView.getPermisos.includes('Insumos_put')" :Propiedades="propiedadesFormularioVerMovimiento" />
+        <!-- VISTA INICIAL - LISTA DE PACIENTES -->
+        <div v-if="!showHistorialCompleto && (permisos.ver || permisos.get)" class="space-y-4">
+            <!-- Módulo: Notas Pendientes -->
+            <UCard v-if="NoEnviados.length > 0">
+                <template #header>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-exclamation-triangle text-(--color-warning)"></i>
+                            <h2 class="text-lg font-semibold">Registros Médicos No Enviados</h2>
+                        </div>
+                        <UBadge color="warning">{{ NoEnviados?.length }}</UBadge>
+                    </div>
+                </template>
+
+                <div class="space-y-2">
+                    <div v-for="nota in NoEnviados" :key="nota.id"
+                        class="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800 flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="font-medium text-sm">{{ nota.servicio || 'Sin título' }} - <span
+                                    class="font-medium text-sm">{{
+                                        nota.Cita.paciente.info_usuario.name }}</span></p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ nota.historia.fecha_historia }}
+                            </p>
+                            <p class="font-medium text-sm"><i class="fa-solid fa-user-doctor mr-1"></i>{{
+                                nota.Cita.profesional.info_usuario.name }}</p>
+                        </div>
+                        <UButton size="xs" color="warning" @click="actualizarHistoria(nota)">
+                            Enviar
+                        </UButton>
+                    </div>
+                </div>
+            </UCard>
+            <!-- Tabla de Historias -->
+            <TablaNuxt :Propiedades="propiedadesTablaPrincipal" />
+        </div>
+
+        <!-- VISTA DETALLADA - HISTORIAL COMPLETO DEL PACIENTE -->
+        <div v-else-if="showHistorialCompleto && pacienteSeleccionado" class="space-y-4">
+            <!-- Header Historial -->
+            <div class="space-y-3">
+
+                <!-- Paciente -->
+                <UCard
+                    class="bg-linear-to-r from-(--color-default-500) to-(--color-default-600) text-white shadow-lg border-0">
+
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
+                        <!-- Datos -->
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="size-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fa-solid fa-user text-sm"></i>
+                                </div>
+
+                                <div>
+                                    <h2 class="font-semibold text-sm md:text-base truncate">
+                                        {{ pacienteSeleccionado.paciente }}
+                                    </h2>
+
+                                    <p class="text-xs text-white/80">
+                                        Documento: {{ pacienteSeleccionado.cedula }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <UButton :icon="showPanel ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'" color="white" variant="soft"
+                                @click="showPanel = !showPanel">
+                                {{ showPanel ? 'Ocultar' : 'Mostrar' }}
+                            </UButton>
+                            <!-- Botón volver -->
+                            <UButton icon="i-lucide-arrow-left" color="white" variant="soft"
+                                @click="showHistorialCompleto = false">
+                                Regresar
+                            </UButton>
+                        </div>
+
+                    </div>
+
+                </UCard>
+
+                <!-- Navegación de módulos -->
+                <div v-if="showPanel" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+                    <!-- Registros -->
+                    <UCard @click="cambiarTablas"
+                        class="cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                        :class="showTablas
+                            ? 'ring-2 ring-(--color-primary-500) border-(--color-primary-500)'
+                            : ''">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="size-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                                <i class="fa-solid fa-file-medical text-blue-600 dark:text-blue-300"></i>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-sm">
+                                    Registros
+                                </p>
+
+                                <p class="text-xs text-gray-500">
+                                    {{ analisis?.length + evoluciones?.length + notas?.length + nutricion?.length + trabajosSocial?.length }} notas médicas
+                                </p>
+                            </div>
+
+                            <UBadge v-if="showTablas" color="primary" variant="soft">
+                                Activo
+                            </UBadge>
+
+                        </div>
+                    </UCard>
+
+                    <!-- Dashboard -->
+                    <UCard @click="cambiarAGraficos"
+                        class="cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                        :class="showGraficas
+                            ? 'ring-2 ring-(--color-primary-500) border-(--color-primary-500)'
+                            : ''">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="size-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                                <i class="fa-solid fa-chart-line text-emerald-600 dark:text-emerald-300"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-sm">
+                                    Evolución
+                                </p>
+
+                                <p class="text-xs text-gray-500">
+                                    Dashboard clínico
+                                </p>
+                            </div>
+
+                            <UBadge v-if="showGraficas" color="success" variant="soft">
+                                Activo
+                            </UBadge>
+
+                        </div>
+                    </UCard>
+
+                    <!-- Inventario -->
+                    <UCard @click="cambiarInventario"
+                        class="cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                        :class="showInventario
+                            ? 'ring-2 ring-(--color-primary-500) border-(--color-primary-500)'
+                            : ''">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="size-10 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                                <i class="fa-solid fa-pills text-amber-600 dark:text-amber-300"></i>
+                            </div>
+
+                            <div class="flex-1">
+                                <p class="font-medium text-sm">
+                                    Inventario
+                                </p>
+
+                                <p class="text-xs text-gray-500">
+                                    {{ inventario.length }} productos asignados
+                                </p>
+                            </div>
+
+                            <UBadge v-if="showInventario" color="warning" variant="soft">
+                                Activo
+                            </UBadge>
+
+                        </div>
+                    </UCard>
+
+                </div>
+
+            </div>
+
+            <div v-if="showTablas">
+                <!-- Secciones Principales con Tabs -->
+                <UTabs :items="[
+                    { slot: 'consultas', label: 'Consultas', icon: 'i-lucide-clipboard' },
+                    { slot: 'notas', label: 'Notas', icon: 'i-lucide-file-text' },
+                    { slot: 'evoluciones', label: 'Evoluciones', icon: 'i-lucide-trending-up' },
+                    { slot: 'terapias', label: 'Terapias', icon: 'i-lucide-heart-pulse' },
+                    { slot: 'trabajo-social', label: 'Social', icon: 'i-lucide-briefcase-business' },
+                    { slot: 'diagnosticos', label: 'Diagnósticos', icon: 'i-lucide-activity' },
+                    { slot: 'medicamentos', label: 'Medicamentos', icon: 'i-lucide-pill' },
+                    { slot: 'tratamientos', label: 'Tratamientos', icon: 'i-lucide-bandage' },
+                ]" class="w-full">
+                    <!-- Consultas -->
+                    <template #consultas>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.medicina_ver" class="space-y-4">
+                                <TablaNuxt :key="`consultas-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Consultas y Análisis',
+                                    data: analisis,
+                                    columns: consultasConfig.columns,
+                                    filtros: consultasConfig.filtros,
+                                    buttons: consultasConfig.buttons,
+                                    acciones: consultasConfig.acciones,
+                                    fetchData: (items, por_pagina) => { historiasStore.analisisPaginado(items, por_pagina, 'Medicina', historiasStore.Formulario.Analisis.historia.id_paciente) },
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver consultas" color="gray" />
+                        </div>
+                    </template>
+
+                    <!-- Diagnósticos -->
+                    <template #diagnosticos>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.diagnosticos_ver" class="space-y-4">
+                                <TablaNuxt :key="`diagnosticos-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Diagnósticos del Paciente',
+                                    data: diagnosticos,
+                                    columns: diagnosticosConfig.columns,
+                                    filtros: diagnosticosConfig.filtros,
+                                    excel: true,
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver diagnósticos" color="gray" />
+                        </div>
+                    </template>
+
+                    <!-- Medicamentos -->
+                    <template #medicamentos>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.medicacion_ver" class="space-y-4">
+                                <TablaNuxt :key="`medicamentos-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Medicación del Paciente',
+                                    data: medicinas,
+                                    columns: medicacionConfig.columns,
+                                    filtros: medicacionConfig.filtros,
+                                    excel: true,
+                                    acciones: medicacionConfig.acciones,
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver medicamentos" color="gray" />
+                        </div>
+                    </template>
+
+                    <!-- Tratamientos -->
+                    <template #tratamientos>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.tratamientos_ver" class="space-y-4">
+                                <TablaNuxt :key="`tratamientos-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Tratamientos del Paciente',
+                                    data: tratamientos,
+                                    columns: tratamientosConfig.columns,
+                                    filtros: tratamientosConfig.filtros,
+                                    excel: true,
+                                    acciones: tratamientosConfig.acciones,
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver tratamientos" color="gray" />
+                        </div>
+                    </template>
+
+                    <!-- Notas -->
+                    <template #notas>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.notas_ver" class="space-y-4">
+                                <TablaNuxt :key="`notas-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Notas Médicas',
+                                    data: notas,
+                                    columns: notasConfig.columns,
+                                    filtros: notasConfig.filtros,
+                                    buttons: notasConfig.buttons,
+                                    acciones: notasConfig.acciones,
+                                    fetchData: (items, por_pagina) => { historiasStore.analisisPaginado(items, por_pagina, 'Nota', historiasStore.Formulario.Analisis.historia.id_paciente) },
+                                }" />
+                                <!-- <Form :Propiedades="propiedadesActualizarNota" /> -->
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver notas" color="gray" />
+                        </div>
+                    </template>
+
+                    <!-- Evoluciones -->
+                    <template #evoluciones>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.evoluciones_ver" class="space-y-4">
+                                <TablaNuxt :key="`evoluciones-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Evoluciones del Paciente',
+                                    data: nutricion,
+                                    columns: nutricionConfig.columns,
+                                    filtros: nutricionConfig.filtros,
+                                    buttons: nutricionConfig.buttons,
+                                    acciones: nutricionConfig.acciones,
+                                    fetchData: (items, por_pagina) => { historiasStore.analisisPaginado(items, por_pagina, 'Evolucion', historiasStore.Formulario.Analisis.historia.id_paciente) },
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver evoluciones" color="gray" />
+                        </div>
+                    </template>
+
+                    <!-- Terapias -->
+                    <template #terapias>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.terapias_ver" class="space-y-4">
+                                <TablaNuxt :key="`terapias-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Terapias y Procedimientos',
+                                    data: evoluciones,
+                                    columns: evolucionesConfig.columns,
+                                    filtros: evolucionesConfig.filtros,
+                                    buttons: evolucionesConfig.buttons,
+                                    acciones: evolucionesConfig.acciones,
+                                    fetchData: (items, por_pagina) => { historiasStore.analisisPaginado(items, por_pagina, 'Terapia', historiasStore.Formulario.Analisis.historia.id_paciente) },
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver terapias" color="gray" />
+                        </div>
+                    </template>
+
+                    <template #trabajo-social>
+                        <div class="space-y-4 pt-4">
+                            <div v-if="permisos.trabajo_ver" class="space-y-4">
+                                <TablaNuxt :key="`trabajo-social-${refreshKey}`" :Propiedades="{
+                                    titulo: 'Trabajos sociales',
+                                    data: trabajosSocial,
+                                    columns: trabajoSocialConfig.columns,
+                                    filtros: trabajoSocialConfig.filtros,
+                                    buttons: trabajosSocial.buttons,
+                                    acciones: trabajoSocialConfig.acciones,
+                                    fetchData: (items, por_pagina) => { historiasStore.analisisPaginado(items, por_pagina, 'Trabajo Social', historiasStore.Formulario.Analisis.historia.id_paciente) },
+                                }" />
+                            </div>
+                            <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
+                                description="No tienes permisos para ver terapias" color="gray" />
+                        </div>
+                    </template>
+                </UTabs>
+            </div>
+
+            <div v-if="showGraficas" class="py-7">
+                <ChartComponent :Propiedades="{
+                    datos: examenesFisicos,
+                    type: 'Line',
+                    title: 'Grafico IMC del paciente',
+                    height: 400,
+                    configuracion: {
+                        xLabel: 'Fecha',
+                        yLabel: 'IMC',
+                        categories: {
+                            y: {
+                                name: 'IMC',
+                                color: '#3b82f6'
+                            },
+                            scales: {
+                                x: {
+                                    type: 'time', // eje temporal
+                                    time: {
+                                        unit: 'week', // puedes usar 'month' o 'week' según tu evolución
+                                        tooltipFormat: 'yyyy/MM/dd'
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Fecha'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'IMC'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }"></ChartComponent>
+            </div>
+
+            <div v-if="showInventario">
+                <TablaNuxt :Propiedades="propiedadesTablaMovimiento" />
+            </div>
+        </div>
+
+        <!-- SIN PERMISOS -->
+        <div v-else class="flex items-center justify-center h-96">
+            <UCard class="w-full max-w-md">
+                <div class="text-center space-y-4">
+                    <i class="fa-solid fa-lock text-6xl text-(--color-danger)"></i>
+                    <h2 class="text-xl font-semibold">Acceso Restringido</h2>
+                    <p class="text-gray-600 dark:text-gray-400">No tienes permisos para acceder a este módulo</p>
+                    <UButton to="/Home" icon="i-lucide-home">Volver al Inicio</UButton>
+                </div>
+            </UCard>
+        </div>
+
+        <ExportarPDFs v-if="varView.showExportarPDFs" :datos="analisis" />
+    </FondoDefault>
+    <Historia v-if="varView.showNuevaHistoria" />
+</template>
