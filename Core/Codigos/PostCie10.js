@@ -36,10 +36,11 @@ export async function guardarCie10(formData) {
                 const datosLocal = {
                     Cie10: {
                         sincronizado: 0,
+                        editado: formData.id ? 1 : 0,
                         ...formData
                     }
                 }
-                await guardarEnDB(JSON.parse(JSON.stringify(datosLocal)));
+                await actualizarEnIndexedDB(JSON.parse(JSON.stringify(datosLocal)));
                 notificacionesStore.options.icono = 'warning'
                 notificacionesStore.options.titulo = 'No hay internet';
                 notificacionesStore.options.texto = 'Datos guardados localmente'

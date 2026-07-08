@@ -117,8 +117,14 @@ export const usePacientesStore = defineStore('Pacientes', {
             if (this.NoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.NoEnviados.length; i++) {
-                const res = await enviarPaciente({ Paciente: this.NoEnviados[i] })
-
+                let res = false
+                if (this.NoEnviados[i].editado == 1 && this.NoEnviados[i].estado == 0){
+                    res = await eliminarPaciente({ Paciente: this.NoEnviados[i] })
+                } else if (this.NoEnviados[i].editado == 1){
+                    res = actualizarPaciente({ Paciente: this.NoEnviados[i] })
+                } else {
+                    res = await enviarPaciente({ Paciente: this.NoEnviados[i] })
+                }
 
                     indexedDB.borrardato(this.NoEnviados[i].id)
 

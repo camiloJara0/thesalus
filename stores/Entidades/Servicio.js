@@ -80,8 +80,16 @@ export const useServicioStore = defineStore('Servicio', {
             if (this.NoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.NoEnviados.length; i++) {
-                const res = await enviarServicio({ Servicio: this.NoEnviados[i] })
-
+                const data = this.NoEnviados[i]
+                
+                let res = false
+                if (data.editado == 1 && data.estado == 0){
+                    res = await eliminarServicio( data )
+                } else if (data.editado == 1){
+                    res = actualizarServicio({ Servicio: data })
+                } else {
+                    res = await enviarServicio({ Servicio: data })
+                }
 
                     indexedDB.borrardato(this.NoEnviados[i].id)
 

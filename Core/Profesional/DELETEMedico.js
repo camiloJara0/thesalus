@@ -35,7 +35,7 @@ export const eliminarProfesional = async (datos) => {
         }
     } else {
         try {
-            await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Profesional: {...datos, sincronizado: 0, estado: 0 } } )));
+            await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Profesional: {...datos, sincronizado: 0, editado: 1, estado: 0 } } )));
 
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';

@@ -37,7 +37,7 @@ export const actualizarMovimiento = async (datos, reintento= false) => {
         }
     } else {
         try {
-            await actualizarEnIndexedDB(JSON.parse(JSON.stringify({Movimiento: {...datos.Movimientos, sincronizado: 0}})));
+            await actualizarEnIndexedDB(JSON.parse(JSON.stringify({Movimiento: {...datos.Movimientos, editado: 1, sincronizado: 0}})));
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';
             notificacionesStore.options.texto = 'Datos guardados localmente'

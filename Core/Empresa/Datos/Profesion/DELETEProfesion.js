@@ -45,7 +45,8 @@ export const eliminarProfesion = async (datos, reintento = false) => {
                         permisos: datos.Profesion.permisos,
                         id: datos.Profesion.id,
                         sincronizado: 0,
-                        estado: 0
+                        estado: 0,
+                        editado: 1,
                     }
                 })));
             }

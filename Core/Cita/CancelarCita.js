@@ -66,7 +66,7 @@ export const enviarFormularioEliminarCita = async (datos, reintento = false) => 
     } else {
         try {
             if(!reintento){
-                await guardarEnDB(JSON.parse(JSON.stringify({Cita: {...datos.Cita, sincronizado: 0}})));
+                await actualizarEnIndexedDB(JSON.parse(JSON.stringify({Cita: {...datos.Cita, editado: 1, estado: 0, sincronizado: 0}})));
             }
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';

@@ -25,7 +25,7 @@ export async function eliminarConvenio(id) {
         }
     } else {
         try {
-            await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Convenio: {...form, sincronizado: 0, estado: 0} } )));
+            await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Convenio: {...form, sincronizado: 0, editado: 1, estado: 0} } )));
 
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';

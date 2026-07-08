@@ -35,7 +35,7 @@ export const eliminarMovimiento = async (datos) => {
     } else {
         notificacionesStore.options.icono = 'warning'
         notificacionesStore.options.titulo = 'Sin conexión';
-        notificacionesStore.options.texto = 'Se guardará localmente'
+        notificacionesStore.options.texto = 'Prueba cuendo tengas internet'
         notificacionesStore.options.tiempo = 3000
         await notificacionesStore.simple()
         return true

@@ -68,7 +68,7 @@ function limpiar() {
 <template>
     <component :is="fondos[Propiedades.formulario.fondo]"
         v-if="!Propiedades.formulario.fondo || unref(Propiedades.formulario.show)" @mousedown="limpiar">
-        <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg flex flex-col h-full animate-fadeIn"
+        <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg flex flex-col animate-fadeIn"
             :class="[Propiedades.formulario.tamañoForm, Propiedades.formulario.estilos]" @mousedown.stop>
 
             <div class="flex flex-col flex-1 min-h-0" :class="{'h-[90%]': props.Propiedades.formulario.botones.length > 0, 'h-full': !props.Propiedades.formulario.botones}">

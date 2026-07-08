@@ -43,6 +43,7 @@ export const eliminarEps = async (datos, reintento = false) => {
             EPS: {
                 ...datos,
                 estado: 0,
+                editado: 1,
                 sincronizado: 1
             }
         })));

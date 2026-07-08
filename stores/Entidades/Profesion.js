@@ -85,8 +85,16 @@ export const useProfesionStore = defineStore('Profesion', {
             if (this.ProfesionNoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.ProfesionNoEnviados.length; i++) {
-                const res = await enviarProfesion({ Profesion: this.ProfesionNoEnviados[i] })
+                const data = this.ProfesionNoEnviados[i]
 
+                let res = false
+                if (data.editado == 1 && data.estado == 0){
+                    res = await eliminarProfesion( data )
+                } else if (data.editado == 1){
+                    res = actualizarProfesion({ Profesion: data })
+                } else {
+                    res = await enviarProfesion({ Profesion: data })
+                }
 
                     indexedDB.borrardato(this.ProfesionNoEnviados[i].id)
 

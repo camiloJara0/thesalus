@@ -2,6 +2,7 @@ import { useApiRest } from "~/stores/apiRest";
 import { useIndexedDBStore } from "~/stores/indexedDB";
 import { decryptData } from '~/composables/Formulario/crypto';
 import { guardarVadecum } from "~/Core/Codigos/PostVadecum";
+import { eliminarVadecum } from "~/Core/Codigos/DeleteVadecum";
 
 export const useVadecumStore = defineStore('Vadecum', {
     state: () => ({
@@ -128,8 +129,16 @@ export const useVadecumStore = defineStore('Vadecum', {
             if (this.NoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.NoEnviados.length; i++) {
-                const res = await guardarVadecum({ ...this.NoEnviados[i] })
-
+                const data = this.NoEnviados[i]
+                
+                let res = false
+                if (data.editado == 1 && data.estado == 0){
+                    res = await eliminarVadecum( data.id )
+                } else if (data.editado == 1){
+                    res = guardarVadecum(data)
+                } else {
+                    res = await guardarVadecum(data)
+                }
 
                     indexedDB.borrardato(this.NoEnviados[i].id)
 

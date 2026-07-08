@@ -105,9 +105,16 @@ export const useProfesionalStore = defineStore('Profesional', {
             if (this.NoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.NoEnviados.length; i++) {
-                const res = await guardarProfesional(this.NoEnviados[i])
 
-
+                const data = this.NoEnviados[i]
+                let res = false
+                if (data.editado == 1 && data.estado == 0){
+                    res = await eliminarProfesional( data.id )
+                } else if (data.editado == 1){
+                    res = editarProfesional(data)
+                } else {
+                    res = await guardarProfesional(data)
+                }
                     indexedDB.borrardato(this.NoEnviados[i].id)
 
             }

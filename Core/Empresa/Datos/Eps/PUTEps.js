@@ -41,6 +41,7 @@ export const actualizarEps = async (datos, reintento = false) => {
                         id_temporal: datos.EPS.id_temporal,
                         id: datos.EPS.id,
                         estado: 1,
+                        editado: 1,
                         sincronizado: 0
                     }
                 })

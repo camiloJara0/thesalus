@@ -48,7 +48,7 @@ export async function guardarConvenio(form) {
             if (form.logo && form.logo instanceof Blob && form.logo.size > 0) {
                 file = new File([form.logo], "logo.jpg", { type: form.logo.type });
             }
-            await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Convenio: {...form, sincronizado: 0, logo: file} } )));
+            await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Convenio: {...form, sincronizado: 0, editado: form.id ? 1 : 0,logo: file} } )));
 
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';

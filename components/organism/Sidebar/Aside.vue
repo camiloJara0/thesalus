@@ -260,6 +260,10 @@ const isActive = (path) => route.path === path
         border-top: 1px solid #e5e7eb;
         padding: 10px;
     }
+
+    .clip {
+        clip-path: none;
+    }
 }
 
 .scrollAside {

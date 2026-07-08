@@ -80,8 +80,17 @@ export const useCie10Store = defineStore('Cie10', {
             if (this.NoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.NoEnviados.length; i++) {
-                const res = await guardarCie10({ ...this.NoEnviados[i] })
+                const data = this.NoEnviados[i]
 
+                let res = false
+                if (data.editado == 1 && data.estado == 0){
+                    res = await eliminarCie10( data.id )
+                } else if (data.editado == 1){
+                    res = guardarCie10(data)
+                } else {
+                    res = await guardarCie10(data)
+                }
+                
                     indexedDB.borrardato(this.NoEnviados[i].id)
 
             }

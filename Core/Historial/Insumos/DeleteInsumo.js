@@ -32,7 +32,7 @@ export const eliminarInsumo = async (datos) => {
     } else {
         notificacionesStore.options.icono = 'warning'
         notificacionesStore.options.titulo = 'Sin conexión';
-        notificacionesStore.options.texto = 'Se guardará localmente'
+        notificacionesStore.options.texto = 'Prueba cuando tengas internet'
         notificacionesStore.options.tiempo = 3000
         await notificacionesStore.simple()
         return true

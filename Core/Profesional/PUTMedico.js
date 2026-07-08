@@ -72,7 +72,8 @@ export const editarProfesional = async (datos, reintento = false) => {
             await actualizarEnIndexedDB({
                 Profesional: {
                     ...datos,
-                    sincronizado: 0
+                    sincronizado: 0,
+                    editado: 1,
                 }
             })
 

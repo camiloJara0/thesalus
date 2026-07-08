@@ -38,6 +38,7 @@ export const eliminarPaciente = async (datos) => {
                 Paciente: {
                     ...datos,
                     estado: 0,
+                    editado: 1,
                     sincronizado: 0
                 }
             }

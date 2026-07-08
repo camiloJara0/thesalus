@@ -35,7 +35,7 @@ export const actualizarInsumo = async (datos, reintento= false) => {
         }
     } else {
         try {
-            await guardarEnDB(JSON.parse(JSON.stringify({Insumo: {...datos.Insumos, sincronizado: 0}})));
+            await actualizarEnIndexedDB(JSON.parse(JSON.stringify({Insumo: {...datos.Insumos, editado: 1, sincronizado: 0}})));
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';
             notificacionesStore.options.texto = 'Datos guardados localmente'

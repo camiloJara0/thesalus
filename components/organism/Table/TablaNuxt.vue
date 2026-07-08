@@ -106,8 +106,8 @@ watch(
     <UCard class="mb-3 bg-white dark:bg-gray-800">
         <template #header>
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg">{{ props.Propiedades.titulo }}</h3>
-                <div class="flex gap-2">
+                <h3 class="font-bold text-lg w-1/2">{{ props.Propiedades.titulo }}</h3>
+                <div class="flex flex-wrap justify-end gap-2 w-1/2">
                     <UButton v-for="button in props.Propiedades.buttons" :variant="button.variant" :color="button.color"
                         loading-auto :trailing-icon="button.icon" size="md" @click="button.accion">
                         <span class="hidden md:block">{{ button.texto }}</span>

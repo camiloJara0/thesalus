@@ -81,10 +81,16 @@ export const useEpsStore = defineStore('Eps', {
             if (this.EpsNoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.EpsNoEnviados.length; i++) {
-                const res = await enviarEps({ EPS: this.EpsNoEnviados[i] })
+                let res = false
+                if (this.EpsNoEnviados[i].editado == 1 && this.EpsNoEnviados[i].estado == 0){
+                    res = await eliminarEps({ EPS: this.EpsNoEnviados[i] })
+                } else if (this.EpsNoEnviados[i].editado == 1){
+                    res = actualizarEps({ EPS: this.EpsNoEnviados[i] })
+                } else {
+                    res = await enviarEps({ EPS: this.EpsNoEnviados[i] })
+                }
 
                 indexedDB.borrardato(this.EpsNoEnviados[i].id)
-
             }
 
             await this.traer(true, true)

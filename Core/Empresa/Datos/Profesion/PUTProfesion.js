@@ -55,6 +55,7 @@ export const actualizarProfesion = async (datos, reintento = false) => {
                         nombre: datos.Profesion.nombre,
                         permisos: datos.Profesion.permisos,
                         id: datos.Profesion.id,
+                        editado: 1,
                         sincronizado: 0
                     }
                 })));

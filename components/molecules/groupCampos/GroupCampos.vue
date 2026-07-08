@@ -217,10 +217,10 @@ const itemsCompletos = computed(() =>
                 <div class="flex items-center gap-3 mt-1">
 
                     <span
-                        class="inline-flex items-center rounded-full bg-primary-100 dark:bg-primary-900/40 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300">
+                        class="inline-flex gap-1 items-center rounded-full bg-primary-100 dark:bg-primary-900/40 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300">
 
                         {{ itemsCompletos.length }}
-                        {{ itemsCompletos.length == 1 ? 'registro' : 'registros' }}
+                        <span class="hidden md:block">{{ itemsCompletos.length == 1 ? 'registro' : 'registros' }}</span>
 
                     </span>
 

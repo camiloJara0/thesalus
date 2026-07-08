@@ -80,10 +80,18 @@ export const useConvenioStore = defineStore('Convenio', {
             if (this.ConveniosNoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.ConveniosNoEnviados.length; i++) {
-                const res = await guardarConvenio({ Convenio: this.ConveniosNoEnviados[i] })
+                const data = this.ConveniosNoEnviados[i]
 
+                let res = false
+                if (data.editado == 1 && data.estado == 0){
+                    res = await eliminarConvenio( data.id )
+                } else if (data.editado == 1){
+                    res = guardarConvenio(data)
+                } else {
+                    res = await guardarConvenio(data)
+                }
 
-                    indexedDB.borrardato(this.ConveniosNoEnviados[i].id)
+                    indexedDB.borrardato(data.id)
 
             }
 

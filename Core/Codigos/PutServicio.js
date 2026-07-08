@@ -37,12 +37,13 @@ export const actualizarServicio = async (datos, reintento = false) => {
             const datosLocal = {
                 Servicio: {
                     sincronizado: 0,
+                    editado: 1,
                     id: datos.Servicio.id,
                     name: datos.Servicio.name,
                     plantilla: datos.Servicio.plantilla,
                 }
             }
-            await guardarEnDB(JSON.parse(JSON.stringify(datosLocal)));
+            await actualizarEnIndexedDB(JSON.parse(JSON.stringify(datosLocal)));
 
             notificacionesStore.options.icono = 'warning'
             notificacionesStore.options.titulo = 'No hay internet';

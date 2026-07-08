@@ -22,6 +22,11 @@ export default defineAppConfig({
           }
         }
       }
+    },
+    tabs: {
+      slots: {
+        label: 'hidden sm:inline'
+      }
     }
   }
 })

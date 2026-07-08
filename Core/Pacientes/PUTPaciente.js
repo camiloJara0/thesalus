@@ -52,6 +52,7 @@ export const actualizarPaciente = async (datos, reintento = false) => {
             const datosActualizadosLocal = {
                 Paciente: {
                     ...datos.Paciente,
+                    editado: 1,
                     sincronizado: 0, // marcar como no sincronizado
                 },
             }
