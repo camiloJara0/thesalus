@@ -11,7 +11,9 @@ import { storeToRefs } from 'pinia'
 import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue'
 import TablaNuxt from '~/components/organism/Table/TablaNuxt.vue'
 import { useCitaActions } from '~/composables/Entidades/Cita'
-import { traerFiltros } from '~/Core/Cita/GETCita'
+import { traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
+import { useInfiniteScroll } from '@vueuse/core'
+import TablaScroll from '~/components/organism/Table/TablaScroll.vue'
 
 const varView = useVarView()
 const citasStore = useCitasStore();
@@ -78,7 +80,6 @@ onMounted(async () => {
     filtros.value = await traerFiltros()
     // Rellenar fecha del formulario
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
-console.log(Citas)
 });
 
 // Funciones para manejar la visibilidad de los formularios
@@ -182,11 +183,18 @@ const propiedades = computed(() => {
 })
 
 const columns = [
+    { accessorKey: 'id', header: 'id', ordenar: true },
     { accessorKey: 'fecha', header: 'Fecha', ordenar: true },
     { accessorKey: 'paciente.info_usuario.name', header: 'Paciente', ordenar: true },
     { accessorKey: 'profesional.info_usuario.name', header: 'Profesional' },
     { accessorKey: 'motivo', header: 'Motivo' },
-    { accessorKey: 'servicio.name', header: 'Servicio' },
+    { accessorKey: 'servicio.name', header: 'Servicio',
+      cell: ({ row }) => {
+        const texto = row.original.servicio?.name || ''
+        const limitado = texto.length > 20 ? texto.substring(0, 20) + '...' : texto
+        return h('p', limitado)
+      }
+     },
     { accessorKey: 'estado', header: 'Estado', ordenar: true },
     {
         accessorKey: 'estado',
@@ -287,9 +295,8 @@ const propiedadesTabla = computed(() => {
         titulo: 'Calendario de tu Agenda',
         llamadatos: llamadatos,
         agregar: puedePost ? agregarCita : null,
-        data: Citas,
+        cargarData: traerCitasPaginadas,
         columns: columns,
-        fetchData: citasStore.citasPaginada,
         filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
             { columna: 'estado', placeholder: 'Estado', accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
@@ -302,13 +309,14 @@ const propiedadesTabla = computed(() => {
         ],
     }
 })
+
 // console.log(propiedades)
 </script>
 
 <template>
     <Pagina v-if="!varView.showEnFila" :Propiedades="propiedades" :key="refresh" />
-    <FondoDefault v-if="varView.showEnFila">
-        <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt>
+    <FondoDefault v-show="varView.showEnFila">
+        <TablaScroll :Propiedades="propiedadesTabla"/>
     </FondoDefault>
     <Cita></Cita>
     <PDFServicio v-if="varView.showPDFServicio"></PDFServicio>

@@ -358,21 +358,21 @@ const propiedadesTablaMovimiento = computed(() => {
         <!-- Sección de Datos No Enviados -->
 
         <!-- Sección Integrada (Tabs) -->
-        <UTabs :items="tabsIntegrados" class="mb-6">
+        <UTabs :items="tabsIntegrados">
             <template #inventario>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt>
                 </div>
             </template>
 
             <template #movimientos>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTablaMovimiento" />
                 </div>
             </template>
 
             <template #prestaciones>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TimelineMovimientos :movimientos="Prestaciones" @agregar-movimiento="() => { agregarMovimiento() }"
                         @recargar="() => llamadatosPrestados(true)" />
                 </div>

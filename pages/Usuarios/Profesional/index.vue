@@ -248,9 +248,9 @@ const propiedadesTabla = computed(() => {
         </div> -->
 
         <!-- Sección Integrada (Tabs) -->
-        <UTabs :items="tabsIntegrados" class="mb-6">
+        <UTabs :items="tabsIntegrados">
             <template #profesionales>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt>
                 </div>
             </template>

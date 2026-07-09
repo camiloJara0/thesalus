@@ -145,7 +145,6 @@ function getRowItems(row) {
         {
             label: 'Ver Plantilla',
             onSelect() {
-                console.log(servicio)
                 varView.tipoConsulta = servicio
                 varView.showNuevaHistoria = true
             }
@@ -418,21 +417,21 @@ const tabsIntegrados = [
     <Form :Propiedades="builderPlantillas"></Form>
 
     <FondoDefault>
-        <UTabs :items="tabsIntegrados" class="mb-6">
+        <UTabs :items="tabsIntegrados">
             <template #servicios>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTabla" />
                 </div>
             </template>
 
             <template #cie10>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTablaCie10" />
                 </div>
             </template>
 
             <template #vademecums>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTablaVadecums" />
                 </div>
             </template>

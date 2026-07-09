@@ -75,6 +75,11 @@ export const useHistoriasStore = defineStore('HistoriaClinica', {
         Historias: [],
         Analisis: [],
         NoEnviados: [],
+        Medicina: [],
+        Notas: [],
+        Evoluciones: [],
+        Terapias: [],
+        TrabajoSocial: [],
         showActualizarRegistro: false,
     }),
 
@@ -175,6 +180,7 @@ export const useHistoriasStore = defineStore('HistoriaClinica', {
         async obtenerAnalisis(key, fetchFn) {
             const indexedDB = useIndexedDBStore()
             const apiRest = useApiRest()
+            const varView = useVarView()
 
             // 1. Buscar key
             let keyAnalisis = await indexedDB.getData(key)
@@ -188,7 +194,14 @@ export const useHistoriasStore = defineStore('HistoriaClinica', {
             }
 
             // 2. Traer online
-            let analisis = await fetchFn()
+            let analisis = []
+            const online = await varView.isOnline
+            if(online){
+                analisis = await fetchFn()
+            } else {
+                indexedDB.almacen = 'Analisis'
+                analisis = await indexedDB.leerdatos()
+            }
 
             // 3. Merge sin duplicados
             const mapa = new Map(this.Analisis.map(a => [a.id, a]))

@@ -125,11 +125,9 @@ function getAcciones(movimiento) {
     </div>
 
     <!-- Timeline de Movimientos -->
-    <div v-if="movimientos.length > 0" class="grid md:grid-cols-2 grid-cols-1 gap-4">
+    <div v-if="movimientos.length > 0" class="w-full grid md:grid-cols-2 grid-cols-1 gap-4 h-[50%] overflow-y-auto">
 
       <!-- Items -->
-      <div class="space-y-3 h-[50vh] overflow-y-auto pr-1">
-
         <UCard v-for="(item, index) in movimientos.slice(0, 10)" :key="index"
           class="group hover:shadow-md transition-all duration-200 hover:border-(--color-primary-300)">
           <div class="flex items-start gap-4">
@@ -249,7 +247,6 @@ function getAcciones(movimiento) {
           </div>
         </UCard>
 
-      </div>
     </div>
 
     <!-- Empty State -->

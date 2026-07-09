@@ -139,26 +139,6 @@ async function llamaInsumos() {
     })
 }
 
-async function sincronizarDatos(tabla) {
-    if (tabla === 'Paciente' && historias.value.Pacientes && historias.value.Pacientes.length > 0 ) {
-        await pacientesStore.sincronizar()
-        await llamadatos(true)
-        await pacientesStore.traerNoEnviados()
-    }
-    if (tabla === 'EPS' && historias.value.EPS && historias.value.EPS.length > 0) {
-        epsStore.sincronizar()
-        await llamaEpsEntidades(true)
-        await epsStore.traerNoEnviados()
-        varView.actualizando()
-    }
-    if (tabla === 'Convenio' && historias.value.Convenios && historias.value.Convenios.length > 0) {
-        convenioStore.sincronizar()
-        await llamaConveniosEntidades(true)
-        await convenioStore.traerNoEnviados()
-        varView.actualizando()
-    }
-}
-
 const {
     agregarPaciente,
     verPaciente,
@@ -357,9 +337,9 @@ const propiedadesTabla = computed(() => {
     <FondoDefault>
 
         <!-- Sección Integrada (Tabs) -->
-        <UTabs :items="tabsIntegrados" class="mb-6">
+        <UTabs :items="tabsIntegrados">
             <template #paciente>
-                <div class="p-6">
+                <div class="p-6 pb-0">
                 <UAlert color="warning" class="my-4" v-if="historias.Pacientes?.length > 0 || historias.EPS?.length > 0 || historias.Convenios?.length > 0">
                     <template #title>
                         <div class="flex items-center justify-between gap-2">
