@@ -13,7 +13,7 @@ export async function traerPacientes() {
 
   if(rol === 'Profesional' && filtrar ) {
     const pacientesFiltrados = await apiRest.functionCall({
-      metodo: 'GET',
+      metodo: 'POST',
       url: config.public.traePacientes,
       token: token,
       body: {id_profesional: varView.getUser.id_profesional}
@@ -26,7 +26,6 @@ export async function traerPacientes() {
       token: token
     })
     pacientes = dataPacientes.data
-
   }
 
   return pacientes;

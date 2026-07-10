@@ -5,12 +5,19 @@ import { useConvenioStore } from '~/stores/Entidades/Convenio';
 import { useOrdenamiento } from '~/composables/Tabla/useDatosOrdenadosTabla';
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
 import {usePacientesStore} from '~/stores/Entidades/Paciente';
+import Restringido from '../NoEnviados/Restringido.vue';
 
 const store = useConvenioStore()
 const varView = useVarView()
 const notificaciones = useNotificacionesStore()
 const mostrarFiltros = ref(false)
 const pacientesStore = usePacientesStore()
+
+const puedeVer = varView.getPermisos.includes('Convenios_view');
+const puedeGet = varView.getPermisos.includes('Convenios_get');
+const puedePost = varView.getPermisos.includes('Convenios_post');
+const puedePut = varView.getPermisos.includes('Convenios_put');
+const puedeDelete = varView.getPermisos.includes('Convenios_delete');
 
 const {
   agregarConvenio,
@@ -39,12 +46,14 @@ function getAcciones(item) {
     {
       label: 'Editar',
       icon: 'i-lucide-edit-2',
-      onSelect: () => verConvenio(item)
+      onSelect: () => verConvenio(item),
+      disabled: !puedePut
     },
     {
       label: 'Eliminar',
       icon: 'i-lucide-trash-2',
-      onSelect: () => eliminarConvenio(item)
+      onSelect: () => eliminarConvenio(item),
+      disabled: !puedeDelete
     }
   ]
 }
@@ -71,7 +80,7 @@ function llamaDatos(){
 </script>
 
 <template>
-  <UCard :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
+  <UCard v-if="puedeVer" :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
     <template #header>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -88,7 +97,7 @@ function llamaDatos(){
           <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
             Filtrar
           </UButton>
-          <UButton icon="i-lucide-plus" @click="agregarConvenio">
+          <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarConvenio">
             Nuevo
           </UButton>
           <UButton icon="i-lucide-cloud-sync" variant="subtle" color="primary" @click="llamaDatos"/>
@@ -178,4 +187,5 @@ function llamaDatos(){
       </UButton>
     </div>
   </UCard>
+  <Restringido v-else />
 </template>

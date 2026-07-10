@@ -3,7 +3,7 @@
     <UCard v-if="historia">
       <template #header>
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center">
+          <div class="w-10 h-10 rounded-lg bg-linear-to-br from-amber-100 to-amber-50 flex items-center justify-center">
             <i class="fa-solid fa-file-medical text-amber-600"></i>
           </div>
           <div>
@@ -27,7 +27,7 @@
         </div>
 
         <!-- Síntomas -->
-        <div class="p-4 rounded-lg bg-gradient-to-r from-[#f9fbfd] to-white border border-gray-200">
+        <div class="p-4 rounded-lg bg-linear-to-r from-[#f9fbfd] to-white border border-gray-200">
           <div class="flex items-center gap-2 mb-2">
             <i class="fa-solid fa-stethoscope text-red-500"></i>
             <h4 class="font-semibold text-gray-900">Síntomas y Quejas</h4>
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Diagnósticos -->
-        <div v-if="historia.diagnosticos && historia.diagnosticos.length > 0" class="p-4 rounded-lg bg-gradient-to-r from-red-50 to-white border border-red-100">
+        <div v-if="historia.diagnosticos && historia.diagnosticos.length > 0" class="p-4 rounded-lg bg-linear-to-r from-red-50 to-white border border-red-100">
           <div class="flex items-center gap-2 mb-3">
             <i class="fa-solid fa-tag text-red-600"></i>
             <h4 class="font-semibold text-gray-900">Diagnósticos ({{ historia.diagnosticos.length }})</h4>
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Medicamentos -->
-        <div v-if="historia.medicamentos && historia.medicamentos.length > 0" class="p-4 rounded-lg bg-gradient-to-r from-green-50 to-white border border-green-100">
+        <div v-if="historia.medicamentos && historia.medicamentos.length > 0" class="p-4 rounded-lg bg-linear-to-r from-green-50 to-white border border-green-100">
           <div class="flex items-center gap-2 mb-3">
             <i class="fa-solid fa-prescription-bottle text-green-600"></i>
             <h4 class="font-semibold text-gray-900">Medicamentos Prescritos ({{ historia.medicamentos.length }})</h4>
@@ -102,7 +102,7 @@
         </div>
 
         <!-- Notas y Recomendaciones -->
-        <div class="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-white border border-purple-100">
+        <div class="p-4 rounded-lg bg-linear-to-r from-purple-50 to-white border border-purple-100">
           <div class="flex items-center gap-2 mb-2">
             <i class="fa-solid fa-note-sticky text-purple-500"></i>
             <h4 class="font-semibold text-gray-900">Notas y Recomendaciones</h4>
@@ -111,7 +111,7 @@
         </div>
 
         <!-- Próximo Control -->
-        <div v-if="historia.proximo_control" class="p-4 rounded-lg bg-gradient-to-r from-cyan-50 to-white border border-cyan-100">
+        <div v-if="historia.proximo_control" class="p-4 rounded-lg bg-linear-to-r from-cyan-50 to-white border border-cyan-100">
           <div class="flex items-center gap-2 mb-2">
             <i class="fa-solid fa-calendar-check text-cyan-600"></i>
             <h4 class="font-semibold text-gray-900">Próximo Control</h4>

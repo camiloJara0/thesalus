@@ -143,38 +143,7 @@ const enviarPDFs = async () => {
         progreso.value = 0;
 
         // Cargar datos necesarios
-        varView.cargando = true;
-        await apiRest.getData('Analisis', 'analisis');
-        varView.cargando = false;
-
-        store.almacen = 'Analisis';
-        let analisisData = await store.leerdatos();
-
-        // Filtrar análisis por rango de fechas
-        const analisisFiltrados = filtrarAnalisisPorFecha(
-            analisisData,
-            file.servicio || varView.servicioPDF,
-            file.fechaInicio,
-            file.fechaFin,
-            file.id_paciente || varView.id_pacientePDF,
-            file.id_profesional
-        );
-
-        if (analisisFiltrados.length === 0) {
-            options.position = 'top-end';
-            options.background = '#d33'
-            options.texto = "No se encontraron registros en el rango de fechas especificado";
-            options.tiempo = 2000;
-            mensaje();
-            generandoPDFs.value = false;
-            return;
-        }
-
-        const totalAnalisis = analisisFiltrados.length;
         const token = decryptData(localStorage.getItem('token'))
-
-        // Lista de ids de analisis para enviar al backend
-        const idsAnalisis = analisisFiltrados.map(analisis => analisis.id);
 
         try {
             const res = await fetch(`${config.public.api}/${config.public.exportarPdf}`, {
@@ -186,12 +155,15 @@ const enviarPDFs = async () => {
                 },
                 body: JSON.stringify({
                     servicio: file.servicio,
-                    ids: idsAnalisis,
+                    id_paciente: file.id_paciente,
+                    id_profesional: file.id_profesional,
+                    fechaInicio: file.fechaInicio,
+                    fechaFin: file.fechaFin,
                     individual: false
                 })
 
             });
-            console.log(res)
+
             if (!res.ok) {
                 throw new Error(`Error en la petición: ${res.status}`);
             }
@@ -200,19 +172,19 @@ const enviarPDFs = async () => {
             const url = window.URL.createObjectURL(blob);
 
             // Leer el nombre desde el header
-            // const disposition = res.headers.get('Content-Disposition');
-            // let fileName = `${varView.servicioPDF || file.servicio}.pdf`;
-            // if (disposition) {
-            //     const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/);
-            //     if (match && match[1]) {
-            //         fileName = decodeURIComponent(match[1]);
-            //     }
-            // }
+            const disposition = res.headers.get('Content-Disposition');
+            let fileName = `${varView.servicioPDF || file.servicio}.pdf`;
+            if (disposition) {
+                const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/);
+                if (match && match[1]) {
+                    fileName = decodeURIComponent(match[1]);
+                }
+            }
 
             // Descargar
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'documento.pdf'; // nombre dinámico
+            a.download = fileName; // nombre dinámico
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -227,7 +199,7 @@ const enviarPDFs = async () => {
         // Si no se canceló, mostramos mensaje de éxito
         if (!cancelarPDFs.value) {
             options.position = 'top-end';
-            options.texto = `${totalAnalisis} PDFs generados y descargados exitosamente`;
+            options.texto = `PDFs generados y descargados exitosamente`;
             options.background = '#22c55e';
             options.tiempo = 2000;
             mensaje();
@@ -250,22 +222,32 @@ const generarExcel = async () => {
     if (!validacion) return
     try {
         // Cargar datos necesarios
-        varView.cargando = true;
-        await apiRest.getData('Analisis', 'analisis');
-        varView.cargando = false;
+        const token = decryptData(localStorage.getItem('token'))
+        let analisisFiltrados = []
+        try {
+            const res = await fetch(`${config.public.api}/${config.public.exportarPdf}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    servicio: file.servicio,
+                    id_paciente: file.id_paciente,
+                    id_profesional: file.id_profesional,
+                    fechaInicio: file.fechaInicio,
+                    fechaFin: file.fechaFin,
+                    individual: false,
+                    excel: true,
+                })
 
-        store.almacen = 'Analisis';
-        let analisisData = await store.leerdatos();
-
-        // Filtrar análisis por rango de fechas
-        let analisisFiltrados = filtrarAnalisisPorFecha(
-            analisisData,
-            file.servicio || varView.servicioPDF,
-            file.fechaInicio,
-            file.fechaFin,
-            file.id_paciente || varView.id_pacientePDF,
-            file.id_profesional
-        );
+            });
+            const json = await res.json()
+            analisisFiltrados = json.data
+        } catch (err){
+            console.log('error al obtener datos', err)
+        }
 
         if (analisisFiltrados.length === 0) {
             options.position = 'top-end';
@@ -280,15 +262,17 @@ const generarExcel = async () => {
         jsonFields.value =
             file.servicio === 'Nota'
                 ? {
-                    'Fecha Nota': 'fecha_nota',
+                    'id': 'id',
+                    'Fecha Nota': 'nota.fecha_nota',
                     'Paciente': 'paciente.info_usuario.name',
                     'Profesional': 'profesional.info_usuario.name',
                     'Servicio': 'servicio.name',
                     'Motivo de Consulta': 'motivo',
-                    'Observaciones': 'tipoAnalisis'
+                    'Observaciones': 'nota.tipoAnalisis'
                 }
                 : file.servicio === 'Terapia'
                     ? {
+                        'id': 'id',
                         'Fecha Terapia': 'terapia.fecha',
                         'Paciente': 'paciente.info_usuario.name',
                         'Profesional': 'profesional.info_usuario.name',
@@ -298,6 +282,7 @@ const generarExcel = async () => {
                         'Observaciones': 'terapia.evolucion'
                     }
                     : {
+                        'id': 'id',
                         'Fecha Registro': 'created_at',
                         'Paciente': 'paciente.info_usuario.name',
                         'Profesional': 'profesional.info_usuario.name',

@@ -1,11 +1,17 @@
 import { h } from 'vue'
 import { UBadge, UButton, UDropdownMenu } from '#components'
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia'
+import { formatDate } from '../Formulario/FormatearFecha'
 
-export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePutEvolucion) => {
+export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePutEvolucion, puedeDelete) => {
   const columns = [
     { accessorKey: 'id', header: 'id' },
-    { accessorKey: 'fecha', header: 'Fecha', ordenar: true },
+    { accessorKey: 'created_at', header: 'Fecha', 
+      cell: ({ row }) => {
+        const texto = row.original.created_at || ''
+        return h('p', formatDate(texto))
+      }
+    },
     { accessorKey: 'profesional.info_usuario.name', header: 'Profesional', ordenar: true },
     { accessorKey: 'servicio.name', header: 'Servicio', ordenar: true },
     { 
@@ -16,7 +22,7 @@ export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePut
         return h('p', limitado)
       }
     },
-    { 
+    {
       accessorKey: 'motivo', header: 'Motivo',
       cell: ({ row }) => {
         const texto = row.original.motivo || ''
@@ -113,18 +119,20 @@ export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePut
           loadItem('Evolucion', evolucion)
         }
       },
-      puedePutEvolucion ? {
+      {
         label: 'Actualizar',
         onSelect() {
           loadItem('Evolucion', evolucion, 'update')
-        }
-      } : null,
-      puedePutEvolucion ? {
+        },
+        disabled: !puedePutEvolucion
+      },
+      {
         label: 'Eliminar',
         onSelect() {
           eliminarEvolucion(evolucion)
-        }
-      } : null,
+        },
+        disabled: !puedeDelete
+      },
       {
         type: 'separator'
       },

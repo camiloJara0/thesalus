@@ -1,11 +1,17 @@
 import { h } from 'vue'
 import { UBadge, UButton, UDropdownMenu } from '#components'
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia'
+import { formatDate } from '../Formulario/FormatearFecha'
 
-export const useTrabajoSocialTable = (loadItem, exportar, exportarServicio, puedePut) => {
+export const useTrabajoSocialTable = (loadItem, exportar, exportarServicio, puedePut, puedeDelete) => {
   const columns = [
     { accessorKey: 'id', header: 'id' },
-    { accessorKey: 'fecha', header: 'Fecha', ordenar: true },
+    { accessorKey: 'created_at', header: 'Fecha', 
+      cell: ({ row }) => {
+        const texto = row.original.created_at || ''
+        return h('p', formatDate(texto))
+      }
+    },
     { accessorKey: 'profesional.info_usuario.name', header: 'Profesional', ordenar: true },
     { accessorKey: 'servicio.name', header: 'Servicio', ordenar: true },
     { 
@@ -115,18 +121,20 @@ export const useTrabajoSocialTable = (loadItem, exportar, exportarServicio, pued
           loadItem('TrabajoSocial', trabajoSocial)
         }
       },
-      puedePut ? {
+      {
         label: 'Actualizar',
         onSelect() {
           loadItem('TrabajoSocial', trabajoSocial, 'update')
-        }
-      } : null,
-      puedePut ? {
+        },
+        disabled: !puedePut
+      },
+      {
         label: 'Eliminar',
         onSelect() {
           eliminarTrabajoSocial(trabajoSocial)
-        }
-      } : null,
+        },
+        disabled: !puedeDelete
+      },
       {
         type: 'separator'
       },

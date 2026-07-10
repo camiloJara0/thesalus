@@ -14,6 +14,7 @@ import { useCitaActions } from '~/composables/Entidades/Cita'
 import { traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
 import { useInfiniteScroll } from '@vueuse/core'
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue'
+import Restringido from '~/components/organism/NoEnviados/Restringido.vue'
 
 const varView = useVarView()
 const citasStore = useCitasStore();
@@ -47,6 +48,7 @@ const {
 
 async function llamadatos(cambio) {
     await citasStore.citasHoy(true, cambio);
+    filtros.value = await traerFiltros()
     varView.datosActualizados()
 }
 // Watch para actualizar citas al agregar nueva
@@ -195,7 +197,6 @@ const columns = [
         return h('p', limitado)
       }
      },
-    { accessorKey: 'estado', header: 'Estado', ordenar: true },
     {
         accessorKey: 'estado',
         header: 'Estado',
@@ -294,6 +295,7 @@ const propiedadesTabla = computed(() => {
     return {
         titulo: 'Calendario de tu Agenda',
         llamadatos: llamadatos,
+        data: Citas,
         agregar: puedePost ? agregarCita : null,
         cargarData: traerCitasPaginadas,
         columns: columns,
@@ -314,10 +316,11 @@ const propiedadesTabla = computed(() => {
 </script>
 
 <template>
-    <Pagina v-if="!varView.showEnFila" :Propiedades="propiedades" :key="refresh" />
-    <FondoDefault v-show="varView.showEnFila">
+    <Pagina v-if="!varView.showEnFila && puedeVer" :Propiedades="propiedades" :key="refresh" />
+    <FondoDefault v-show="varView.showEnFila && puedeVer">
         <TablaScroll :Propiedades="propiedadesTabla"/>
     </FondoDefault>
+    <Restringido v-if="!puedeVer"/>
     <Cita></Cita>
     <PDFServicio v-if="varView.showPDFServicio"></PDFServicio>
     <Historia v-if="varView.showNuevaHistoria" />

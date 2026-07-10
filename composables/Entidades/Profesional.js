@@ -12,7 +12,8 @@ export function useProfesionalActions({
     /* ===============================
        MODALES
     =============================== */
-
+    const puedeDelete = varView.getPermisos.includes('Profesional_delete');
+    const puedePut = varView.getPermisos.includes('Profesional_put');
     const agregarMedico = () => {
         mapCamposLimpios(profesionalStore.Formulario);
         profesionalStore.showNuevoProfesional = true;
@@ -189,7 +190,8 @@ function getRowItems(row) {
             label: 'Editar',
             onSelect() {
                 modificarMedico(profesional)
-            }
+            },
+            disabled: !puedePut
         },
         {
             type: 'separator'
@@ -198,7 +200,8 @@ function getRowItems(row) {
             label: 'Eliminar',
             onSelect() {
                 eliminarProfesional(profesional)
-            }
+            },
+            disabled: !puedeDelete
         }
     ]
 }

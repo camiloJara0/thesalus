@@ -68,7 +68,7 @@ export function useLoginBuilder({
       icon: 'i-lucide-lock',
       fieldId: 'password',
       events: {
-        onKeyUp: () => {console.log('hola'); validarYEnviarLogin(usuarioStore.Formulario)}
+        onKeyUp: () => {validarYEnviarLogin(usuarioStore.Formulario)}
       },
     })
     .addCampo({

@@ -84,7 +84,7 @@ function getNombrePermiso(permiso) {
 
     <!-- Tabla de Permisos Detallada -->
     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden p-2">
-      <div class="overflow-x-auto grid grid-cols-4 gap-3">
+      <div class="overflow-x-auto grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-3">
 
 
         <UCard v-for="grupo in permisosAgrupados" :key="grupo.modulo">

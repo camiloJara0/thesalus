@@ -60,10 +60,12 @@ export const actualizarPaciente = async (datos, reintento = false) => {
             await actualizarEnIndexedDB(JSON.parse(JSON.stringify(datosActualizadosLocal)));
 
             notificacionesStore.options.icono = 'warning'
-            notificacionesStore.options.titulo = 'No hay internet';
-            notificacionesStore.options.texto = 'Datos guardados localmente'
+            notificacionesStore.options.titulo = 'Sin conexión';
+            notificacionesStore.options.texto = 'Guardado localmente. Envialos cuando tengas conexion desde notificaciones.'
             notificacionesStore.options.tiempo = 3000
             await notificacionesStore.simple()
+            const noEnviados = useNoEnviados()
+            await noEnviados.cargarDocumentosNoEnviados()
             return true
         } catch (error) {
             notificacionesStore.options.icono = 'warning'

@@ -11,6 +11,8 @@ import { ref, onMounted } from 'vue'
 
 const citasStore = useCitasStore();
 const varView = useVarView();
+const puedePost = varView.getPermisos.includes('Citas_post')
+const puedePut = varView.getPermisos.includes('Citas_put')
 
 const pacientesStore = usePacientesStore();
 const medicosStore = useProfesionalStore();
@@ -47,7 +49,7 @@ function cerrar() {
 
 // Construccion de pagina
 const propiedades = computed(() => {
-    const propiedadesCita = useFormularioCitaBuilder({
+    const propiedadesCita = puedePost ? useFormularioCitaBuilder({
         storeId: 'NuevaCita',
         storePinia: 'Citas',
         cerrarModal: cerrar,
@@ -61,9 +63,9 @@ const propiedades = computed(() => {
         variasCitas: variasCitas,
         rangoFecha: rangoFecha,
         nuevoProcedimiento: nuevoProcedimiento,
-    });
+    }) : null;
 
-    const propiedadesActualizarCita = useFormularioCitaBuilder({
+    const propiedadesActualizarCita = puedePut ? useFormularioCitaBuilder({
         storeId: 'ActualizarCita',
         storePinia: 'Citas',
         cerrarModal: cerrar,
@@ -77,13 +79,13 @@ const propiedades = computed(() => {
         variasCitas: variasCitas,
         rangoFecha: rangoFecha,
         nuevoProcedimiento: nuevoProcedimiento,
-    });
+    }) : null;
 
     const pagina = new ComponenteBuilder()
     pagina
         .setFondo('FondoForm')
-        .addComponente('Form', propiedadesCita)
-        .addComponente('Form', propiedadesActualizarCita)
+        if(propiedadesCita)pagina.addComponente('Form', propiedadesCita)
+        if(propiedadesActualizarCita)pagina.addComponente('Form', propiedadesActualizarCita)
     return pagina.build()
 })
 

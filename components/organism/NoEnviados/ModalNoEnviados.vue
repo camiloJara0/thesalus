@@ -68,7 +68,7 @@ function obtenerDetalle(documento) {
                 <div class="w-full flex flex-wrap items-center justify-between gap-3">
                     <div>
 
-                        <h3 class="text-xl font-semibold text-gray-900">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                             Datos no enviados
                         </h3>
                         <p class="text-sm text-gray-500">
@@ -100,7 +100,7 @@ function obtenerDetalle(documento) {
                                 </UButton>
                                 <template #content>
                                     <div class="p-6 space-y-4">
-                                        <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                                        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                             <i class="i-lucide-folder-down text-primary"></i>
                                             Subir archivos
                                         </h2>
@@ -153,11 +153,11 @@ function obtenerDetalle(documento) {
                     <div v-else class="space-y-4">
                         <div class="grid gap-3 md:grid-cols-3">
                             <div v-for="seccion in documentos" :key="seccion.key"
-                                class="rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
+                                class="rounded-2xl border border-amber-100 bg-amber-50/70 dark:bg-amber-950/40 dark:border-amber-900 p-4">
                                 <div class="flex items-start justify-between gap-2">
                                     <div>
-                                        <p class="text-sm font-semibold text-gray-800">{{ seccion.label }}</p>
-                                        <p class="text-xs text-gray-500">{{ seccion.data.length }} registro{{
+                                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ seccion.label }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ seccion.data.length }} registro{{
                                             seccion.data.length === 1 ? ''
                                                 : 's' }}</p>
                                     </div>
@@ -167,12 +167,12 @@ function obtenerDetalle(documento) {
                         </div>
 
                         <div class="space-y-3">
-                            <UCard v-for="seccion in documentos" :key="seccion.key" class="border border-gray-200"
+                            <UCard v-for="seccion in documentos" :key="seccion.key" class="border border-gray-200 dark:border-gray-700"
                                 :ui="{ body: { padding: 'p-4' } }">
                                 <div class="flex flex-wrap items-center justify-between gap-3">
                                     <div>
-                                        <p class="font-semibold text-gray-800">{{ seccion.label }}</p>
-                                        <p class="text-xs text-gray-500">Registros pendientes de sincronización</p>
+                                        <p class="font-semibold text-gray-800 dark:text-gray-200">{{ seccion.label }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Registros pendientes de sincronización</p>
                                     </div>
                                     <div class="flex gap-1">
                                         <UButton size="sm" color="primary" variant="soft" icon="i-lucide-cloud-download"
@@ -185,13 +185,13 @@ function obtenerDetalle(documento) {
                                 <ul class="mt-3 space-y-2">
                                     <li v-for="documento in seccion.data"
                                         :key="documento.id || `${seccion.key}-${documento.id_historia || documento.No_document || documento.name}`"
-                                        class="rounded-xl border border-gray-100 bg-gray-50/70 px-3 py-2">
+                                        class="rounded-xl border border-gray-100 bg-gray-50/70 dark:bg-gray-600/30 px-3 py-2">
                                         <div class="flex items-center justify-between gap-3">
                                             <div>
-                                                <p class="text-sm font-medium text-gray-800">{{ obtenerTitulo(documento)
+                                                <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ obtenerTitulo(documento)
                                                 }}
                                                 </p>
-                                                <p class="text-xs text-gray-500">{{ obtenerDetalle(documento) }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ obtenerDetalle(documento) }}</p>
                                             </div>
                                             <UBadge color="warning" variant="subtle">Pendiente</UBadge>
                                         </div>

@@ -19,6 +19,7 @@ const props = defineProps({
     }
 });
 
+const dataProps = ref(props.Propiedades.data)
 const data = ref([]);
 // Acomodar datos de menor a mayor segun columna, filtros
 const {
@@ -69,6 +70,28 @@ const columns = props.Propiedades.columns.map(col => {
   return col
 })
 
+watch(
+  () => props.Propiedades.data.value,
+  (nuevosDatos) => {
+    if (!nuevosDatos?.length) return
+    //datos guardados
+    const idsExistentes = new Set(
+    data.value.map(item => String(item.id))
+    )
+
+    const datosNuevos = nuevosDatos.filter(
+    item => !idsExistentes.has(String(item.id))
+    )
+
+    //ordenar los datos descendentes por id
+    datosNuevos.sort((a, b) => b.id - a.id)
+    data.value.push(...datosNuevos)
+  },
+  {
+    deep: true
+  }
+)
+
 const porPagina = computed(
   () => props.Propiedades.porPagina || 20
 )
@@ -103,7 +126,20 @@ const cargarDatos = async () => {
       return
     }
 
-    data.value.push(...respuesta)
+    // data.value.push(...respuesta)
+
+    const idsExistentes = new Set(
+    data.value.map(item => String(item.id))
+    )
+
+    const datosNuevos = respuesta.filter(
+    item => !idsExistentes.has(String(item.id))
+    )
+
+    //ordenar los datos descendentes por id
+    datosNuevos.sort((a, b) => b.id - a.id)
+    data.value.push(...datosNuevos)
+
   } catch (error) {
     console.error(error)
   } finally {
@@ -117,7 +153,6 @@ onMounted(async () => {
   useInfiniteScroll(
     table.value?.$el,
     () => {
-        console.log('SCROLL DETECTADO')
         cargarDatos()
     },
     {
@@ -223,7 +258,7 @@ onMounted(async () => {
         </template>
     </UCard>
     <!-- Tabla -->
-    <UTable ref="table" sticky :loading="status === 'pending' || status === 'idle'" loading-color="primary" loading-animation="carousel" :data="datosOrdenados" :columns="columns"
+    <UTable ref="table" sticky :loading="loading" loading-color="primary" loading-animation="carousel" :data="datosOrdenados" :columns="columns"
         class="flex-1 max-h-[62vh]" />
 
     <DatosExcel v-if="varView.showDatosExcel" :datos="datosOrdenados" :tabla="props.Propiedades.titulo" />

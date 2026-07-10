@@ -54,7 +54,7 @@ const propiedadesVerConvenio = puedePut
 
 <template>
   <div>
-    <Form :Propiedades="propiedadesConvenio"></Form>
-    <Form :Propiedades="propiedadesVerConvenio"></Form>
+    <Form v-if="propiedadesConvenio" :Propiedades="propiedadesConvenio"></Form>
+    <Form v-if="propiedadesVerConvenio" :Propiedades="propiedadesVerConvenio"></Form>
   </div>
 </template>

@@ -94,7 +94,7 @@ export function useRecuperarContraseñaBuilder({
       }
     })
     .addCampo({
-      component: 'Input',
+      component: 'InputContraseña',
       placeholder: 'Cambiar contraseña',
       icon: 'i-lucide-lock',
       type: 'password',

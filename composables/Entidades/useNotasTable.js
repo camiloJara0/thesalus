@@ -2,7 +2,7 @@ import { h } from 'vue'
 import { UBadge, UButton, UDropdownMenu } from '#components'
 import { eliminarNotas } from '~/Core/Historial/Historia/DeleteAnalisis'
 
-export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNotas) => {
+export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNotas, puedeDelete) => {
   const columns = [
     { accessorKey: 'id', header: 'id' },
     { accessorKey: 'nota.fecha_nota', header: 'Fecha', ordenar: true },
@@ -117,18 +117,20 @@ export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNota
           loadItem('Nota', nota)
         }
       },
-      puedePutNotas ? {
+      {
         label: 'Actualizar',
         onSelect() {
           loadItem('Nota', nota, 'update')
-        }
-      } : null,
-      puedePutNotas ? {
+        },
+        disabled: !puedePutNotas
+      },
+      {
         label: 'Eliminar',
         onSelect() {
           eliminarNota(nota)
-        }
-      } : null,
+        },
+        disabled: !puedeDelete
+      },
       {
         type: 'separator'
       },

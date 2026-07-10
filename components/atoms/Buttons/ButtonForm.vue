@@ -62,21 +62,12 @@ const buttonClasses = computed(() => {
     variant="solid"
     :size="size"
     :disabled="disabled"
-    :loading="loading"
+    loading-auto
     :ui="{ rounded: 'rounded-xl' }"
   >
     <slot />
   </UButton>
 
-  <!-- Fallback a button estándar -->
-  <button 
-    v-else
-    :class="buttonClasses"
-    class="text-center"
-    :disabled="disabled"
-  >
-    <slot />
-  </button>
 </template>
 
 <style scoped>

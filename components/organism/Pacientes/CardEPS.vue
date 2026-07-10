@@ -4,12 +4,19 @@ import { useEpsStore } from '~/stores/Entidades/Eps.js';
 import { storeToRefs } from 'pinia';
 import { useOrdenamiento } from '~/composables/Tabla/useDatosOrdenadosTabla';
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
+import Restringido from '../NoEnviados/Restringido.vue';
 
 const store = useEpsStore()
 const varView = useVarView()
 const notificaciones = useNotificacionesStore()
 const mostrarFiltros = ref(false)
 const { Eps } = storeToRefs(store)
+
+const puedeVer = varView.getPermisos.includes('Datos_view');
+const puedeGet = varView.getPermisos.includes('Datos_get');
+const puedePost = varView.getPermisos.includes('Datos_post');
+const puedePut = varView.getPermisos.includes('Datos_put');
+const puedeDelete = varView.getPermisos.includes('Datos_delete');
 
 const {
   agregarEps,
@@ -37,11 +44,13 @@ function getAcciones(item) {
       label: 'Editar',
       icon: 'i-lucide-edit-2',
       onSelect: () => verEps(item),
+      disabled: !puedePut
     },
     {
       label: 'Eliminar',
       icon: 'i-lucide-trash-2',
-      onSelect: () => eliminarEps(item)
+      onSelect: () => eliminarEps(item),
+      disabled: !puedeDelete
     }
   ]
 }
@@ -54,7 +63,7 @@ function llamaDatos () {
 </script>
 
 <template>
-  <UCard :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
+  <UCard v-if="puedeVer" :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
     <template #header>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -72,7 +81,7 @@ function llamaDatos () {
           <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
             Filtrar
           </UButton>
-          <UButton icon="i-lucide-plus" @click="agregarEps">
+          <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarEps">
             Agregar
           </UButton>
           <UButton icon="i-lucide-cloud-sync" variant="subtle" color="primary" @click="llamaDatos"/>
@@ -116,7 +125,7 @@ function llamaDatos () {
     </template>
 
     <!-- Lista de EPS -->
-    <div v-if="Eps.length > 0" class="space-y-3 h-[40vh] overflow-y-auto grid md:grid-cols-2">
+    <div v-if="Eps.length > 0" class="space-y-1 h-[40vh] overflow-y-auto grid md:grid-cols-2 gap-3">
       <div v-for="(item, index) in datosOrdenados" :key="index"
         class="flex items-center justify-between p-4 rounded-lg bg-linear-to-r from-[#f9fbfd] to-white dark:from-gray-700 dark:to-gray-600 border border-green-100 dark:border-gray-500 hover:shadow-md transition-all duration-300 group">
         <div class="flex items-center gap-4">
@@ -148,4 +157,5 @@ function llamaDatos () {
       </UButton>
     </div>
   </UCard>
+  <Restringido v-else></Restringido>
 </template>

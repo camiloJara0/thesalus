@@ -16,6 +16,7 @@ import { useProfesionalStore } from '~/stores/Entidades/Profesional';
 import { useProfesionalBuilder } from '~/build/Profesional/useProfesionalFormBuilder';
 import { useProfesionStore } from "~/stores/Entidades/Profesion";
 import ModalProfesiones from "~/components/organism/Profesionales/ModalProfesiones.vue";
+import Restringido from "~/components/organism/NoEnviados/Restringido.vue";
 
 const varView = useVarView();
 const notificaciones = useNotificacionesStore();
@@ -239,7 +240,7 @@ const propiedadesTabla = computed(() => {
     <!-- Modal de Permisos -->
 
     <!-- Página Principal -->
-    <FondoDefault>
+    <FondoDefault v-if="puedeVer">
         <!-- Panel de Acciones Integrado -->
         <!-- <div class="mb-6">
             <PanelAccionesProfesionales :profesionales="medicos" :profesiones="profesionesList"
@@ -275,6 +276,8 @@ const propiedadesTabla = computed(() => {
 
         </UTabs>
     </FondoDefault>
+
+    <Restringido v-else></Restringido>
 
     <ModalProfesiones />
 </template>

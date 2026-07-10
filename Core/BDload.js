@@ -19,9 +19,9 @@ export async function traerDatos(onProgress = () => {}) {
             { texto: 'Cargando servicios...', fn: () => serviciosStore.traer(true, true) },
             { texto: 'Cargando pacientes...', fn: () => pacientesStore.traer(true, true) },
             { texto: 'Cargando profesionales...', fn: () => profesionalesStore.traer(true, true) },
+            { texto: 'Cargando citas...', fn: () => citasStore.citasHoy(true) },
             { texto: 'Cargando Historial clinico...', fn: () => historiaStore.indexDBDatos() },
             { texto: 'Cargando Inventario...', fn: () => inventarioStore.traer(true, true) },
-            { texto: 'Cargando citas...', fn: () => citasStore.citasHoy(true) },
         ];
 
         const total = pasos.length;

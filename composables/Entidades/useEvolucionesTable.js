@@ -3,10 +3,10 @@ import { UBadge, UButton, UDropdownMenu } from '#components'
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia'
 import { eliminarTerapias } from '~/Core/Historial/Historia/DeleteAnalisis'
 
-export const useEvolucionesTable = (loadItem, exportar, exportarServicio, puedeVerTerapias, puedePutTerapias) => {
+export const useEvolucionesTable = (loadItem, exportar, exportarServicio, puedePutTerapias, puedeDelete) => {
   const columns = [
     { accessorKey: 'id', header: 'id' },
-    { accessorKey: 'terapia.fecha', header: 'Fecha', ordenar: true },
+    { accessorKey: 'terapia.fecha', header: 'Fecha'},
     { accessorKey: 'profesional.info_usuario.name', header: 'Profesional', ordenar: true },
     { accessorKey: 'servicio.name', header: 'Servicio', ordenar: true },
     { accessorKey: 'terapia.sesion', header: 'Sesión' },
@@ -117,18 +117,20 @@ export const useEvolucionesTable = (loadItem, exportar, exportarServicio, puedeV
           loadItem('Terapia', terapia)
         }
       },
-      puedePutTerapias ? {
+      {
         label: 'Actualizar',
         onSelect() {
           loadItem('Terapia', terapia, 'update')
-        }
-      } : null,
-      puedePutTerapias ? {
+        },
+        disabled: !puedePutTerapias
+      },
+      {
         label: 'Eliminar',
         onSelect() {
           eliminarTerapia(terapia)
-        }
-      } : null,
+        },
+        disabled: !puedeDelete
+      },
       {
         type: 'separator'
       },

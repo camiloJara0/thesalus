@@ -28,10 +28,12 @@ export async function eliminarConvenio(id) {
             await actualizarEnIndexedDB(JSON.parse(JSON.stringify( { Convenio: {...form, sincronizado: 0, editado: 1, estado: 0} } )));
 
             notificacionesStore.options.icono = 'warning'
-            notificacionesStore.options.titulo = 'No hay internet';
-            notificacionesStore.options.texto = 'Datos guardados localmente'
+            notificacionesStore.options.titulo = 'Sin conexión';
+            notificacionesStore.options.texto = 'Guardado localmente. Envialos cuando tengas conexion desde notificaciones.'
             notificacionesStore.options.tiempo = 3000
             await notificacionesStore.simple()
+            const noEnviados = useNoEnviados()
+            await noEnviados.cargarDocumentosNoEnviados()
             return true
         } catch (error) {
             notificacionesStore.options.icono = 'warning'

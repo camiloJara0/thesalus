@@ -2,7 +2,7 @@ import { h } from 'vue'
 import { UBadge, UButton, UDropdownMenu } from '#components'
 
 
-export const useTratamientosTable = (loadItem, exportar, puedePutTratamientos) => {
+export const useTratamientosTable = (loadItem, exportar, puedePutTratamientos, puedeDelete) => {
   const columns = [
     { accessorKey: 'fecha', header: 'Fecha', },
     { 
@@ -69,12 +69,13 @@ export const useTratamientosTable = (loadItem, exportar, puedePutTratamientos) =
           loadItem('Tratamientos', tratamiento)
         }
       },
-      puedePutTratamientos ? {
+      {
         label: 'Actualizar',
         onSelect() {
           loadItem('Tratamientos', tratamiento, 'update')
-        }
-      } : null,
+        },
+        disabled: !puedePutTratamientos
+      },
       {
         type: 'separator'
       },

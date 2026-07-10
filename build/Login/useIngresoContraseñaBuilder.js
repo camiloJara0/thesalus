@@ -50,7 +50,7 @@ export function useIngresoContraseñaBuilder({
       vmodel: 'Usuario.codigo',
     })
     .addCampo({
-      component: 'Input',
+      component: 'InputContraseña',
       placeholder: 'Nueva contraseña',
       icon: 'i-lucide-lock',
       type: 'password',

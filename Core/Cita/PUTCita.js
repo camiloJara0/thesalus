@@ -136,10 +136,12 @@ const enviarFormularioCita = async (datos, reintento = false) => {
                 await actualizarEnIndexedDB(JSON.parse(JSON.stringify({ Cita: { ...datos.Cita, editado: 1, sincronizado: 0 } })));
             }
             notificacionesStore.options.icono = 'warning'
-            notificacionesStore.options.titulo = 'No hay internet';
-            notificacionesStore.options.texto = 'Datos guardados localmente'
+            notificacionesStore.options.titulo = 'Sin conexión';
+            notificacionesStore.options.texto = 'Guardado localmente. Envialos cuando tengas conexion desde notificaciones.'
             notificacionesStore.options.tiempo = 3000
             await notificacionesStore.simple()
+            const noEnviados = useNoEnviados()
+            await noEnviados.cargarDocumentosNoEnviados()
             return true
         } catch {
             notificacionesStore.options.icono = 'warning'

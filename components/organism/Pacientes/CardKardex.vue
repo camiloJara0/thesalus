@@ -2,12 +2,18 @@
 import { computed, onMounted, ref, h } from 'vue'
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue'
 import { validarYEnviarKardex } from '~/Core/Pacientes/POSTKardex.js';
+import Restringido from '../NoEnviados/Restringido.vue';
 
 const historias = ref([])
 let copiaKardex = [];
 const filasCambiadas = ref(new Set())
 const actualizarCambios = ref(false)
 const apiRest = useApiRest()
+const varView = useVarView()
+const puedeVer = varView.getPermisos.includes('Kardex_view');
+const puedeGet = varView.getPermisos.includes('Kardex_get');
+const puedePost = varView.getPermisos.includes('Kardex_post');
+const puedePut = varView.getPermisos.includes('Kardex_put');
 
 const {
   options,
@@ -491,7 +497,7 @@ const columnPinning = ref({
 })
 </script>
 <template>
-  <UCard :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
+  <UCard v-if="puedeVer" :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
     <template #header>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -518,7 +524,7 @@ const columnPinning = ref({
     </div>
 
     <Transition name="slide-up">
-      <div v-if="actualizarCambios"
+      <div v-if="actualizarCambios && puedePost"
         class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-3 rounded-xl shadow-xl bg-yellow-400">
         <span class="text-sm font-medium">
           Tienes cambios sin guardar
@@ -535,4 +541,5 @@ const columnPinning = ref({
       <p class="text-sm text-gray-400 dark:text-gray-500">Pacientes sin registros médicos aún</p>
     </div>
   </UCard>
+  <Restringido v-else />
 </template>

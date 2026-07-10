@@ -10,6 +10,9 @@ export function useInsumoActions({
 }) {
   const store = useInsumoStore()
   const varView = useVarView()
+  const puedePut = varView.getPermisos.includes('Insumos_put')
+  const puedeDelete = varView.getPermisos.includes('Insumos_delete')
+
 
   const agregarInsumo = () => {
     const varView = useVarView()
@@ -187,11 +190,13 @@ export function useInsumoActions({
       { type: 'label', label: 'Acciones' },
       {
         label: 'Ver Movimiento',
-        onSelect() { verMovimiento(movimiento); varView.soloVer = true}
+        onSelect() { verMovimiento(movimiento); varView.soloVer = true},
+        disabled: !puedePut,
       },
       {
         label: 'Eliminar',
-        onSelect() { eliminarMovimiento(movimiento)}
+        onSelect() { eliminarMovimiento(movimiento)},
+        disabled: !puedeDelete
       },
       { type: 'separator' },
       {

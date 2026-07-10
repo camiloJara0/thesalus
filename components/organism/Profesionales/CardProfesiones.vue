@@ -5,6 +5,7 @@ import { useProfesionStore } from '~/stores/Entidades/Profesion'
 import { storeToRefs } from 'pinia'
 import { useOrdenamiento } from '~/composables/Tabla/useDatosOrdenadosTabla';
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
+import Restringido from '../NoEnviados/Restringido.vue';
 
 const props = defineProps({
   profesionales: {
@@ -22,6 +23,11 @@ const varView = useVarView()
 const notificaciones = useNotificacionesStore()
 const mostrarFiltros = ref(false)
 
+const puedeVer = varView.getPermisos.includes('Datos_view');
+const puedeGet = varView.getPermisos.includes('Datos_get');
+const puedePost = varView.getPermisos.includes('Datos_post');
+const puedePut = varView.getPermisos.includes('Datos_put');
+const puedeDelete = varView.getPermisos.includes('Datos_delete');
 const { Profesiones } = storeToRefs(profesionStore)
 
 const {
@@ -79,11 +85,13 @@ function getAcciones(item) {
       label: 'Editar',
       icon: 'i-lucide-edit-2',
       onSelect: () => modificarProfesion(item),
+      disabled: !puedePut
     },
     {
       label: 'Eliminar',
       icon: 'i-lucide-trash-2',
-      onSelect: () => eliminarProfesion(item)
+      onSelect: () => eliminarProfesion(item),
+      disabled: !puedeDelete
     }
   ]
 }
@@ -95,7 +103,7 @@ function llamaDatos() {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6" v-if="puedeVer">
     <!-- Encabezado -->
     <div class="flex items-center justify-between">
       <div>
@@ -106,7 +114,7 @@ function llamaDatos() {
           <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
             Filtrar
           </UButton>
-        <UButton icon="i-lucide-plus" @click="agregarProfesion">Agregar</UButton>
+        <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarProfesion">Agregar</UButton>
           <UButton icon="i-lucide-cloud-sync" variant="subtle" color="primary" @click="llamaDatos"/>
       </div>
     </div>
@@ -218,4 +226,5 @@ function llamaDatos() {
       <p class="text-gray-500 dark:text-gray-400">No hay profesiones registradas</p>
     </div>
   </div>
+  <Restringido v-else/>
 </template>

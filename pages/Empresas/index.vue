@@ -12,8 +12,8 @@ import { useCie10Builder } from '~/build/Codigos/useCie10Builder';
 import { useVadecumStore } from '~/stores/Entidades/Vadecum';
 import { useVadecumActions } from '~/composables/Usuarios/Vadecum';
 import { useVadecumBuilder } from '~/build/Codigos/useVadecumBuilder';
-import Historia from '~/components/Historia.vue';
 import { useVerPlantillas } from '~/build/Historial/useVerPlantillas';
+import Restringido from '~/components/organism/NoEnviados/Restringido.vue';
 
 const storeServicio = useServicioStore()
 const storeCie10 = useCie10Store()
@@ -33,6 +33,7 @@ const puedeVer = varView.getPermisos.includes('Datos_view');
 const puedeGet = varView.getPermisos.includes('Datos_get');
 const puedePost = varView.getPermisos.includes('Datos_post');
 const puedePut = varView.getPermisos.includes('Datos_put');
+const puedeDelete = varView.getPermisos.includes('Datos_delete');
 
 async function llamadatosServicio(cambio) {
     await storeServicio.traer(true, cambio)
@@ -140,7 +141,8 @@ function getRowItems(row) {
             label: 'Editar',
             onSelect() {
                 actualizarServicio(servicio)
-            }
+            },
+            disabled: !puedePut
         },
         {
             label: 'Ver Plantilla',
@@ -156,7 +158,8 @@ function getRowItems(row) {
             label: 'Eliminar',
             onSelect() {
                 eliminarServicio(servicio)
-            }
+            },
+            disabled: !puedeDelete
         }
     ]
 }
@@ -213,7 +216,8 @@ function getRowItemsCie10(row) {
             label: 'Editar',
             onSelect() {
                 verCie10(codigo)
-            }
+            },
+            disabled: !puedePut
         },
         {
             type: 'separator'
@@ -222,7 +226,8 @@ function getRowItemsCie10(row) {
             label: 'Eliminar',
             onSelect() {
                 eliminarCie10(codigo)
-            }
+            },
+            disabled: puedeDelete
         }
     ]
 }
@@ -265,7 +270,8 @@ function getRowItemsVadecums(row) {
             label: 'Editar',
             onSelect() {
                 verVadecum(codigo)
-            }
+            },
+            disabled: !puedePut
         },
         {
             type: 'separator'
@@ -274,7 +280,8 @@ function getRowItemsVadecums(row) {
             label: 'Eliminar',
             onSelect() {
                 eliminarVadecums(codigo)
-            }
+            },
+            disabled: !puedeDelete
         }
     ]
 }
@@ -408,15 +415,15 @@ const tabsIntegrados = [
 </script>
 
 <template>
-    <Form :Propiedades="propiedadesServicio"></Form>
-    <Form :Propiedades="propiedadesVerServicio"></Form>
-    <Form :Propiedades="propiedadesVerCie10"></Form>
-    <Form :Propiedades="propiedadesCie10"></Form>
-    <Form :Propiedades="propiedadesVadecum"></Form>
-    <Form :Propiedades="propiedadesVerVadecum"></Form>
-    <Form :Propiedades="builderPlantillas"></Form>
+    <Form v-if="propiedadesServicio" :Propiedades="propiedadesServicio"></Form>
+    <Form v-if="propiedadesVerServicio" :Propiedades="propiedadesVerServicio"></Form>
+    <Form v-if="propiedadesVerCie10" :Propiedades="propiedadesVerCie10"></Form>
+    <Form v-if="propiedadesCie10" :Propiedades="propiedadesCie10"></Form>
+    <Form v-if="propiedadesVadecum" :Propiedades="propiedadesVadecum"></Form>
+    <Form v-if="propiedadesVerVadecum" :Propiedades="propiedadesVerVadecum"></Form>
+    <Form v-if="builderPlantillas" :Propiedades="builderPlantillas"></Form>
 
-    <FondoDefault>
+    <FondoDefault v-if="puedeVer">
         <UTabs :items="tabsIntegrados">
             <template #servicios>
                 <div class="p-6 pb-0">
@@ -437,4 +444,6 @@ const tabsIntegrados = [
             </template>
         </UTabs>
     </FondoDefault>
+
+    <Restringido v-else/>
 </template>

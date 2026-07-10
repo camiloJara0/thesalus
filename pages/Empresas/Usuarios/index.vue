@@ -8,6 +8,7 @@ import TablaNuxt from '~/components/organism/Table/TablaNuxt.vue';
 import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue';
 import Form from '~/components/organism/Forms/Form.vue';
 import { useAdministradorBuilder } from '~/build/Administradores/useAdministradoresBuilder';
+import Restringido from '~/components/organism/NoEnviados/Restringido.vue';
 
 const varView = useVarView();
 const notificaciones = useNotificacionesStore();
@@ -21,6 +22,7 @@ const puedeVer = varView.getPermisos.includes('Usuarios_view');
 const puedeGet = varView.getPermisos.includes('Usuarios_get');
 const puedePut = varView.getPermisos.includes('Usuarios_put');
 const puedePostUsuarios = varView.getPermisos.includes('Usuarios_post');
+const puedeDelete = varView.getPermisos.includes('Usuarios_delete');
 
 async function llamadatos() {
     Users.value = await traerAdministradores()
@@ -72,7 +74,6 @@ const verUser = (usuario) => {
 
 async function eliminarUsuario() {
     const Usuario = UsersStore.Formulario
-    console.log(Usuario)
     notificaciones.options.icono = 'warning';
     notificaciones.options.titulo = 'Deseas Eliminar Usuario?';
     notificaciones.options.html = `Se descativara el administrador ${Usuario.InformacionUser.name}.`;
@@ -187,7 +188,8 @@ function getRowItems(row) {
             label: 'Editar',
             onSelect() {
                 verUser(codigo)
-            }
+            },
+            disabled: !puedePut
         },
         {
             type: 'separator'
@@ -196,7 +198,8 @@ function getRowItems(row) {
             label: 'Eliminar',
             onSelect() {
                 eliminarUsuario(codigo)
-            }
+            },
+            disabled: !puedeDelete
         }
     ]
 }
@@ -205,7 +208,7 @@ const propiedadesTabla = computed(() => {
     return {
         titulo: 'Gestión de Administradores',
         llamadatos: llamadatos,
-        agregar: nuevoUser,
+        agregar: puedePostUsuarios ? nuevoUser : null,
         data: Users,
         columns: columns,
     }
@@ -213,9 +216,11 @@ const propiedadesTabla = computed(() => {
 
 </script>
 <template>
-    <FondoDefault>
-        <Form :Propiedades="propiedadesUser"></Form>
-        <Form :Propiedades="propiedadesVerUser"></Form>
+    <FondoDefault v-if="puedeVer">
+        <Form v-if="propiedadesUser" :Propiedades="propiedadesUser"></Form>
+        <Form v-if="propiedadesVerUser" :Propiedades="propiedadesVerUser"></Form>
         <TablaNuxt :Propiedades="propiedadesTabla" />
     </FondoDefault>
+
+    <Restringido v-else />
 </template>

@@ -30,7 +30,6 @@ import { useInsumoActions } from '~/composables/Entidades/Insumo';
 import { useMovimientoBuilder } from '~/build/Historial/useMovimientoBuilder';
 import { traerAnalisisPaginado, traerFiltrosHistoria } from '~/Core/Historial/Historia/GetHistoria';
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue';
-import { id } from '@nuxt/ui/runtime/locale/index.js';
 
 // ============ STORES Y COMPOSABLES ============
 const varView = useVarView();
@@ -56,19 +55,26 @@ const permisos = computed(() => ({
     get: varView.getPermisos.includes('Historias_get'),
     notas_ver: varView.getPermisos.includes('Notas_view'),
     notas_put: varView.getPermisos.includes('Notas_put'),
+    notas_delete: varView.getPermisos.includes('Notas_delete'),
     evoluciones_ver: varView.getPermisos.includes('Evoluciones_view'),
     evoluciones_put: varView.getPermisos.includes('Evoluciones_put'),
+    evoluciones_delete: varView.getPermisos.includes('Evoluciones_delete'),
     terapias_ver: varView.getPermisos.includes('Terapias_view'),
     terapias_put: varView.getPermisos.includes('Terapias_put'),
+    terapias_delete: varView.getPermisos.includes('Terapias_delete'),
     diagnosticos_ver: varView.getPermisos.includes('Diagnosticos_view'),
     tratamientos_ver: varView.getPermisos.includes('Tratamientos_view'),
     tratamientos_put: varView.getPermisos.includes('Tratamientos_put'),
+    tratamientos_delete: varView.getPermisos.includes('Tratamientos_delete'),
     medicacion_ver: varView.getPermisos.includes('Medicacion_view'),
     medicacion_put: varView.getPermisos.includes('Medicacion_put'),
+    medicacion_delete: varView.getPermisos.includes('Medicacion_delete'),
     medicina_ver: varView.getPermisos.includes('MedicinaGeneral_view'),
     medicina_put: varView.getPermisos.includes('MedicinaGeneral_put'),
+    medicina_delete: varView.getPermisos.includes('MedicinaGeneral_delete'),
     trabajo_ver: varView.getPermisos.includes('TrabajoSocial_view'),
     trabajo_put: varView.getPermisos.includes('TrabajoSocial_put'),
+    trabajo_delete: varView.getPermisos.includes('TrabajoSocial_delete'),
 }));
 
 // ============ ESTADO DEL COMPONENTE ============
@@ -103,6 +109,7 @@ const refreshKey = ref(0);
 // ============ CARGAR DATOS INICIALES ============
 onMounted(async () => {
     medicos.value = await medicosStore.traer();
+    await pacientesStore.traer(false)
     await apiRest.getData('Kardex', 'kardex');
     await cargarHistorias();
     await historiasStore.traerNoEnviados()
@@ -335,7 +342,7 @@ watch(() => showItem.value,
 
 // ============ CONFIGURACIONES DE TABLAS ============
 const consultasConfig = computed(() => {
-    const config = useConsultasTable(loadItem, exportar, exportarServicio, permisos.value.medicina_put);
+    const config = useConsultasTable(loadItem, exportar, exportarServicio, permisos.value.medicina_put, permisos.value.medicina_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
@@ -352,7 +359,7 @@ const diagnosticosConfig = computed(() => {
 });
 
 const evolucionesConfig = computed(() => {
-    const config = useEvolucionesTable(loadItem, exportar, exportarServicio, permisos.value.terapias_ver, permisos.value.terapias_put);
+    const config = useEvolucionesTable(loadItem, exportar, exportarServicio, permisos.value.terapias_put, permisos.value.terapias_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
@@ -364,7 +371,7 @@ const evolucionesConfig = computed(() => {
 });
 
 const notasConfig = computed(() => {
-    const config = useNotasTable(loadItem, exportar, exportarServicio, permisos.value.notas_put);
+    const config = useNotasTable(loadItem, exportar, exportarServicio, permisos.value.notas_put, permisos.value.notas_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
@@ -376,7 +383,7 @@ const notasConfig = computed(() => {
 });
 
 const tratamientosConfig = computed(() => {
-    const config = useTratamientosTable(loadItem, exportar, exportarServicio, permisos.value.tratamientos_put);
+    const config = useTratamientosTable(loadItem, exportar, exportarServicio, permisos.value.tratamientos_put, permisos.value.tratamientos_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', },
@@ -388,12 +395,12 @@ const tratamientosConfig = computed(() => {
 });
 
 const medicacionConfig = computed(() => {
-    const config = useMedicacionTable(loadItem, exportar, permisos.value.medicacion_put);
+    const config = useMedicacionTable(loadItem, exportar, permisos.value.medicacion_put, permisos.value.medicacion_delete);
     return { ...config.headerConfig, columns: config.columns, acciones: config.acciones };
 });
 
 const nutricionConfig = computed(() => {
-    const config = useNutricionTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put);
+    const config = useNutricionTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put, permisos.value.evoluciones_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
@@ -405,7 +412,7 @@ const nutricionConfig = computed(() => {
 });
 
 const trabajoSocialConfig = computed(() => {
-    const config = useTrabajoSocialTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put);
+    const config = useTrabajoSocialTable(loadItem, exportar, exportarServicio, permisos.value.trabajo_put, permisos.value.trabajo_delete);
     return {
         ...config.headerConfig, columns: config.columns, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },

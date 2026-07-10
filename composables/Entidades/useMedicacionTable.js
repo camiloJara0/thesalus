@@ -1,7 +1,7 @@
 import { h } from 'vue'
 import { UBadge, UButton, UDropdownMenu } from '#components'
 
-export const useMedicacionTable = (loadItem, exportar, puedePutMedicacion) => {
+export const useMedicacionTable = (loadItem, exportar, puedePutMedicacion, puedeDelete) => {
   const columns = [
     { accessorKey: 'fecha', header: 'Fecha', ordenar: true },
     { accessorKey: 'profesional.info_usuario.name', header: 'Profesional', ordenar: true },
@@ -68,12 +68,13 @@ export const useMedicacionTable = (loadItem, exportar, puedePutMedicacion) => {
           loadItem('Medicamento', medicacion)
         }
       },
-      puedePutMedicacion ? {
+      {
         label: 'Actualizar',
         onSelect() {
           loadItem('Medicamento', medicacion, 'update')
-        }
-      } : null,
+        },
+        disabled: !puedePutMedicacion
+      },
       {
         type: 'separator'
       },

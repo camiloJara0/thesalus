@@ -22,6 +22,7 @@ import { useHistoriaStore } from '~/stores/Entidades/Historia';
 import FondoDefault from "~/components/atoms/Fondos/FondoDefault.vue";
 import { useVarView } from '~/stores/varview';
 import { useNotificacionesStore } from '~/stores/notificaciones';
+import Restringido from "~/components/organism/NoEnviados/Restringido.vue";
 
 // Verificar permisos específicos
 const varView = useVarView();
@@ -329,12 +330,12 @@ const propiedadesTabla = computed(() => {
 
 <template>
     <!-- Formularios -->
-    <Form :Propiedades="propiedadesUser"></Form>
-    <Form :Propiedades="propiedadesVerUser"></Form>
-    <Form :Propiedades="propiedadesItemHistoria"></Form>
+    <Form v-if="propiedadesUser" :Propiedades="propiedadesUser"></Form>
+    <Form v-if="propiedadesVerUser" :Propiedades="propiedadesVerUser"></Form>
+    <Form v-if="propiedadesItemHistoria" :Propiedades="propiedadesItemHistoria"></Form>
 
     <!-- Página Principal -->
-    <FondoDefault>
+    <FondoDefault v-if="puedeVer">
 
         <!-- Sección Integrada (Tabs) -->
         <UTabs :items="tabsIntegrados">
@@ -393,10 +394,12 @@ const propiedadesTabla = computed(() => {
         </div> -->
     </FondoDefault>
 
+    <Restringido v-else/>
+
     <!-- Modales -->
     <ModalEPS />
 
-    <ModalConvenios />
+    <ModalConvenios/>
 
     <ModalKardexDetalle v-model="showKardexDetalle" :historia="historiaSeleccionada" />
 </template>

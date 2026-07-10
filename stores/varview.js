@@ -71,19 +71,10 @@ export const useVarView = defineStore('varView', {
 
     getters: {
         isOnline: async () => {
-            try {
-                if (typeof navigator === 'undefined' || !navigator.onLine) {
-                    return false;
-                }
-
-                const response = await fetch('/health', {
-                    method: 'GET',
-                    cache: 'no-cache',
-                });
-
-                return response.ok;
-            } catch (error) {
+            if (typeof navigator === 'undefined' || !navigator.onLine) {
                 return false;
+            } else if (navigator.onLine) {
+                return true;
             }
         },
 

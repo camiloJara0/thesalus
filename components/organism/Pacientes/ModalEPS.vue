@@ -47,7 +47,7 @@ const propiedadesVerEPS = puedePutEPS
 </script>
 <template>
     <div>
-        <Form :Propiedades="propiedadesEPS"></Form>
-        <Form :Propiedades="propiedadesVerEPS"></Form>
+        <Form v-if="propiedadesEPS" :Propiedades="propiedadesEPS"></Form>
+        <Form v-if="propiedadesVerEPS" :Propiedades="propiedadesVerEPS"></Form>
     </div>
 </template>

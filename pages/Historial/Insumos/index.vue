@@ -15,6 +15,7 @@ import { useInsumoActions } from "~/composables/Entidades/Insumo";
 import { storeToRefs } from "pinia";
 import { useMovimientoBuilder } from "~/build/Historial/useMovimientoBuilder";
 import { usePlanesBuilder } from "~/build/Historial/usePlanesBuilder";
+import Restringido from "~/components/organism/NoEnviados/Restringido.vue";
 
 const varView = useVarView()
 const notificaciones = useNotificacionesStore()
@@ -38,6 +39,7 @@ const puedeVer = varView.getPermisos.includes('Insumos_view')
 const puedeGet = varView.getPermisos.includes('Insumos_get')
 const puedePost = varView.getPermisos.includes('Insumos_post')
 const puedePut = varView.getPermisos.includes('Insumos_put')
+const puedeDelete = varView.getPermisos.includes('Insumos_delete')
 
 const { Insumos, Movimientos, Prestaciones, NoEnviados, showNuevoInsumo, showModificarInsumo, showMovimiento, showModificarMovimiento } = storeToRefs(insumoStore)
 const { importacion } = storeToRefs(storeNoEnviados)
@@ -99,7 +101,8 @@ function getRowItemsInsumos(row) {
         { type: 'label', label: 'Acciones' },
         {
             label: 'Ver Insumo',
-            onSelect() { verInsumo(insumo) }
+            onSelect() { verInsumo(insumo) },
+            disabled: !puedePut
         },
         {
             label: 'Agregar Movimiento',
@@ -108,7 +111,8 @@ function getRowItemsInsumos(row) {
         { type: 'separator' },
         {
             label: 'Eliminar',
-            onSelect() { eliminarInsumo(insumo) }
+            onSelect() { eliminarInsumo(insumo) },
+            disabled: !puedeDelete
         }
     ]
 }
@@ -354,7 +358,7 @@ const propiedadesTablaMovimiento = computed(() => {
     <Form v-if="puedePut" :Propiedades="propiedadesItemHistoria"></Form>
 
 
-    <FondoDefault>
+    <FondoDefault v-if="puedeVer">
         <!-- Sección de Datos No Enviados -->
 
         <!-- Sección Integrada (Tabs) -->
@@ -381,6 +385,7 @@ const propiedadesTablaMovimiento = computed(() => {
         </UTabs>
     </FondoDefault>
 
+    <Restringido v-else />
     <!-- Importar CSV -->
     <ImportarCSV v-if="varView.importarArchivo" :cerrar="cerrar" />
 </template>
