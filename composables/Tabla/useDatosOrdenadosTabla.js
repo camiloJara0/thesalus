@@ -1,6 +1,6 @@
 import { ref, computed, watch, unref } from 'vue';
 
-export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []) {
+export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = [], buscarPor = []) {
     // Función para acceder a propiedades anidadas usando notación de punto
     function getNestedValue(obj, path) {
         return path.split('.').reduce((acc, key) => acc?.[key], obj);
@@ -97,8 +97,9 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
 
                 // Buscar en propiedades anidadas definidas en columnas
                 if (!encontrado) {
-                    encontrado = columnas.some(col => {
-                        const columnaReal = col.columnaReal || col.columna;
+                    encontrado = buscarPor.some(col => {
+                        const columnaReal = col.accessorKey;
+                        if(!columnaReal) return false
                         if (columnaReal.includes('.')) {
                             const valor = getNestedValue(item, columnaReal);
                             return valor && String(valor).toLowerCase().includes(termino);

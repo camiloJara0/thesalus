@@ -373,7 +373,7 @@ export function usePacienteBuilder({
             // 📌 Sección: Antecedentes
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Antecedentes',
+                labelGroup: 'Antecedentes (opcional)',
                 buttons: [
                     { icon: 'i-lucide-plus', color: 'bg-blue-500', label: 'Personal', addItem: { descripcion: '', tipo: '' } },
                     { icon: 'i-lucide-plus', color: 'bg-blue-700', label: 'Familiar', addItem: { descripcion: '', tipo: 'Familiar' } },

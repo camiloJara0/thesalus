@@ -73,7 +73,9 @@ const columns = props.Propiedades.columns.map(col => {
 watch(
   () => props.Propiedades.data.value,
   (nuevosDatos) => {
+    console.log(nuevosDatos)
     if (!nuevosDatos?.length) return
+    console.log(nuevosDatos)
     //datos guardados
     const idsExistentes = new Set(
     data.value.map(item => String(item.id))
@@ -82,6 +84,8 @@ watch(
     const datosNuevos = nuevosDatos.filter(
     item => !idsExistentes.has(String(item.id))
     )
+
+    console.log(datosNuevos)
 
     //ordenar los datos descendentes por id
     datosNuevos.sort((a, b) => b.id - a.id)

@@ -31,7 +31,7 @@ const {
     columnaOrden,
     menorAMayor,
     borrarFiltros
-} = useOrdenamiento(data || ref([]), props.Propiedades.filtros || [], props.Propiedades.noFiltrar || []);
+} = useOrdenamiento(data || ref([]), props.Propiedades.filtros || [], props.Propiedades.noFiltrar || [], props.Propiedades.columns || []);
 
 
 // Paginador
@@ -132,7 +132,7 @@ watch(
                         
                     </client-only>
 
-                    <UButton @click="() => { mostrarFiltros = !mostrarFiltros }" variant="solid" color="primary"
+                    <UButton @click="() => { mostrarFiltros = !mostrarFiltros }" :variant="mostrarFiltros ? 'soft' : 'solid'" color="primary"
                         trailing-icon="lucide-list-filter" size="md">
                         <span class="hidden md:block">Filtrar</span>
                     </UButton>

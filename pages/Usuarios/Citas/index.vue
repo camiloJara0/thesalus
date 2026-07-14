@@ -300,11 +300,11 @@ const propiedadesTabla = computed(() => {
         cargarData: traerCitasPaginadas,
         columns: columns,
         filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
-            { columna: 'estado', placeholder: 'Estado', accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
-            { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
-            { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años?.map(a => ({ text: String(a), value: a })), accion: (filtros) => { citasStore.citasFiltradas(filtros) } },
+            { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
+            { columna: 'estado', placeholder: 'Estado', accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
+            { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => { await citasStore.citasFiltradas(filtros)} },
+            { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años?.map(a => ({ text: String(a), value: a })), accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
         ],
         buttons: [
             { icon: 'lucide-table', accion: showFila, texto: 'En lista', color: 'primary', variant: 'subtle' },

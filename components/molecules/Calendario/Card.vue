@@ -127,10 +127,11 @@ function historiaPendiente(id) {
                     <UButton v-if="cita.motivo_edicion" icon="i-lucide-info" color="warning" variant="ghost" square
                         @click="showMotivoEdicion(cita)" />
                 </div>
-                <div v-else>
+                <div v-else-if="cita.estado === 'Realizada'">
                     <UButton icon="i-lucide-info" color="primary" variant="ghost" square
                         @click="showObservacion(cita)" />
                 </div>
+                <div v-else></div>
             </div>
         </div>
     </UCard>

@@ -260,14 +260,21 @@ async function cargarDatosPaciente(id) {
 }
 
 async function cargarAlmacen(tabla, datos) {
-    if (tabla == 'Nota') {
+    if (tabla == 'Notas') {
         const mapa = new Map(notas.value.map(a => [a.id, a]))
 
         for (const item of datos) {
             mapa.set(item.id, item)
         }
-
         notas.value = Array.from(mapa.values())
+    } else if( tabla == 'Consultas') {
+        analisis.value = datos
+    } else if(tabla == 'Terapias') {
+        tratamientos.value = datos
+    } else if(tabla == 'Evoluciones'){
+        evoluciones.value = datos
+    } else if(tabla == 'Trabajos'){
+        trabajosSocial.value = datos
     }
 }
 
@@ -345,10 +352,26 @@ const consultasConfig = computed(() => {
     const config = useConsultasTable(loadItem, exportar, exportarServicio, permisos.value.medicina_put, permisos.value.medicina_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: historiasStore.analisisFiltrados },
-            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes' },
-            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años }
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Consultas', data)
+                } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Consultas', data)
+                } },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Consultas', data)
+                } },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Consultas', data)
+                } }
         ]
     };
 });
@@ -362,10 +385,26 @@ const evolucionesConfig = computed(() => {
     const config = useEvolucionesTable(loadItem, exportar, exportarServicio, permisos.value.terapias_put, permisos.value.terapias_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } }
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Terapias', data)
+                } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Terapias', data)
+                } },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Terapias', data)
+                } },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Terapias', data)
+                } }
         ]
     };
 });
@@ -374,10 +413,19 @@ const notasConfig = computed(() => {
     const config = useNotasTable(loadItem, exportar, exportarServicio, permisos.value.notas_put, permisos.value.notas_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_mes', columnaReal: 'nota.fecha_nota', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_año', columnaReal: 'nota.fecha_nota', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } }
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => { const data = await historiasStore.analisisFiltrados(filtros); cargarAlmacen('Notas', data) } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => { const data = await historiasStore.analisisFiltrados(filtros); cargarAlmacen('Notas', data) } },
+            { columna: 'fecha_mes', columnaReal: 'created_at', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Notas', data)
+                }
+            },
+            { columna: 'fecha_año', columnaReal: 'nota.fecha_nota', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Notas', data)
+                } }
         ]
     };
 });
@@ -403,10 +451,26 @@ const nutricionConfig = computed(() => {
     const config = useNutricionTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put, permisos.value.evoluciones_delete);
     return {
         ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } }
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Evoluciones', data)
+                } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Evoluciones', data)
+                } },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Evoluciones', data)
+                } },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Evoluciones', data)
+                } }
         ]
     };
 });
@@ -415,10 +479,26 @@ const trabajoSocialConfig = computed(() => {
     const config = useTrabajoSocialTable(loadItem, exportar, exportarServicio, permisos.value.trabajo_put, permisos.value.trabajo_delete);
     return {
         ...config.headerConfig, columns: config.columns, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } },
-            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: (filtros) => { historiasStore.analisisFiltrados(filtros) } }
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Trabajos', data)
+                } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Trabajos', data)
+                } },
+            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Trabajos', data)
+                } },
+            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
+                { 
+                    const data = await historiasStore.analisisFiltrados(filtros)
+                    cargarAlmacen('Trabajos', data)
+                } }
         ]
     };
 });
@@ -711,7 +791,7 @@ const propiedadesItemHistoria = computed(() => {
                     <template #notas>
                         <div class="space-y-4 pt-4">
                             <div v-if="permisos.notas_ver" class="space-y-4">
-                                <TablaScroll :Propiedades="{
+                                <TablaScroll :key="`notas-${refreshKey}`" :Propiedades="{
                                     titulo: 'Notas Médicas',
                                     data: notas,
                                     cargarData: async(id, por_pagina) => {return await traerAnalisisPaginado(id, por_pagina, 'Nota', historiasStore.Formulario.Analisis.historia.id_paciente)},

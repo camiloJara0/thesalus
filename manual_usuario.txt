@@ -1,0 +1,751 @@
+================================================================================
+                    MANUAL DE USUARIO - SISTEMA SANTA ISABEL
+                    Sistema de Historias Clinicas Digitales
+================================================================================
+
+
+INDICE
+------
+  1. Presentacion del Sistema
+  2. Requisitos para Usar el Sistema
+  3. Inicio de Sesion
+  4. Primer Ingreso y Cambio de Contrasena
+  5. Recuperar Contrasena
+  6. Panel Principal (Dashboard)
+  7. Modulo de Pacientes
+  8. Modulo de Profesionales
+  9. Modulo de Citas
+ 10. Modulo de Historial Clinico
+ 11. Modulo de Inventario e Insumos
+ 12. Modulo de Empresa y Configuracion
+ 13. Modulo de Servicios, CIE-10 y Vademecum
+ 14. Modulo de Usuarios (Administradores)
+ 15. Modulo de Facturacion
+ 16. Gestion de Permisos
+ 17. Modo Offline (Sin Conexion)
+ 18. Preguntas Frecuentes
+
+
+================================================================================
+1. PRESENTACION DEL SISTEMA
+================================================================================
+
+El Sistema Santa Isabel es una plataforma digital para el manejo de historias
+clinicas, citas medicas, pacientes, profesionales de la salud, inventario de
+insumos y gestion empresarial.
+
+Permite:
+  - Registrar y consultar pacientes
+  - Agendar y gestionar citas medicas
+  - Crear y revisar historias clinicas (consultas, notas, evoluciones,
+    terapias, trabajos sociales, diagnosticos, medicamentos, tratamientos)
+  - Gestionar inventario de insumos y movimientos
+  - Administrar profesionales, servicios y codigos medicos (CIE-10, Vademecum)
+  - Exportar datos a Excel y PDF
+  - Trabajar sin conexion (modo offline) y sincronizar despues
+
+
+================================================================================
+2. REQUISITOS PARA USAR EL SISTEMA
+================================================================================
+
+  - Navegador web actualizado (Chrome, Firefox, Edge o Safari)
+  - Conexion a internet (para el inicio de sesion y sincronizacion)
+  - El sistema puede instalarse como aplicacion (PWA) desde el navegador
+  - Resolucion de pantalla recomendada: 1024x768 o superior
+
+
+================================================================================
+3. INICIO DE SESION
+================================================================================
+
+Paso 1: Abra el navegador y entre a la direccion del sistema.
+
+        [IMAGEN: Pantalla de login]
+
+Paso 2: Ingrese su correo electronico en el campo correspondiente.
+
+Paso 3: Ingrese su contrasena.
+
+Paso 4: Si su empresa tiene varias sedes, seleccione la empresa
+        usando el selector "Empresa".
+
+Paso 5: Haga clic en el boton "Iniciar Sesion".
+
+  NOTA: Si es su primer ingreso, el sistema le pedira que cambie su
+  contrasena inmediatamente despues de iniciar sesion.
+
+
+================================================================================
+4. PRIMER INGRESO Y CAMBIO DE CONTRASENA
+================================================================================
+
+Cuando un administrador le crea la cuenta por primera vez, el sistema
+detecta que es su primer ingreso y le enviara un codigo de verificacion
+a su correo electronico.
+
+Paso 1: Ingrese su correo en la pantalla de login. El sistema validara
+        que es su primer ingreso.
+
+Paso 2: Revise su correo electronico y obtenga el codigo de verificacion.
+
+Paso 3: Ingrese el codigo en el campo que aparece en pantalla.
+
+Paso 4: Escriba su nueva contrasena. Asegurece de que sea segura
+        (combinar letras, numeros y caracteres especiales).
+
+Paso 5: Confirme la contrasena y guarde los cambios.
+
+  [IMAGEN: Pantalla de cambio de contrasena por primera vez]
+
+
+================================================================================
+5. RECUPERAR CONTRASENA
+================================================================================
+
+Si olvido su contrasena:
+
+Paso 1: En la pantalla de login, haga clic en "Olvido su contrasena?".
+
+Paso 2: Ingrese su correo electronico.
+
+Paso 3: El sistema le enviara un codigo de verificacion a su correo.
+
+Paso 4: Ingrese el codigo recibido.
+
+Paso 5: Escriba su nueva contrasena y confirme.
+
+  [IMAGEN: Pantalla de recuperacion de contrasena]
+
+
+================================================================================
+6. PANEL PRINCIPAL (DASHBOARD)
+================================================================================
+
+Una vez que inicia sesion, el sistema lo lleva al Dashboard. El contenido
+cambia segun su rol (Administrador o Profesional).
+
+
+--- 6.1 DASHBOARD DEL ADMINISTRADOR ---
+
+El administrador ve:
+
+  a) Tarjetas de estadisticas:
+     - Pacientes totales (con variacion vs. mes anterior)
+     - Consultas hoy
+     - Citas programadas
+     - Rips pendientes
+
+  b) Pacientes Recientes:
+     Lista de los ultimos pacientes atendidos. Puede hacer clic en
+     "Ver Todos" para ir al historial completo.
+
+  c) Agenda de Pendientes:
+     Citas del dia con hora, paciente, servicio y motivo.
+     Haga clic en "Ver Agenda" para ir al calendario completo.
+
+  d) Acciones Rapidas (botones de acceso directo):
+     - Nuevo Paciente: Abre el formulario para registrar un paciente.
+     - Buscar Historia: Lleva a la seccion de historial clinico.
+     - Agendar: Abre el formulario para crear una nueva cita.
+     - Exportar RIPS: Para generar reportes RIPS.
+
+  [IMAGEN: Dashboard del administrador]
+
+
+--- 6.2 DASHBOARD DEL PROFESIONAL ---
+
+El profesional ve:
+
+  a) Tarjeta de bienvenida:
+     Muestra su nombre y su profesion.
+
+  b) Agenda de Pendientes:
+     Sus proximas citas asignadas.
+
+  c) Acciones Rapidas:
+     - Agendar: Crear una nueva cita.
+     - Pacientes: Ver informacion de sus pacientes.
+     - Solicitar Permisos: Enviar solicitud al administrador para
+       obtener permisos temporales a secciones restringidas.
+
+  [IMAGEN: Dashboard del profesional]
+
+
+================================================================================
+7. MODULO DE PACIENTES
+================================================================================
+
+Ruta: Menu > Usuarios > Pacientes
+
+Este modulo permite gestionar toda la informacion de los pacientes.
+
+
+--- 7.1 VER LISTA DE PACIENTES ---
+
+Al entrar al modulo, se muestra una tabla con todos los pacientes
+registrados. La tabla incluye:
+  - Documento
+  - Nombre
+  - Ciudad
+  - EPS
+  - Convenio
+
+Puede usar los filtros para buscar por Ciudad o EPS.
+Tambien puede exportar la lista a Excel con el boton correspondiente.
+
+  [IMAGEN: Tabla de pacientes]
+
+
+--- 7.2 REGISTRAR UN NUEVO PACIENTE ---
+
+Paso 1: Haga clic en el boton "Agregar" (icono +) en la tabla.
+
+Paso 2: Se abre un formulario tipo "Wizard" (paso a paso). Complete
+        los datos en cada paso:
+        - Informacion personal (nombre, documento, fecha de nacimiento, etc.)
+        - Direccion y contacto
+        - EPS y convenio
+        - Informacion adicional
+
+Paso 3: Al terminar, guarde el registro.
+
+  [IMAGEN: Formulario wizard de nuevo paciente]
+
+  NOTA: El sistema valida automaticamente que el documento no este
+  duplicado. Si el paciente ya existe, le avisara.
+
+
+--- 7.3 VER O MODIFICAR UN PACIENTE ---
+
+Paso 1: En la tabla, haga clic en el boton de acciones (tres puntos)
+        a la derecha del paciente que desea ver.
+
+Paso 2: Seleccione "Ver" o "Editar".
+
+Paso 3: Modifique los datos necesarios y guarde.
+
+Paso 4: Si tiene permisos, tambien puede eliminar el paciente desde
+        esta misma ventana.
+
+
+--- 7.4 PESTANAS DEL MODULO ---
+
+El modulo de pacientes tiene 4 pestanas:
+
+  1. Pacientes: Tabla principal de gestion de pacientes.
+  2. EPS: Gestion de Entidades Promotoras de Salud.
+  3. Convenios: Gestion de convenios médicos.
+  4. Kardex Medico: Seguimiento de kardex de pacientes.
+
+  [IMAGEN: Pestanas del modulo de pacientes]
+
+
+--- 7.5 DATOS NO ENVIADOS ---
+
+Si hay datos que no se pudieron enviar al servidor (por falta de
+conexion), aparecera un aviso amarillo en la parte superior indicando
+cuantos registros faltan por sincronizar.
+
+
+================================================================================
+8. MODULO DE PROFESIONALES
+================================================================================
+
+Ruta: Menu > Usuarios > Profesionales
+
+Gestiona los profesionales de la salud que trabajan en la institucion.
+
+
+--- 8.1 VER LISTA DE PROFESIONALES ---
+
+La tabla muestra: nombre, documento, ciudad, zona, profesion y estado.
+Puede filtrar por Ciudad y Zona.
+
+  [IMAGEN: Tabla de profesionales]
+
+
+--- 8.2 REGISTRAR UN PROFESIONAL ---
+
+Paso 1: Haga clic en "Agregar".
+
+Paso 2: Complete el formulario wizard:
+        - Datos personales
+        - Datos laborales (profesion, municipio laboral, zona)
+        - Informacion de contacto
+
+Paso 3: Guarde el registro.
+
+
+--- 8.3 PESTANAS DEL MODULO ---
+
+  1. Profesionales: Tabla de gestion de profesionales.
+  2. Profesiones: Lista de profesiones registradas.
+  3. Permisos: Asignacion de permisos a los profesionales por secciones.
+
+  [IMAGEN: Pestanas del modulo de profesionales]
+
+
+--- 8.4 GESTIONAR PERMISOS DE UN PROFESIONAL ---
+
+Desde la pestana "Permisos" puede asignar o quitar permisos a cada
+profesional para que pueda acceder a diferentes secciones del sistema.
+
+
+================================================================================
+9. MODULO DE CITAS
+================================================================================
+
+Ruta: Menu > Usuarios > Citas
+
+Administra las citas medicas de la clinica.
+
+
+--- 9.1 VISTA DE CALENDARIO ---
+
+Por defecto se muestra la vista de calendario con las citas del dia.
+Cada cita muestra:
+  - Hora
+  - Nombre del paciente
+  - Servicio
+  - Motivo de la cita
+
+  [IMAGEN: Vista de calendario de citas]
+
+
+--- 9.2 VISTA EN LISTA ---
+
+Haga clic en el boton "En Lista" para ver las citas en formato de tabla.
+La tabla incluye: ID, Fecha, Paciente, Profesional, Motivo, Servicio
+y Estado.
+
+Puede filtrar por: Servicio, Estado, Profesional, Mes y Ano.
+
+  [IMAGEN: Vista en lista de citas]
+
+
+--- 9.3 CREAR UNA CITA ---
+
+Paso 1: Haga clic en el boton "Agendar".
+
+Paso 2: Seleccione la fecha y hora.
+
+Paso 3: Seleccione el paciente.
+
+Paso 4: Seleccione el profesional.
+
+Paso 5: Seleccione el servicio.
+
+Paso 6: Escriba el motivo de la cita.
+
+Paso 7: Guarde la cita.
+
+  [IMAGEN: Formulario de nueva cita]
+
+
+--- 9.4 ACCIONES SOBRE LAS CITAS ---
+
+Segun el estado de la cita, puede realizar diferentes acciones:
+
+  - Si la cita esta "Inactiva":
+    * Editar: Modificar los datos de la cita.
+    * Realizar: Cambiar el estado a "Realizada".
+    * Eliminar: Cancelar la cita (se guarda el motivo de cancelacion).
+
+  - Si la cita esta "Realizada":
+    * Ver Observacion: Consultar la observacion registrada.
+
+  - Si la cita esta "Cancelada":
+    * Ver Motivo: Consultar el motivo de cancelacion.
+
+
+--- 9.5 VISTA SIN PERMISOS ---
+
+Si no tiene permisos para ver las citas, se mostrara un mensaje de
+"Acceso restringido" con un enlace para volver al inicio.
+
+
+================================================================================
+10. MODULO DE HISTORIAL CLINICO
+================================================================================
+
+Ruta: Menu > Historial
+
+Es uno de los modulos mas importantes. Permite ver y gestionar toda la
+informacion clinica de cada paciente.
+
+
+--- 10.1 LISTA DE HISTORIAS CLINICAS ---
+
+Al entrar se muestra una tabla con los pacientes que tienen historia
+clinica. Puede filtrar por estado.
+
+  [IMAGEN: Lista de historias clinicas]
+
+Si hay registros medicos no enviados, aparecera un aviso amarillo
+arriba de la tabla con un boton "Enviar" para sincronizarlos.
+
+
+--- 10.2 SELECCIONAR UN PACIENTE ---
+
+Haga clic en la flecha (->) de la fila del paciente que desea
+consultar. Se abrira el historial completo de ese paciente.
+
+
+--- 10.3 HISTORIAL COMPLETO DEL PACIENTE ---
+
+En la parte superior se muestra:
+  - Nombre del paciente
+  - Numero de documento
+  - Boton para ocultar/mostrar el panel de navegacion
+  - Boton "Regresar" para volver a la lista
+
+  [IMAGEN: Historial completo del paciente]
+
+El panel de navegacion tiene 3 secciones:
+
+  a) Registros: Muestra las tablas con toda la informacion clinica.
+  b) Evolucion: Dashboard clinico con graficos (ej: grafico de IMC).
+  c) Inventario: Productos e insumos asignados al paciente.
+
+
+--- 10.4 PESTANAS DE REGISTROS CLINICOS ---
+
+Dentro de la seccion "Registros" se encuentran 8 pestanas:
+
+  1. Notas:
+     Notas medicas generales del paciente.
+     Puede filtrar por servicio, profesional, mes y ano.
+
+  2. Evoluciones:
+     Registro de la evolucion clinica del paciente.
+     Incluye filtros por servicio, profesional, mes y ano.
+
+  3. Terapias:
+     Terapias y procedimientos realizados al paciente.
+
+  4. Consultas:
+     Consultas y analisis clinicos realizados.
+
+  5. Social:
+     Trabajos sociales realizados.
+
+  6. Diagnosticos:
+     Diagnosticos registrados (CIE-10).
+
+  7. Medicamentos:
+     Medicamentos prescritos al paciente.
+
+  8. Tratamientos:
+     Tratamientos asignados al paciente.
+
+  [IMAGEN: Pestanas de registros clinicos]
+
+
+--- 10.5 EXPORTAR PDF ---
+
+Desde la lista de historias clinicas, puede exportar a PDF:
+  - Exportar todos los registros de un paciente
+  - Exportar por servicio especifico
+
+Haga clic en el boton "Exportar" y seleccione la opcion deseada.
+
+
+--- 10.6 VER GRAFICO DE EVOLUCION ---
+
+Haga clic en "Evolucion" en el panel de navegacion. Se mostrara un
+grafico de linea con la evolucion del IMC del paciente a lo largo
+del tiempo.
+
+
+--- 10.7 VER INVENTARIO ASIGNADO ---
+
+Haga clic en "Inventario" para ver los insumos y productos asignados
+al paciente, con sus movimientos relacionados.
+
+
+================================================================================
+11. MODULO DE INVENTARIO E INSUMOS
+================================================================================
+
+Ruta: Menu > Historial > Insumos
+
+Gestiona el inventario de insumos medicos, movimientos y prestaciones.
+
+
+--- 11.1 PESTANAS DEL MODULO ---
+
+  1. Inventario: Lista de todos los insumos registrados.
+  2. Movimientos: Registro de entradas y salidas de insumos.
+  3. Prestaciones: Timeline de insumos prestados a pacientes.
+
+  [IMAGEN: Pestanas del modulo de insumos]
+
+
+--- 11.2 GESTIONAR INSUMOS (PESTANA INVENTARIO) ---
+
+La tabla muestra: Nombre, si es Prestable, Tipo (categoria), Stock.
+
+  - Stock en verde: Mas de 9 unidades disponibles.
+  - Stock en amarillo: Entre 2 y 9 unidades.
+  - Stock en rojo: 1 o menos unidades (alerta de stock bajo).
+
+Acciones disponibles:
+  - Agregar nuevo insumo
+  - Ver insumo (ver detalle y modificar)
+  - Agregar movimiento (entrada/salida)
+  - Eliminar insumo
+
+Puede filtrar por Tipo y Ubicacion.
+
+
+--- 11.3 REGISTRAR MOVIMIENTOS (PESTANA MOVIMIENTOS) ---
+
+Un movimiento representa la entrada o salida de un insumo,
+relacionado a un paciente y un profesional.
+
+Puede filtrar por Tipo de movimiento y Categoria del insumo.
+
+
+--- 11.4 VER PRESTACIONES (PESTANA PRESTACIONES) ---
+
+Muestra un timeline visual de los insumos que han sido prestados
+a pacientes, con opcion de agregar nuevos movimientos.
+
+
+================================================================================
+12. MODULO DE EMPRESA Y CONFIGURACION
+================================================================================
+
+Ruta: Menu > Empresas
+
+
+--- 12.1 CONFIGURACION DE LA EMPRESA ---
+
+Ruta: Empresas > Configuracion
+
+Permite configurar los datos generales de la empresa:
+  - Datos de la empresa (nombre, NIT, direccion, etc.)
+  - Datos del software
+  - Datos de nomina
+  - Documentos equivalentes
+
+Solo los administradores con permisos pueden modificar estos datos.
+
+  [IMAGEN: Formulario de configuracion de empresa]
+
+
+--- 12.2 RESOLUCIONES ---
+
+Ruta: Empresas > Resoluciones
+
+Registra las resoluciones de facturacion de la empresa:
+  - Tipo de documento
+  - Prefijo
+  - Numero de resolucion
+  - Fechas de vigencia
+  - Rango de numeros
+
+
+--- 12.3 GESTIONAR CONVENIOS ---
+
+Ruta: Empresas > Convenios
+
+Administra los convenios medicos y aseguradoras. Puede:
+  - Ver la lista de convenios
+  - Agregar nuevos convenios
+  - Ver detalle de un convenio
+  - Filtrar por estado
+
+  [IMAGEN: Lista de convenios]
+
+
+--- 12.4 GESTIONAR USUARIOS (ADMINISTRADORES) ---
+
+Ruta: Empresas > Usuarios
+
+Gestiona los usuarios administradores del sistema.
+
+La tabla muestra: Documento, Nombre, Celular, Correo y Estado.
+
+Acciones:
+  - Agregar nuevo administrador
+  - Editar administrador existente
+  - Eliminar administrador
+
+  [IMAGEN: Tabla de administradores]
+
+
+================================================================================
+13. MODULO DE SERVICIOS, CIE-10 Y VADEMECUM
+================================================================================
+
+Ruta: Empresas > Codigos
+
+
+--- 13.1 SERVICIOS ---
+
+Gestiona los servicios medicos que ofrece la institucion.
+Cada servicio tiene: nombre, plantilla asociada y estado (activo/inactivo).
+
+Puede ver la plantilla de cada servicio haciendo clic en "Ver Plantilla".
+
+
+--- 13.2 CODIGOS CIE-10 ---
+
+Catalogo de codigos de enfermedades segun la Clasificacion
+Internacional de Enfermedades, version 10.
+
+Cada registro tiene: codigo y nombre de la condicion medica.
+
+
+--- 13.3 VADECUM ---
+
+Catalogo de medicamentos, productos y servicios de salud.
+Muestra: expediente, producto, titular, registro sanitario y estado.
+
+Puede buscar, filtrar por estado y exportar a Excel.
+
+
+================================================================================
+14. MODULO DE USUARIOS (ADMINISTRADORES)
+================================================================================
+
+Ruta: Empresas > Usuarios
+
+Ver seccion 12.4 arriba para detalles completos.
+
+
+================================================================================
+15. MODULO DE FACTURACION
+================================================================================
+
+Ruta: Menu > Facturacion
+
+  NOTA: Este modulo se encuentra en fase de desarrollo.
+
+Secciones disponibles:
+  - RIPS: Reportes del Registro Individual de Prestacion de Servicios
+    de Salud. (En desarrollo)
+  - Reportes: Generacion de reportes personalizados. (En desarrollo)
+  - Crear: Creacion de nuevos registros de facturacion. (En desarrollo)
+
+
+================================================================================
+16. GESTION DE PERMISOS
+================================================================================
+
+El sistema controla el acceso a cada seccion mediante permisos.
+
+El administrador puede:
+  - Asignar permisos a los profesionales desde el modulo de
+    Profesionales > Pestana "Permisos".
+  - Aprobar permisos temporales solicitados por profesionales.
+
+El profesional puede:
+  - Solicitar permisos temporales desde su dashboard usando el boton
+    "Solicitar Permisos".
+  - Recibira una notificacion cuando el admin apruebe o rechace
+    su solicitud.
+
+
+--- 16.1 TIPOS DE PERMISOS ---
+
+Cada modulo tiene permisos de tipo:
+  _view:  Ver la lista de registros
+  _get:   Obtener datos adicionales
+  _post:  Crear nuevos registros
+  _put:   Modificar registros existentes
+  _delete: Eliminar registros
+
+Ejemplo: Pacientes_view, Pacientes_post, Pacientes_put, etc.
+
+  [IMAGEN: Panel de permisos]
+
+
+--- 16.2 SOLICITAR PERMISOS (COMO PROFESIONAL) ---
+
+Paso 1: En su dashboard, haga clic en "Solicitar Permisos".
+
+Paso 2: Seleccione las secciones a las que necesita acceder.
+
+Paso 3: La solicitud se enviara al administrador.
+
+Paso 4: El administrador recibira un enlace por correo para aprobar
+        o rechazar la solicitud.
+
+
+--- 16.3 APROBAR PERMISOS (COMO ADMINISTRADOR) ---
+
+Cuando un profesional solicita permisos, el administrador recibe un
+enlace. Al abrirlo, el sistema aprueba automaticamente el permiso
+y redirige al dashboard.
+
+
+================================================================================
+17. MODO OFFLINE (SIN CONEXION)
+================================================================================
+
+El sistema esta disenado para funcionar sin conexion a internet
+(modo offline) gracias a la tecnologia PWA y IndexedDB.
+
+
+--- 17.1 COMO FUNCIONA ---
+
+  1. Cuando hay conexion, el sistema descarga los datos y los almacena
+     en el navegador (IndexedDB).
+  2. Si se pierde la conexion, puede seguir trabajando normalmente.
+  3. Los datos que cree o modifique se guardan localmente.
+  4. Cuando vuelva la conexion, los datos se sincronizan con el servidor.
+
+
+--- 17.2 AVISOS DE DATOS NO ENVIADOS ---
+
+Si hay datos pendientes por sincronizar, aparecera un aviso amarillo
+en la parte superior de los modulos afectados, mostrando la cantidad
+de registros pendientes.
+
+  [IMAGEN: Aviso de datos no enviados]
+
+
+--- 17.3 LIMITACIONES OFFLINE ---
+
+  - No puede iniciar sesion sin conexion (necesita validar credenciales).
+  - Algunos datos podrian no estar actualizados.
+  - La sincronizacion puede tardar dependiendo de la cantidad de datos
+    pendientes.
+
+
+================================================================================
+18. PREGUNTAS FRECUENTES
+================================================================================
+
+P: Olvide mi contrasena, que hago?
+R: Use la opcion "Olvido su contrasena?" en la pantalla de login.
+   Recibira un codigo por correo para crear una nueva contrasena.
+
+P: No puedo acceder a un modulo, dice "Acceso Restringido".
+R: No tiene los permisos necesarios. Solicite permisos al
+   administrador desde su dashboard.
+
+P: Los datos no se guardan, que hago?
+R: Verifique su conexion a internet. Si esta offline, los datos
+   se guardan localmente y se sincronizan cuando vuelva la conexion.
+
+P: Como cambio mi contrasena?
+R: El cambio de contrasena se realiza desde el perfil de usuario
+   o cuando el administrador lo indica.
+
+P: Puedo usar el sistema en mi celular?
+R: Si. El sistema es compatible con dispositivos moviles y puede
+   instalarse como aplicacion (PWA) desde el navegador.
+
+P: Como exporto datos a Excel?
+R: En las tablas que lo permitan, haga clic en el boton de Excel
+   (icono de hoja de calculo) en la esquina superior derecha de la tabla.
+
+
+================================================================================
+                    FIN DEL MANUAL DE USUARIO
+                    Sistema Santa Isabel - v1.0
+================================================================================

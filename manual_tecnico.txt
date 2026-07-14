@@ -1,0 +1,1127 @@
+================================================================================
+                    MANUAL TECNICO - SISTEMA SANTA ISABEL
+                    Sistema de Historias Clinicas Digitales
+================================================================================
+
+
+INDICE
+------
+  1. Descripcion General del Proyecto
+  2. Stack Tecnologico
+  3. Estructura de Directorios
+  4. Arquitectura de la Aplicacion
+  5. Configuracion y Entorno
+  6. Sistema de Rutas (Pages)
+  7. Sistema de Estados (Stores - Pinia)
+  8. Patron Builder (Constructores)
+  9. Capa de Negocio (Core)
+ 10. Composables
+ 11. Base de Datos Local (IndexedDB)
+ 12. Sistema de Permisos
+ 13. Autenticacion y Seguridad
+ 14. Modo Offline y PWA
+ 15. API REST y Comunicacion con Backend
+ 16. Componentes Principales
+ 17. Despliegue y Build
+ 18. Guia de Mantenimiento
+
+
+================================================================================
+1. DESCRIPCION GENERAL DEL PROYECTO
+================================================================================
+
+Nombre:       Santa Isabel (Thesalus)
+Tipo:         Aplicacion web SPA (Single Page Application) con soporte PWA
+Proposito:    Sistema de gestion de historias clinicas digitales para
+              instituciones de salud.
+Modo:         SSR desactivado (spa mode), generacion estatica (static).
+Backend:      API REST externa (Laravel u otro framework PHP).
+
+
+================================================================================
+2. STACK TECNOLOGICO
+================================================================================
+
+  Framework:         Nuxt 3 (v3.17.1)
+  UI Framework:      Vue 3 (v3.5.13)
+  Componentes UI:    @nuxt/ui (v3.3.7)
+  Router:            vue-router (v4.5.1)
+  Estado:            Pinia (@pinia/nuxt v0.11.0)
+  Charts:            nuxt-charts (v2.1.3)
+  PWA:               @vite-pwa/nuxt (v1.1.1)
+  Tema:              @nuxtjs/color-mode (v3.5.2)
+  Iconos:            @fortawesome/fontawesome-free (v6.7.2)
+  Notificaciones:    vue-sweetalert2 (v5.0.11)
+  Exportar Excel:    vue-json-excel3 (v1.0.30)
+  Encriptacion:      crypto-js (v4.2.0)
+  Lenguaje:          JavaScript (sin TypeScript en codigo fuente)
+
+
+================================================================================
+3. ESTRUCTURA DE DIRECTORIOS
+================================================================================
+
+  santaIsabel/
+  |
+  |-- pages/                  # Rutas de la aplicacion (Nuxt file-based routing)
+  |   |-- index.vue           # Login (/)
+  |   |-- Home.vue            # Dashboard principal
+  |   |-- aprobar-permiso.vue # Aprobacion de permisos via token
+  |   |-- Usuarios/
+  |   |   |-- index.vue              # Gestion de pacientes
+  |   |   |-- Profesional/index.vue   # Gestion de profesionales
+  |   |   |-- Citas/index.vue         # Gestion de citas
+  |   |-- Historial/
+  |   |   |-- index.vue              # Historial clinico
+  |   |   |-- Insumos/index.vue      # Inventario e insumos
+  |   |-- Empresas/
+  |   |   |-- index.vue              # Servicios, CIE-10, Vademecum
+  |   |   |-- Configuracion/index.vue # Config empresa
+  |   |   |-- Resoluciones/index.vue  # Resoluciones facturacion
+  |   |   |-- Convenios/index.vue     # Convenios
+  |   |   |-- Usuarios/index.vue      # Administradores
+  |   |   |-- Codigos/                # CIE-10 y Vademecum
+  |   |   |-- Cajas/                  # (En desarrollo)
+  |   |   |-- Inventarios/            # (En desarrollo)
+  |   |   |-- Impuestos/              # (En desarrollo)
+  |   |   |-- Negocios/               # (En desarrollo)
+  |   |   |-- Productos/              # (En desarrollo)
+  |   |   |-- Formas de pago/         # (En desarrollo)
+  |   |-- Facturacion/
+  |       |-- Rips.vue                # Reportes RIPS (En desarrollo)
+  |       |-- Reportes.vue            # Reportes (En desarrollo)
+  |       |-- Crear.vue               # Crear facturacion (En desarrollo)
+  |
+  |-- Layouts/                # Layouts globales
+  |   |-- Default.vue         # Layout principal (con navbar/sidebar)
+  |   |-- Authentication.vue  # Layout de autenticacion (login)
+  |   |-- Impresion.vue       # Layout para impresion
+  |
+  |-- components/             # Componentes Vue reutilizables
+  |   |-- organism/           # Componentes complejos (Tablas, Forms, Cards)
+  |   |   |-- Table/          # TablaNuxt.vue, TablaScroll.vue, CrearTabla.vue
+  |   |   |-- Forms/          # Form.vue, CrearFormulario.vue
+  |   |   |-- Pacientes/      # CardEPS, CardConvenios, CardKardex, Modales
+  |   |   |-- Profesionales/  # PanelAcciones, CardProfesiones, CardPermisos
+  |   |   |-- Inventario/     # TimelineMovimientos
+  |   |   |-- NoEnviados/     # Restringido.vue
+  |   |   |-- Pagina/         # Pagina.vue (componente de pagina generico)
+  |   |-- atoms/              # Componentes basicos (Fondos, etc.)
+  |   |-- molecules/          # Componentes intermedios (Charts)
+  |   |-- Paciente.vue        # Formulario de paciente
+  |   |-- Cita.vue            # Formulario de cita
+  |   |-- Historia.vue        # Formulario de historia clinica
+  |
+  |-- build/                  # Builders (patron Builder para construir UI)
+  |   |-- Constructores/      # ComponentesBuilder, CardBuilder, CalendarioBuilder, TablaBuilder
+  |   |-- Login/              # useLoginBuilder, useRecuperarContrasenaBuilder, etc.
+  |   |-- Pacientes/          # usePacienteFormBuilder
+  |   |-- Profesional/        # useProfesionalFormBuilder
+  |   |-- Empresa/            # useServicioBuilder, useDatosEmpresaBuilder, etc.
+  |   |-- Codigos/            # useCie10Builder, useVadecumBuilder
+  |   |-- Historial/          # useVerHistoriaBuilder, useInsumosBuilder, etc.
+  |   |-- Administradores/    # useAdministradoresBuilder
+  |   |-- Convenios/          # useConvenioBuilder
+  |
+  |-- Core/                   # Logica de negocio y llamadas a la API
+  |   |-- Login/              # Ingresar.js, RecuperarContrasena.js, CambiarContrasena.js
+  |   |-- Pacientes/          # GET, POST, PUT, DELETE de pacientes
+  |   |-- Profesional/        # GET, POST, PUT, DELETE de profesionales
+  |   |-- Historial/          # GET historias, POST planes de manejo
+  |   |-- Empresa/            # Dashboard, Usuarios
+  |   |-- Cita/               # GET citas
+  |   |-- BDload.js           # Carga inicial de datos al login
+  |
+  |-- stores/                 # Stores de Pinia (estado global)
+  |   |-- varview.js          # Estado global de la UI (cargando, permisos, etc.)
+  |   |-- apiRest.js          # Cliente HTTP generico para la API
+  |   |-- indexedDB.js        # Manejo de IndexedDB (offline)
+  |   |-- notificaciones.js   # Sistema de notificaciones (SweetAlert2)
+  |   |-- Entidades/          # Stores de dominio
+  |   |   |-- Paciente.js, Profesional.js, Cita.js, Historia.js,
+  |   |   |-- Insumo.js, Servicio.js, Eps.js, Convenio.js, etc.
+  |   |-- Formularios/        # Stores de formularios
+  |   |   |-- empresa/, citas/, historias/, usuarios/
+  |   |-- Excel.js, Calendario.js, etc.
+  |
+  |-- composables/            # Funciones reutilizables (composables Vue)
+  |   |-- Formulario/         # crypto.js (encriptacion), FormatearFecha.js
+  |   |-- Usuarios/           # Usuarios.js (validaciones), Vadecum.js
+  |   |-- Entidades/          # Paciente.js, Profesional.js, Cita.js, etc.
+  |   |-- Historias/          # historialManejoModales.js, exportarServicioPDF.js
+  |
+  |-- data/                   # Datos estaticos
+  |   |-- CIE10.js, CUPS.js, CIF.js  # Tablas de codigos medicos
+  |   |-- municipios.js, colombia.js  # Datos geograficos
+  |   |-- NavMenu.js, Buttons.js, Tablas.js, Fechas.js
+  |
+  |-- assets/css/             # Estilos CSS globales
+  |-- public/                 # Archivos estaticos (logo, favicon, etc.)
+  |-- server/api/             # API routes de Nitro (medicamentos.js)
+  |-- plugins/                # Plugins de Nuxt (sweetalert2, vue-json-excel)
+  |-- nuxt.config.ts          # Configuracion de Nuxt
+  |-- app.config.ts           # Configuracion de la app
+  |-- app.vue                 # Componente raiz
+  |-- package.json            # Dependencias del proyecto
+  |-- tsconfig.json           # Configuracion TypeScript
+  |-- .env                    # Variables de entorno
+
+
+================================================================================
+4. ARQUITECTURA DE LA APLICACION
+================================================================================
+
+La aplicacion sigue un patron arquitectonico basado en capas:
+
+  +-------------------------------------------------------------+
+  |                    PRESENTACION (pages/)                      |
+  |         Rutas Vue que componen las pantallas                 |
+  +-------------------------------------------------------------+
+              |
+              v
+  +-------------------------------------------------------------+
+  |              CONSTRUCCION DE UI (build/)                     |
+  |       Builders que ensamblan componentes y props              |
+  |   ComponentesBuilder, CardBuilder, TablaBuilder, etc.        |
+  +-------------------------------------------------------------+
+              |
+              v
+  +-------------------------------------------------------------+
+  |              COMPONENTES (components/)                        |
+  |      Componentes Vue reutilizables (organism, atoms, etc.)   |
+  +-------------------------------------------------------------+
+              |
+              v
+  +-------------------------------------------------------------+
+  |              COMPOSABLES (composables/)                       |
+  |    Funciones de negocio reutilizables (validaciones,         |
+  |    acciones CRUD, formateo de datos)                         |
+  +-------------------------------------------------------------+
+              |
+              v
+  +-------------------------------------------------------------+
+  |              ESTADO (stores/ - Pinia)                         |
+  |    Stores de dominio + estado global (varview)               |
+  |    Manejo de IndexedDB para offline                          |
+  +-------------------------------------------------------------+
+              |
+              v
+  +-------------------------------------------------------------+
+  |              NEGOCIO Y API (Core/)                            |
+  |    Funciones que validan y envian datos al backend           |
+  |    Llamadas HTTP via apiRest store                           |
+  +-------------------------------------------------------------+
+              |
+              v
+  +-------------------------------------------------------------+
+  |              API REST EXTERNA (Backend Laravel/PHP)           |
+  |    Endpoints configurados en nuxt.config.ts > runtimeConfig  |
+  +-------------------------------------------------------------+
+
+
+--- 4.1 FLUJO DE UNA ACCION TIPICA ---
+
+  1. El usuario interactua con un componente en pages/.
+  2. Se ejecuta una funcion del composable correspondiente.
+  3. El composable valida los datos y llama al Core/.
+  4. Core/ envia la peticion HTTP via el store apiRest.
+  5. La respuesta actualiza el store Pinia correspondiente.
+  6. El store notifica a los watchers en pages/.
+  7. La UI se reactiva automaticamente (reactividad de Vue).
+
+
+--- 4.2 PATRON BUILDER ---
+
+El proyecto utiliza un patron Builder para construir la UI de cada
+pantalla de forma declarativa:
+
+  const pagina = new ComponenteBuilder();
+  pagina
+      .setFondo('FondoDefault')
+      .setHeaderPage({ titulo: 'Mi Pagina', descripcion: '...' })
+      .setContenedor('grid grid-cols-2 gap-4')
+      .addComponente('Card', propiedadesCards)
+      .addComponente('Tabla', propiedadesTabla);
+
+  const propiedadesPagina = pagina.build();
+
+Los builders disponibles son:
+  - ComponenteBuilder:  Construye paginas completas
+  - CardBuilder:        Construye tarjetas/cards
+  - TablaBuilder:       Construye tablas de datos
+  - CalendarioBuilder:  Construye el calendario de citas
+  - CitasBuilder:       Construye la lista visual de citas
+
+
+================================================================================
+5. CONFIGURACION Y ENTORNO
+================================================================================
+
+
+--- 5.1 ARCHIVO nuxt.config.ts ---
+
+Configuracion principal:
+
+  - ssr: false                    -> Modo SPA (sin server-side rendering)
+  - nitro.preset: 'static'        -> Generacion estatica
+  - css: '~/assets/css/main.css'  -> Estilos globales
+  - colorMode: preference: system -> Tema claro/oscuro automatico
+
+
+--- 5.2 VARIABLES DE ENTORNO (runtimeConfig) ---
+
+Todas las URLs de la API estan configuradas en nuxt.config.ts
+dentro de runtimeConfig.public:
+
+  api: 'http://127.0.0.1:8000'    -> URL base del backend
+  login: 'api/v1/login'           -> Endpoint de login
+  pacientes: 'api/v1/pacientes'   -> Endpoint de pacientes
+  ... (mas de 80 endpoints configurados)
+
+  NOTA: La URL de produccion esta comentada:
+  api: 'https://api2.ctsantaisabel.com'
+
+
+--- 5.3 ARCHIVO .env ---
+
+Contiene variables de entorno sensibles. No debe subirse al
+repositorio (debe estar en .gitignore).
+
+
+--- 5.4 SCRIPTS DISPONIBLES ---
+
+  npm run dev       -> Servidor de desarrollo
+  npm run build     -> Compilar para produccion
+  npm run generate  -> Generar archivos estaticos
+  npm run preview   -> Previsualizar la build
+  npm run postinstall -> Preparar Nuxt (postinstall automatico)
+
+
+================================================================================
+6. SISTEMA DE RUTAS (PAGES)
+================================================================================
+
+Nuxt usa file-based routing. Cada archivo en pages/ genera una ruta:
+
+  pages/index.vue                  -> /
+  pages/Home.vue                   -> /Home
+  pages/aprobar-permiso.vue        -> /aprobar-permiso
+  pages/Usuarios/index.vue         -> /Usuarios
+  pages/Usuarios/Profesional/      -> /Usuarios/Profesional
+  pages/Usuarios/Citas/            -> /Usuarios/Citas
+  pages/Historial/index.vue        -> /Historial
+  pages/Historial/Insumos/         -> /Historial/Insumos
+  pages/Empresas/index.vue         -> /Empresas
+  pages/Empresas/Configuracion/    -> /Empresas/Configuracion
+  pages/Empresas/Resoluciones/     -> /Empresas/Resoluciones
+  pages/Empresas/Convenios/        -> /Empresas/Convenios
+  pages/Empresas/Usuarios/         -> /Empresas/Usuarios
+  pages/Empresas/Codigos/          -> /Empresas/Codigos
+  pages/Facturacion/Rips.vue       -> /Facturacion/Rips
+  pages/Facturacion/Reportes.vue   -> /Facturacion/Reportes
+  pages/Facturacion/Crear.vue      -> /Facturacion/Crear
+
+
+--- 6.1 LAYOUTS ---
+
+Cada pagina define su layout con definePageMeta():
+
+  - layout: 'authentication'  -> Layout de login (sin sidebar)
+  - layout: 'default'         -> Layout principal (con sidebar y navbar)
+  - layout: 'impresion'       -> Layout para impresion de documentos
+
+El layout por defecto es 'default' (si no se especifica).
+
+
+--- 6.2 FLUJO DE NAVEGACION ---
+
+  Login (/) --> Segun rol:
+    Admin     --> /Home
+    Profesional --> /Usuarios/Citas
+
+  Navegacion lateral (sidebar) controlada por el store varview
+  y los permisos del usuario.
+
+  Redirecciones por rol:
+    - Admin: Acceso a todos los modulos
+    - Profesional: Acceso limitado segun permisos asignados
+
+
+================================================================================
+7. SISTEMA DE ESTADOS (STORES - PINIA)
+================================================================================
+
+
+--- 7.1 STORE GLOBAL: varview.js ---
+
+Almacena el estado global de la interfaz:
+
+  Propiedades principales:
+    cargando: boolean       -> Muestra indicador de carga
+    soloVer: boolean        -> Modo solo lectura
+    cambioEnApi: boolean    -> Indica si hubo cambios en la API
+    importarArchivo: boolean -> Muestra modal de importacion
+
+    // Control de visibilidad de modales/formularios
+    showNuevoPaciente: boolean
+    showNuevaCita: boolean
+    showActualizarCita: boolean
+    showNuevaHistoria: boolean
+    showEnFila: boolean
+    showCalendario: boolean
+    showExportarPDFs: boolean
+
+    // Datos del usuario logueado (desde localStorage encriptado)
+    getRol: string
+    getUser: object
+    getPermisos: array
+
+  Metodos:
+    datosActualizados()     -> Marca que los datos fueron actualizados
+
+
+--- 7.2 STORE: apiRest.js ---
+
+Cliente HTTP generico. Expone un metodo functionCall() que recibe:
+
+  options = {
+    metodo: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    url: 'api/v1/...',        // Clave del endpoint en runtimeConfig
+    body: { ... }             // Datos a enviar (para POST/PUT)
+  }
+
+Internamente:
+  1. Obtiene la URL base de useRuntimeConfig()
+  2. Agrega el token de autorizacion (encriptado en localStorage)
+  3. Ejecuta la peticion fetch
+  4. Retorna la respuesta JSON
+
+
+--- 7.3 STORES DE ENTIDAD (stores/Entidades/) ---
+
+Cada entidad tiene su propio store con:
+
+  State:
+    - Lista de registros (ej: Pacientes, Profesionales)
+    - Estados de visibilidad de formularios
+    - Formulario con los campos del formulario
+
+  Actions (metodos):
+    - traer(forzar, cambio)  -> Obtiene datos de la API o IndexedDB
+    - traerNoEnviados()      -> Obtiene registros offline pendientes
+    - ... operaciones CRUD
+
+  Getters:
+    - Datos computados derivados del state
+
+Stores principales:
+  Paciente.js, Profesional.js, Cita.js, Historia.js,
+  Insumo.js, Servicio.js, Eps.js, Convenio.js,
+  Profesion.js, Administrador.js, Cie10.js, Vadecum.js,
+  Movimiento.js
+
+
+--- 7.4 STORE: notificaciones.js ---
+
+Envuelve SweetAlert2 para mostrar:
+  - Alertas simples (exito, error, warning)
+  - Alertas de confirmacion
+  - Loading spinners
+  - Mensajes toast
+
+  Uso:
+    notificaciones.options.titulo = 'Exito';
+    notificaciones.options.texto = 'Datos guardados';
+    notificaciones.options.icono = 'success';
+    await notificaciones.simple();
+
+
+--- 7.5 STORE: indexedDB.js ---
+
+Maneja la base de datos local IndexedDB para modo offline:
+
+  Metodos principales:
+    initialize()              -> Inicializa la DB
+    validateVersion(name)     -> Valida version de la DB
+    clearDatabase(name)       -> Limpia datos de la DB
+    deleteDatabase(name)      -> Elimina la DB completa
+    leerdatos()               -> Lee registros de un object store
+    listDatos(id, store, index) -> Lista datos por indice
+    almacen                   -> Nombre del object store activo
+
+  La DB se reinicia en cada carga del login para mantener
+  consistencia de datos.
+
+
+================================================================================
+8. PATRON BUILDER (CONSTRUCTORES)
+================================================================================
+
+Los builders construyen objetos de configuracion para los componentes
+genericos. Permiten definir la UI de forma declarativa y fluida.
+
+
+--- 8.1 ComponenteBuilder (build/Constructores/ComponentesBuilder.js) ---
+
+Construye la configuracion completa de una pagina.
+
+  Metodos:
+    setFondo(nombre)         -> Establece el fondo (FondoDefault, FondoBlur)
+    setContenedor(clases)    -> Clases CSS del contenedor
+    setHeaderPage({})        -> Cabecera con titulo y descripcion
+    setEstilos(clases)       -> Estilos adicionales
+    setLayout(nombre)        -> Layout especifico
+    addComponente(tipo, props) -> Agrega un componente (Card, Tabla, Form, etc.)
+    build()                  -> Retorna el objeto de configuracion final
+
+  Tipos de componente soportados:
+    'Card'  -> Tarjetas de informacion
+    'Tabla' -> Tablas de datos
+    'Form'  -> Formularios
+    'Citas' -> Lista visual de citas
+    'Calendario' -> Calendario
+
+
+--- 8.2 CardBuilder (build/Constructores/CardBuilder.js) ---
+
+Construye tarjetas/cards con header, body y footer.
+
+  Metodos:
+    setCards(array)          -> Array de datos para las cards
+    setNumeroCards(n)        -> Numero de columnas
+    setContenedor(clases)    -> Contenedor principal
+    setcontenedorCards(clases) -> Contenedor de las cards internas
+    setTamaño(clases)        -> Tamanio de cada card
+    setheaderTitle(texto)    -> Titulo del header
+    setheaderHtml(html)      -> HTML personalizado en el header
+    build()
+
+
+--- 8.3 TablaBuilder (build/Constructores/TablaBuilder.js) ---
+
+Construye tablas de datos con columnas, acciones y filtros.
+
+  Metodos:
+    setColumnas(array)       -> Definicion de columnas
+    setHeaderTabla({})       -> Cabecera de la tabla
+    setDatos(ref)            -> Datos reactivos
+    setAcciones({})          -> Acciones por fila (ver, borrar, etc.)
+    build()
+
+  Formato de columna:
+    { titulo: 'campo', value: 'Nombre Visible', ordenar: true, tamaño: 150 }
+
+
+--- 8.4 CalendarioBuilder y CitasBuilder ---
+
+Construyen las vistas del calendario y lista de citas.
+
+
+================================================================================
+9. CAPA DE NEGOCIO (CORE)
+================================================================================
+
+El directorio Core/ contiene la logica de negocio que interactua
+directamente con la API REST.
+
+
+--- 9.1 ESTRUCTURA ---
+
+  Core/
+  |-- Login/
+  |   |-- Ingresar.js                    -> Login y redireccion
+  |   |-- RecuperarContrasena.js         -> Envio de codigo por correo
+  |   |-- CambiarContrasena.js           -> Cambio de contrasena
+  |   |-- CambiarContrasenaPrimerVez.js  -> Primer cambio obligatorio
+  |
+  |-- Pacientes/
+  |   |-- GETPacientes.js    -> Obtener lista de pacientes
+  |   |-- POSTPaciente.js    -> Crear paciente
+  |   |-- PUTPaciente.js     -> Actualizar paciente
+  |   |-- DELETEPaciente.js  -> Eliminar paciente
+  |   |-- GETAntecedentes.js -> Obtener antecedentes
+  |   |-- POSTKardex.js      -> Crear registro de kardex
+  |
+  |-- Profesional/
+  |   |-- GETProfesionales.js -> Obtener lista
+  |   |-- POSTMedico.js       -> Crear profesional
+  |   |-- PUTMedico.js        -> Actualizar
+  |   |-- DELETEMedico.js     -> Eliminar
+  |
+  |-- Historial/
+  |   |-- Historia/
+  |   |   |-- GetHistoria.js  -> Obtener historias clinicas
+  |   |-- PlanesManejo/
+  |   |   |-- PostPlanes.js   -> Crear planes de manejo
+  |   |   |-- imprimirComodato.js -> Imprimir comodato
+  |
+  |-- Empresa/
+  |   |-- Dashboard/GetDashboard.js -> Datos del dashboard admin
+  |   |-- Usuario/
+  |       |-- GetAdministradores.js
+  |       |-- EliminarUsuario.js
+  |
+  |-- Cita/GETCita.js         -> Obtener citas paginadas
+  |-- BDload.js               -> Carga de datos al login
+
+
+--- 9.2 PATRON DE FUNCIONES CORE ---
+
+Cada funcion core sigue el patron:
+
+  export async function validarYEnviarX(datos) {
+      // 1. Validar datos
+      // 2. Construir options para apiRest
+      // 3. Ejecutar funcionCall
+      // 4. Manejar respuesta/error
+      // 5. Retornar resultado
+  }
+
+
+--- 9.3 CARGA INICIAL (BDload.js) ---
+
+Al iniciar sesion, se ejecuta traerDatos() que descarga:
+  - Codigos CIE-10
+  - Codigos CUPS
+  - Codigos CIF
+  - Codigos Vadecum
+  - Servicios
+  - Y otros datos estaticos necesarios para el funcionamiento offline
+
+Estos datos se almacenan en IndexedDB.
+
+
+================================================================================
+10. COMPOSABLES
+================================================================================
+
+Los composables son funciones reutilizables que encapsulan logica
+de negocio y estado.
+
+
+--- 10.1 COMPOSABLES DE VALIDACION ---
+
+  composables/Usuarios/Usuarios.js:
+    useUsuarioValidaciones(formulario, tipo)
+      -> validarFecha()
+      -> validarTipoDoc()
+      -> buscarUsuarioPorDocumento()
+      -> municipiosOptions
+      -> municipiosOptionsProfesional
+
+
+--- 10.2 COMPOSABLES DE ACCIONES (CRUD) ---
+
+  composables/Entidades/Paciente.js:
+    usePacienteActions({ stores })
+      -> agregarPaciente()
+      -> verPaciente()
+      -> cerrar()
+      -> eliminarPaciente()
+      -> columns (definicion de columnas de la tabla)
+
+  composables/Entidades/Profesional.js:
+    useProfesionalActions({ stores })
+      -> agregarMedico()
+      -> modificarMedico()
+      -> cerrar()
+      -> eliminarProfesional()
+      -> columns, columnsOffline
+
+  composables/Entidades/Cita.js:
+    useCitaActions({ fecha })
+      -> cancelarCita()
+      -> activarCita()
+      -> actualizarCita()
+      -> showMotivoCancelacion()
+      -> showObservacion()
+
+  composables/Entidades/Insumo.js:
+    useInsumoActions({ notificaciones })
+      -> agregarInsumo()
+      -> agregarMovimiento()
+      -> verInsumo()
+      -> eliminarInsumo()
+      -> columnsMovimiento
+
+  composables/Entidades/Codigos.js:
+    useCodigosActions({ notificaciones })
+      -> agregarCie10(), verCie10(), eliminarCie10()
+      -> nuevoServicio(), actualizarServicio(), eliminarServicio()
+
+  composables/Usuarios/Vadecum.js:
+    useVadecumActions(...)
+      -> agregarVadecum(), verVadecum(), eliminarVadecums()
+
+
+--- 10.3 COMPOSABLES DE HISTORIAL ---
+
+  composables/Historias/historialManejoModales.js:
+    historialManejoModales({ stores })
+      -> loadItem()  -> Carga un item para editar
+
+  composables/Historias/exportarServicioPDF.js:
+    usePDFExporter()
+      -> exportar()  -> Exporta registros a PDF
+
+  composables/Entidades/useConsultasTable.js
+  composables/Entidades/useDiagnosticosTable.js
+  composables/Entidades/useEvolucionesTable.js
+  composables/Entidades/useNotasTable.js
+  composables/Entidades/useTratamientosTable.js
+  composables/Entidades/useMedicacionTable.js
+  composables/Entidades/useNutricionTable.js
+  composables/Entidades/useTrabajoSocialTable.js
+  composables/Entidades/useKardexTable.js
+    -> Cada uno define columnas y configuracion para su tipo de tabla
+
+
+--- 10.4 COMPOSABLES DE FORMULARIOS ---
+
+  composables/Formulario/crypto.js:
+    encryptData(data)   -> Encripta datos con crypto-js
+    decryptData(data)   -> Desencripta datos
+
+  composables/Formulario/FormatearFecha.js:
+    formatDate(date)    -> Formatea fechas a formato local
+
+
+--- 10.5 COMPOSABLE DE TABLAS ---
+
+  composables/Entidades/useConsultasTable.js (y similares):
+
+  Cada composable retorna:
+    { headerConfig, columns, acciones }
+
+  Estos datos se usan directamente en las propiedades de TablaNuxt
+  o TablaScroll.
+
+
+================================================================================
+11. BASE DE DATOS LOCAL (INDEXEDDB)
+================================================================================
+
+El sistema usa IndexedDB como base de datos local para funcionar
+sin conexion (modo offline).
+
+
+--- 11.1 ARQUITECTURA ---
+
+  Store principal: IndexedDBStore (stores/indexedDB.js)
+
+  La DB se llama 'db-thesalus' y tiene multiples object stores:
+    - CIE10, CUPS, CIF, Vadecum
+    - Profesion, Servicio
+    - Analisis, Plan_manejo_procedimientos, Plan_manejo_medicamentos
+    - Diagnosticos, Notas, Kardex
+    - TipoEquipos, etc.
+
+
+--- 11.2 FLUJO DE DATOS OFFLINE ---
+
+  1. Al login: traerDatos() descarga datos del backend y los
+     almacena en IndexedDB.
+  2. Durante la sesion: las lecturas consultan IndexedDB primero.
+  3. Las escrituras se envian al backend Y se guardan en IndexedDB.
+  4. Si no hay conexion: las escrituras solo se guardan en IndexedDB.
+  5. Cuando hay conexion: los datos pendientes se sincronizan.
+
+
+--- 11.3 REINICIO DE LA DB ---
+
+En cada login, se valida la version de la DB:
+  - Si es valida: se limpian los datos (clearDatabase)
+  - Si no es valida: se elimina y recrea (deleteDatabase)
+
+Esto garantiza consistencia de datos entre sesiones.
+
+
+================================================================================
+12. SISTEMA DE PERMISOS
+================================================================================
+
+Los permisos se almacenan en localStorage (encriptados) y se
+cargan en el store varview al iniciar sesion.
+
+
+--- 12.1 FORMATO DE PERMISOS ---
+
+  Los permisos siguen el formato: {Modulo}_{accion}
+
+  Modulos principales:
+    Pacientes, Profesional, Citas, Historias, Notas,
+    Evoluciones, Terapias, Diagnosticos, Tratamientos,
+    Medicacion, MedicinaGeneral, TrabajoSocial,
+    Insumos, Datos, Configuracion, Usuarios,
+    Codigos, Convenios, Servicio, Resoluciones
+
+  Acciones:
+    view:  Ver la lista
+    get:   Obtener datos adicionales
+    post:  Crear registros
+    put:   Modificar registros
+    delete: Eliminar registros
+
+
+--- 12.2 VERIFICACION EN COMPONENTES ---
+
+  const puedeVer = varView.getPermisos.includes('Pacientes_view');
+  const puedePost = varView.getPermisos.includes('Pacientes_post');
+  const puedePut = varView.getPermisos.includes('Pacientes_put');
+
+  if (puedePost) {
+      // Mostrar boton de agregar
+  }
+
+  // En templates:
+  <FondoDefault v-if="puedeVer">
+      <!-- Contenido -->
+  </FondoDefault>
+  <Restringido v-else />
+
+
+--- 12.3 PERMISOS TEMPORALES ---
+
+Los profesionales pueden solicitar permisos temporales a secciones
+que no tienen acceso. El admin aprueba via un enlace con token.
+
+Flujo:
+  1. Profesional solicita desde su dashboard
+  2. Se envia solicitud al backend (solicitarPermiso)
+  3. Admin recibe enlace con token
+  4. Admin abre /aprobar-permiso?token=xxx
+  5. Backend aprueba el permiso
+  6. Se redirige al Home
+
+
+================================================================================
+13. AUTENTICACION Y SEGURIDAD
+================================================================================
+
+
+--- 13.1 FLUJO DE LOGIN ---
+
+  1. Usuario ingresa correo
+  2. Se valida primer ingreso (POST primerIngreso)
+  3. Si es primer ingreso: se envia codigo por correo
+  4. Si no: se muestra campo de contrasena
+  5. Se envian credenciales (POST login)
+  6. Si exitoso:
+     a. Se encriptan token, usuario, rol y permisos
+     b. Se guardan en localStorage
+     c. Se ejecuta traerDatos() para cargar datos offline
+     d. Se redirige segun rol
+
+
+--- 13.2 ENCRIPTACION ---
+
+  Se usa crypto-js para encriptar/desencriptar datos sensibles
+  en localStorage:
+
+    encryptData(data)  -> Cifra con AES
+    decryptData(data)  -> Descifra
+
+  Datos encriptados:
+    - Token de autenticacion
+    - Informacion del usuario
+    - Rol del usuario
+    - Permisos del usuario
+
+  Llave de encriptacion: definida en runtimeConfig.public.SECRET_KEY
+  (en produccion debe estar en variable de entorno)
+
+
+--- 13.3 TOKEN DE AUTORIZACION ---
+
+  Cada peticion API incluye el header:
+    Authorization: Bearer {token_desencriptado}
+
+
+--- 13.4 CIERRE DE SESION ---
+
+  Al cerrar sesion:
+    1. Se eliminan datos de localStorage (token, user, Rol, Permisos)
+    2. Se redirige a la pantalla de login
+    3. IndexedDB se limpia en el siguiente login
+
+
+================================================================================
+14. MODO OFFLINE Y PWA
+================================================================================
+
+
+--- 14.1 CONFIGURACION PWA ---
+
+  @vite-pwa/nuxt configurado en nuxt.config.ts:
+
+  pwa:
+    registerType: 'autoUpdate'     -> Actualizacion automatica
+    manifest:
+      name: 'Thesalus'
+      short_name: 'Thesalus'
+      theme_color: '#326872'
+      display: 'standalone'        -> Se comporta como app nativa
+      icons: [192x192, 512x512]
+
+    workbox:
+      cleanupOutdatedCaches: true
+      clientsClaim: true
+      globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+      navigateFallback: '/index.html'
+
+
+--- 14.2 SERVICE WORKER ---
+
+  El workbox genera automaticamente un service worker que:
+  - Cachea archivos estaticos (JS, CSS, HTML, imagenes)
+  - Permite navegacion offline con navigateFallback
+  - Limpia caches obsoletos
+
+
+--- 14.3 DETECCION DE CONEXION ---
+
+  Se usa navigator.onLine para detectar si hay conexion:
+
+    const online = navigator.onLine;
+    if (online) {
+        // Enviar datos al backend
+    } else {
+        // Guardar localmente, mostrar aviso
+    }
+
+
+--- 14.4 SINCRONIZACION ---
+
+  Los registros creados offline se almacenan en IndexedDB con
+  un indicador de "no enviado". Cuando hay conexion, se
+  sincronizan con el backend.
+
+  Los componentes muestran avisos de "Datos No Enviados" con
+  badges indicando la cantidad de registros pendientes.
+
+
+================================================================================
+15. API REST Y COMUNICACION CON BACKEND
+================================================================================
+
+
+--- 15.1 CLIENTE HTTP (stores/apiRest.js) ---
+
+  El store apiRest funciona como un cliente HTTP centralizado:
+
+  const api = useApiRest();
+  const respuesta = await api.functionCall({
+      metodo: 'POST',
+      url: 'login',          // Clave del endpoint
+      body: { correo, contrasena }
+  });
+
+  Internamente:
+  1. Resuelve la URL completa: config.public.api + '/' + config.public[url]
+  2. Agrega headers de autorizacion
+  3. Ejecuta fetch()
+  4. Retorna el JSON de respuesta
+
+
+--- 15.2 ENDPOINTS CONFIGURADOS ---
+
+  Hay mas de 80 endpoints configurados en runtimeConfig.public.
+  Algunos importantes:
+
+  login, primerIngreso, cambiarContrasena, recuperarContraseña
+  pacientes, profesionals, citas, citasHoy, citasPaginadas
+  historiasClinicas, analisis, analisisPaciente, analisisPaginado
+  examenFisicos, diagnosticos, notas, planManejoMedicamentos
+  planManejoProcedimientos, insumos, movimientos, servicios
+  administradores, cie10, convenios, vadecum, dashboard
+  exportarPdf, kardex, antecedentes, secciones, etc.
+
+
+--- 15.3 SERVIDOR (server/api/) ---
+
+  Existe un endpoint server-side en server/api/medicamentos.js
+  que probablemente actua como proxy o endpoint de busqueda
+  de medicamentos.
+
+
+================================================================================
+16. COMPONENTES PRINCIPALES
+================================================================================
+
+
+--- 16.1 COMPONENTES GENERICOS ---
+
+  Pagina.vue (components/organism/Pagina/):
+    Componente generico que renderiza una pagina completa
+    recibiendo las propiedades construidas por ComponenteBuilder.
+    Soporta: fondos, headers, contenedores, cards, tablas, forms.
+
+  TablaNuxt.vue (components/organism/Table/):
+    Tabla de datos generica con:
+    - Columnas configurables
+    - Ordenamiento
+    - Filtros
+    - Paginacion
+    - Exportar a Excel
+    - Acciones por fila (dropdown)
+    - Buscador
+
+  TablaScroll.vue (components/organism/Table/):
+    Tabla con scroll infinito (infinite scroll).
+    Usada para listas grandes de registros.
+
+  Form.vue (components/organism/Forms/):
+    Formulario generico que renderiza campos segun la
+    configuracion del builder correspondiente.
+
+
+--- 16.2 COMPONENTES ESPECIFICOS ---
+
+  Paciente.vue   -> Formulario de creacion/edicion de paciente
+  Cita.vue       -> Formulario de creacion/edicion de cita
+  Historia.vue   -> Formulario de historia clinica
+  ExportarPDFs.vue -> Modal de exportacion de PDFs
+  ImportarCSV.vue  -> Modal de importacion de CSV
+
+  Pacientes/:
+    CardEPS.vue, CardConvenios.vue, CardKardex.vue
+    ModalEPS.vue, ModalConvenios.vue, ModalKardexDetalle.vue
+
+  Profesionales/:
+    PanelAccionesProfesionales.vue
+    CardProfesiones.vue, CardPermisos.vue, CardEstadisticas.vue
+    ModalProfesiones.vue
+
+  NoEnviados/:
+    Restringido.vue -> Componente de acceso restringido
+
+  Fondos/:
+    FondoDefault.vue -> Fondo por defecto de las paginas
+    FondoBlur.vue    -> Fondo con efecto blur (login)
+
+
+--- 16.3 ESTILOS ---
+
+  Los estilos usan Tailwind CSS (via @nuxt/ui) con clases utility-first.
+  Se define un tema personalizado con colores --color-default-*.
+
+  Dark mode soportado via @nuxtjs/color-mode.
+
+
+================================================================================
+17. DESPLIEGUE Y BUILD
+================================================================================
+
+
+--- 17.1 GENERACION ESTATICA ---
+
+  El proyecto genera archivos estaticos (HTML, JS, CSS):
+
+    npm run generate
+
+  Esto genera la carpeta .output/ con los archivos listos
+  para desplegar en cualquier servidor web.
+
+
+--- 17.2 SERVIDOR DE DESARROLLO ---
+
+    npm run dev
+
+  Inicia el servidor de desarrollo de Nuxt en http://localhost:3000
+
+
+--- 17.3 BUILD DE PRODUCCION ---
+
+    npm run build
+
+  Compila la aplicacion para produccion.
+
+
+--- 17.4 DESPLIEGUE ---
+
+  La aplicacion se despliega como archivos estaticos.
+  El backend (API REST) debe estar desplegado por separado
+  y su URL se configura en nuxt.config.ts > runtimeConfig.public.api.
+
+
+--- 17.5 PREVISUALIZAR ---
+
+    npm run preview
+
+  Simula la produccion localmente despues de un build.
+
+
+================================================================================
+18. GUIA DE MANTENIMIENTO
+================================================================================
+
+
+--- 18.1 AGREGAR UN NUEVO MODULO ---
+
+  1. Crear la ruta en pages/NuevoModulo/index.vue
+  2. Crear el store en stores/Entidades/NuevaEntidad.js
+  3. Crear las funciones Core en Core/NuevoModulo/
+  4. Crear los composables en composables/Entidades/
+  5. Crear el builder en build/NuevoModulo/
+  6. Agregar el endpoint en nuxt.config.ts > runtimeConfig
+  7. Agregar permisos al sistema
+  8. Actualizar el menu de navegacion
+
+
+--- 18.2 AGREGAR UN NUEVO ENDPOINT ---
+
+  1. Agregar la clave del endpoint en nuxt.config.ts:
+     public: { nuevoEndpoint: 'api/v1/nuevoEndpoint' }
+
+  2. Usar en el codigo:
+     let options = {
+         metodo: 'GET',
+         url: 'nuevoEndpoint',
+         body: { ... }
+     }
+     const respuesta = await api.functionCall(options)
+
+
+--- 18.3 AGREGAR PERMISOS ---
+
+  1. Definir el nombre del permiso: Modulo_accion (ej: Reports_view)
+  2. Validar en el componente:
+     const puedeVer = varView.getPermisos.includes('Reports_view');
+  3. Asignar el permiso desde el backend en la tabla de permisos
+
+
+--- 18.4 DEPENDENCIAS PRINCIPALES ---
+
+  Si se actualiza alguna dependencia, verificar compatibilidad
+  con:
+    - @nuxt/ui (requiere Nuxt 3)
+    - @pinia/nuxt (requiere Pinia)
+    - @vite-pwa/nuxt (requiere Vite)
+
+
+--- 18.5 BUENAS PRACTICAS ---
+
+  - Usar el patron Builder para nuevas paginas
+  - Separar logica de negocio en Core/
+  - Reutilizar composables para operaciones CRUD
+  - Mantener los stores de entidad con la misma estructura
+  - Usar los componentes genericos (TablaNuxt, Form, Pagina)
+  - Verificar permisos antes de mostrar acciones
+  - Manejar errores con notificaciones.simple()
+
+
+--- 18.6 PROBLEMAS CONOCIDOS ---
+
+  - Hay console.log() pendientes de limpiar en varios archivos
+  - Codigo comentado extenso en pages/Historial/index.vue
+  - Algunos modulos en desarrollo: Cajas, Negocios, Productos,
+    Impuestos, Formas de Pago, Inventarios (Empresas)
+  - La variable SECRET_KEY esta hardcodeada en nuxt.config.ts
+  - Hay una variableaccionesVademecum sin inicializar en
+    Empresas/Codigos/Vadecum.vue linea 144 (deberia ser accionesVademecum)
+
+
+================================================================================
+                    FIN DEL MANUAL TECNICO
+                    Sistema Santa Isabel - v1.0
+================================================================================

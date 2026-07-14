@@ -92,10 +92,10 @@ const isActive = (path) => route.path === path
                 </nav>
 
                 <!-- Perfil / Logout -->
-                <a href="/" class="flex-col items-center gap-3 md:flex flex-none">
+                <NuxtLink to="/" class="flex-col items-center gap-3 md:flex flex-none">
                     <i
                         class="fa-solid fa-right-from-bracket text-lg text-white md:text-gray-300 dark:text-black hover:text-red-600 cursor-pointer"></i>
-                </a>
+                </NuxtLink>
             </div>
 
             <!-- Estado expandido -->
@@ -137,10 +137,14 @@ const isActive = (path) => route.path === path
                         <i class="fa-solid fa-user text-lg text-gray-400 dark:text-gray-600 transition"></i>
                     </div>
                     <div class="flex flex-col gap-1 pl-2">
-                        <a class="text-gray-400 dark:text-gray-600 font-semibold text-sm text-wrap transition">{{
-                            varView.getRol }}</a>
+                        <p class="text-gray-400 dark:text-gray-600 font-semibold text-sm text-wrap transition">
+                            {{ varView.getRol }}
+                        </p>
+                        <NuxtLink to="/Ayuda" class="mt-1 text-yellow-400 dark:text-yellow-600 font-semibold text-sm hover:text-yellow-500 text-wrap transition">
+                            <i class="fa-solid fa-circle-question mr-1"></i>Ayuda
+                        </NuxtLink>
                         <a href="/" class="text-red-500 font-semibold text-sm hover:text-red-700 text-wrap transition">
-                            Cerrar Sesión
+                            Cerrar Sesion
                         </a>
                     </div>
                 </div>

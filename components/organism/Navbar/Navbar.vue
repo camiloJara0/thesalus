@@ -87,6 +87,12 @@ const removeStorage = () => {
                     <ModalNoEnviados />
                 </li>
                 <li>
+                    <UButton to="/Ayuda" icon="i-lucide-circle-question-mark" color="white"
+                        class="flex gap-1 text-xs text-white md:text-gray-100 hover:text-yellow-400 rounded-[5px] p-2 transition-colors duration-200"
+                        tooltip="Ayuda">
+                    </UButton>
+                </li>
+                <li>
                     <DropdownNavbar icon="fa-circle-user" :nombre="usuario" :submenu="submenuSesion" />
                 </li>
             </ul>
