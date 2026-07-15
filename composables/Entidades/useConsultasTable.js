@@ -87,6 +87,11 @@ export const useConsultasTable = (loadItem, exportar, exportarServicio, puedePut
     { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año' }
   ]
 
+  const card = {
+    header: ['created_at', 'profesional.info_usuario.name'],
+    body: ['servicio.name', 'motivo', 'observacion', 'tratamiento', 'tipoAnalisis'],
+}
+
   const headerConfig = {
     titulo: 'Consultas y Analisis',
     color: 'bg-[var(--color-default-600)] text-white',
@@ -137,7 +142,7 @@ export const useConsultasTable = (loadItem, exportar, exportarServicio, puedePut
   };
 
   function getRowItems(row) {
-    const consulta = row.original
+    const consulta = row.original || row
 
     return [
       {
@@ -178,6 +183,8 @@ export const useConsultasTable = (loadItem, exportar, exportarServicio, puedePut
 
   return {
     columns,
+    getRowItems,
+    card,
     filtros,
     headerConfig,
     acciones,

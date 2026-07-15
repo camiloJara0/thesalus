@@ -160,13 +160,29 @@ export const ayudaSecciones = [
                 tipo: 'paso',
                 titulo: 'Ver profesionales',
                 texto: 'La tabla muestra nombre, documento, ciudad, zona, profesion y estado. Puedes filtrar por Ciudad y Zona.',
-                icono: 'fa-solid fa-list'
+                icono: 'fa-solid fa-list',
+                video: '/manual/tablaProfesional.mp4'
             },
             {
                 tipo: 'paso',
                 titulo: 'Registrar profesional',
                 texto: 'Haz clic en "Agregar" y completa el formulario: datos personales, profesion, municipio laboral y zona.',
-                icono: 'fa-solid fa-user-plus'
+                icono: 'fa-solid fa-user-plus',
+                video: '/manual/nuevoProfesional.mp4'
+            },
+            {
+                tipo: 'paso',
+                titulo: 'Ver o modificar profesional',
+                texto: 'Haz clic en los tres puntos (acciones) a la derecha del paciente. Selecciona "Ver" o "Editar". Modifica los datos y guarda.',
+                icono: 'fa-solid fa-pen',
+                video: '/manual/editarProfesional.mp4'
+            },
+            {
+                tipo: 'paso',
+                titulo: 'Desactivar o eliminar profesional',
+                texto: 'Haz clic en los tres puntos (acciones) a la derecha del profesional. Selecciona "Eliminar". Luego debes confirmar la accion dando clic en "Si, eliminar".',
+                icono: 'fa-solid fa-pen',
+                video: '/manual/eliminarProfesional.mp4'
             },
             {
                 tipo: 'info',
@@ -177,8 +193,9 @@ export const ayudaSecciones = [
             {
                 tipo: 'paso',
                 titulo: 'Gestionar permisos',
-                texto: 'Desde la pestana "Permisos" selecciona un profesional y asignale los permisos para acceder a diferentes secciones del sistema.',
-                icono: 'fa-solid fa-lock'
+                texto: 'Desde la pestana "Permisos" selecciona una profesion y asignale los permisos para acceder a diferentes secciones del sistema.',
+                icono: 'fa-solid fa-lock',
+                video: '/manual/permisosProfesional.mp4'
             }
         ],
         consejos: [
@@ -258,7 +275,7 @@ export const ayudaSecciones = [
             },
             {
                 tipo: 'paso',
-                titulo: 'Exportar a PDF',
+                titulo: 'Exportar a PDF o Excel',
                 texto: 'Desde la lista de historias, haz clic en "Exportar" y selecciona si quieres exportar todos los registros o por servicio especifico.',
                 icono: 'fa-solid fa-file-pdf'
             },

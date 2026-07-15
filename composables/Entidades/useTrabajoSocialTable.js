@@ -82,6 +82,11 @@ export const useTrabajoSocialTable = (loadItem, exportar, exportarServicio, pued
     botones: true
   }
 
+const card = {
+    header: ['created_at', 'profesional.info_usuario.name'],
+    body: ['servicio.name', 'analisis', 'motivo'],
+}
+
   const eliminarTrabajoSocial = async (analisis) => {
     const store = useHistoriasStore()
     const notificaciones = useNotificacionesStore()
@@ -108,7 +113,7 @@ export const useTrabajoSocialTable = (loadItem, exportar, exportarServicio, pued
   };
 
   function getRowItemsTrabajoSocial(row) {
-    const trabajoSocial = row.original
+    const trabajoSocial = row.original || row
 
     return [
       {
@@ -149,6 +154,8 @@ export const useTrabajoSocialTable = (loadItem, exportar, exportarServicio, pued
 
   return {
     columns,
+    getRowItemsTrabajoSocial,
+    card,
     filtros,
     headerConfig,
     acciones

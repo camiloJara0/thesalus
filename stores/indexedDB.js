@@ -353,6 +353,7 @@ export const useIndexedDBStore = defineStore("indexeddb", {
 
                     // Marcar como inactivos los que ya no vienen
                     registrosActuales.forEach(registro => {
+                        if (this.almacen == 'Cita') return
                         if (registro.sincronizado === 0) return;
                         if (registro.id == null) return;
 

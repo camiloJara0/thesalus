@@ -40,6 +40,11 @@ export const useTratamientosTable = (loadItem, exportar, puedePutTratamientos, p
 
   const filtros = []
 
+const card = {
+    header: ['procedimiento', 'codigo'],
+    body: ['dias_asignados', 'fecha'],
+}
+
   const headerConfig = {
     titulo: 'Tratamientos',
     buscador: true,
@@ -56,7 +61,7 @@ export const useTratamientosTable = (loadItem, exportar, puedePutTratamientos, p
   }
 
   function getRowItemsTratamiento(row) {
-    const tratamiento = row.original
+    const tratamiento = row.original || row
 
     return [
       {
@@ -90,6 +95,8 @@ export const useTratamientosTable = (loadItem, exportar, puedePutTratamientos, p
 
   return {
     columns,
+    getRowItemsTratamiento,
+    card,
     filtros,
     headerConfig,
     acciones

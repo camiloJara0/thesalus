@@ -154,7 +154,7 @@ export const useProfesionalStore = defineStore('Profesional', {
 
             // 📞 Validar número de celular
             const celularRegex = /^\d{10}$/;
-            if (!celularRegex.test(datos.info_usuario.celular)) {
+            if (!celularRegex.test(datos.Profesional.info_usuario.celular)) {
                 notificaciones.options.icono = 'error';
                 notificaciones.options.titulo = 'Celular inválido';
                 notificaciones.options.texto = 'El número de celular debe tener 10 dígitos';
@@ -165,7 +165,7 @@ export const useProfesionalStore = defineStore('Profesional', {
 
             // 📧 Validar formato de correo
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(datos.user.correo)) {
+            if (!emailRegex.test(datos.Profesional.user.correo)) {
                 notificaciones.options.icono = 'error';
                 notificaciones.options.titulo = 'Correo inválido';
                 notificaciones.options.texto = 'El correo electrónico no tiene un formato válido';

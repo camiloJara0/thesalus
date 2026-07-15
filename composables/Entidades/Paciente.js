@@ -135,7 +135,7 @@ export function usePacienteActions({
     ]
 
     function getRowItems(row) {
-        const paciente = row.original
+        const paciente = row.original || row
 
         return [
             {
@@ -173,6 +173,7 @@ export function usePacienteActions({
         verPaciente,
         cerrar,
         eliminarPaciente,
-        columns
+        columns,
+        getRowItems
     };
 }

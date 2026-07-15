@@ -3,6 +3,7 @@ import { computed, onMounted, ref, h } from 'vue'
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue'
 import { validarYEnviarKardex } from '~/Core/Pacientes/POSTKardex.js';
 import Restringido from '../NoEnviados/Restringido.vue';
+import { usePaginacion } from '~/composables/Tabla/usePaginacion.js';
 
 const historias = ref([])
 let copiaKardex = [];
@@ -12,7 +13,7 @@ const apiRest = useApiRest()
 const varView = useVarView()
 const puedeVer = varView.getPermisos.includes('Kardex_view');
 const puedeGet = varView.getPermisos.includes('Kardex_get');
-const puedePost = varView.getPermisos.includes('Kardex_post');
+const puedePost = varView.getPermisos.includes('Kardex_put');
 const puedePut = varView.getPermisos.includes('Kardex_put');
 
 const {
@@ -21,12 +22,24 @@ const {
   alertRespuestaInput
 } = useNotificacionesStore();
 
+const {
+    paginaActual,
+    itemsPorPagina,
+    totalPaginas,
+    ultimaPagina,
+    cambiarItemsPorPagina,
+    siguientePagina,
+    paginaAnterior,
+    irAPagina,
+    datosPaginados,
+} = usePaginacion(historias);
+
 onMounted(async () => {
   const kardex = await apiRest.getData('', 'traeKardex')
   historias.value = kardex.map(k => {
     return { ...k, id: k.paciente_id }
   })
-  copiaKardex = historias.value
+  copiaKardex = JSON.parse(JSON.stringify(historias.value))
 });
 
 function actualizarFila(id) {
@@ -65,7 +78,13 @@ const columns = [
   { accessorKey: "nacimiento", header: "Fecha Nto", },
   { accessorKey: "municipio", header: "Municipio Atención", },
   { accessorKey: "regimen", header: "Regimen", },
-  { accessorKey: "diagnostico", header: "Diagnóstico", },
+  { accessorKey: "diagnostico", header: "Diagnóstico", 
+      cell: ({ row }) => {
+        const texto = row.original.diagnostico || ''
+        const limitado = texto.length > 50 ? texto.substring(0, 50) + '...' : texto
+        return h('p', limitado)
+      }
+  },
   // Selects
   {
     accessorKey: "kit_cateterismo",
@@ -450,6 +469,7 @@ const columns = [
 async function guardar(fila) {
   const filaAfectada = copiaKardex.find(k => k.id_paciente === fila.id_paciente)
   const cambioSonda = filaAfectada.ultimoCambio !== fila.ultimoCambio
+  console.log(cambioSonda, filaAfectada.ultimoCambio, fila.ultimoCambio)
   if (fila.ultimoCambio && cambioSonda) {
     options.icono = 'warning'
     options.titulo = 'Agrega detalles del cambio de sonda'
@@ -510,8 +530,13 @@ const columnPinning = ref({
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ historias.value?.length }} registros</p>
           </div>
         </div>
-        <UButton icon="i-lucide-download" color="amber" variant="ghost" @click="$emit('descargar')">
-          Descargar
+        <UButton icon="i-lucide-download" color="amber" variant="ghost">
+          Actualizar
+          <download-excel
+              :data="historias"
+              name="kardex" type="xlsx" style="display: none;">
+              <p>Descargar</p>
+          </download-excel>
         </UButton>
       </div>
     </template>
@@ -519,15 +544,30 @@ const columnPinning = ref({
     <!-- Timeline de Historias -->
     <div v-if="historias.length > 0" class="space-y-4">
       <!-- <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt> -->
-      <UTable :columns="columns" :data="historias" v-model:column-pinning="columnPinning"
-        :row-class="(row) => filaFueCambiada(row.id) ? 'bg-yellow-100' : ''"></UTable>
+      <UTable :columns="columns" :data="datosPaginados" sticky v-model:column-pinning="columnPinning"
+        :row-class="(row) => filaFueCambiada(row.id) ? 'bg-yellow-100' : ''" class="flex-1 max-h-[62vh]"></UTable>
     </div>
-
+    <div class="flex justify-between mt-3">
+        <UPagination v-model:page="paginaActual" active-color="primary" active-variant="subtle" :sibling-count="1"
+            :total="historias.length" :items-per-page="itemsPorPagina"></UPagination>
+        <p class="text-sm text-gray-500 md:flex gap-1 hidden items-center">
+            Mostrando
+            <span class="text-gray-500">{{ ultimaPagina - itemsPorPagina + 1 }} al {{ ultimaPagina }}</span>
+            <span class="text-gray-500">de {{ historias.length }}</span>
+            <select name="numRegistros"
+                class="ml-3 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                @change="cambiarItemsPorPagina($event.target.value)">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+        </p>
+    </div>
     <Transition name="slide-up">
       <div v-if="actualizarCambios && puedePost"
         class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-3 rounded-xl shadow-xl bg-yellow-400">
         <span class="text-sm font-medium">
-          Tienes cambios sin guardar
+          Tienes cambios sin guardar en Kardex
         </span>
         <ButtonRounded @click="guardarCambios">
           <i class="fa-solid fa-floppy-disk"></i>

@@ -54,8 +54,13 @@ export const useMedicacionTable = (loadItem, exportar, puedePutMedicacion, puede
     botones: true
   }
 
+const card = {
+    header: ['medicamento', 'dosis'],
+    body: ['profesional.info_usuario.name', 'servicio.name', 'fecha'],
+}
+
   function getRowItemsMedicacion(row) {
-    const medicacion = row.original
+    const medicacion = row.original || row
 
     return [
       {
@@ -90,6 +95,8 @@ export const useMedicacionTable = (loadItem, exportar, puedePutMedicacion, puede
 
   return {
     columns,
+    getRowItemsMedicacion,
+    card,
     filtros,
     headerConfig,
     acciones

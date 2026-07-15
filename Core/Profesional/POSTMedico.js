@@ -64,7 +64,12 @@ export const guardarProfesional = async (datos, reintento = false) => {
 
         } catch (error) {
             console.error('Fallo al enviar. Guardando localmente', error);
-            return true
+            notificacionesStore.options.icono = 'warning'
+            notificacionesStore.options.titulo = '¡Ha ocurrido un problema!'
+            notificacionesStore.options.texto = error
+            notificacionesStore.options.tiempo = 3000
+            notificacionesStore.simple()
+            return false
         }
     } else {
         try {

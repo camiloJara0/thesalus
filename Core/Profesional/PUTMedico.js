@@ -63,7 +63,12 @@ export const editarProfesional = async (datos, reintento = false) => {
                 return false
             }
         } catch (error) {
-            console.error('Fallo al enviar', error);
+            notificacionesStore.options.icono = 'warning'
+            notificacionesStore.options.titulo = '¡Ha ocurrido un problema!'
+            notificacionesStore.options.texto = error
+            notificacionesStore.options.tiempo = 3000
+            notificacionesStore.simple()
+            return false
         }
     } else {
 

@@ -80,6 +80,11 @@ export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePut
     botones: true
   }
 
+const card = {
+    header: ['created_at', 'profesional.info_usuario.name'],
+    body: ['servicio.name', 'analisis', 'motivo'],
+}
+
   const eliminarEvolucion = async (analisis) => {
     const store = useHistoriasStore()
     const notificaciones = useNotificacionesStore()
@@ -106,7 +111,7 @@ export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePut
   };
 
   function getRowItemsEvolucion(row) {
-    const evolucion = row.original
+    const evolucion = row.original || row
 
     return [
       {
@@ -147,6 +152,8 @@ export const useNutricionTable = (loadItem, exportar, exportarServicio, puedePut
 
   return {
     columns,
+    getRowItemsEvolucion,
+    card,
     filtros,
     headerConfig,
     acciones

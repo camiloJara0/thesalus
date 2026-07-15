@@ -13,7 +13,7 @@ export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNota
       accessorKey: 'nota.tipoAnalisis',
       header: 'Estado',
       cell: ({ row }) => {
-        const estado = row.original.nota.tipoAnalisis || ''
+        const estado = row.original.nota?.tipoAnalisis || ''
         const color =
           estado === 'Estado clinico sin cambios'
             ? 'success'
@@ -58,6 +58,11 @@ export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNota
     { columna: 'fecha_mes', columnaReal: 'fecha_nota', placeholder: 'Mes', tipo: 'mes' },
     { columna: 'fecha_año', columnaReal: 'fecha_nota', placeholder: 'Año', tipo: 'año' }
   ]
+
+const card = {
+    header: ['nota.fecha_nota', 'profesional.info_usuario.name'],
+    body: ['servicio.name', 'nota.direccion', 'nota.tipoAnalisis'],
+}
 
   const headerConfig = {
     titulo: 'Notas Medicas',
@@ -104,7 +109,7 @@ export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNota
 
 
   function getRowItemsNota(row) {
-    const nota = row.original
+    const nota = row.original || row
 
     return [
       {
@@ -148,6 +153,8 @@ export const useNotasTable = (loadItem, exportar, exportarServicio, puedePutNota
 
   return {
     columns,
+    getRowItemsNota,
+    card,
     filtros,
     headerConfig,
     acciones

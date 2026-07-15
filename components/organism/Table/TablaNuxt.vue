@@ -99,6 +99,46 @@ watch(
   { immediate: true }
 )
 
+const cardConfig = computed(() => props.Propiedades.card || null)
+
+function getNestedValue(obj, path) {
+    return path.split('.').reduce((acc, key) => acc?.[key], obj);
+}
+
+function columnHeader(accessorKey) {
+    const col = props.Propiedades.columns.find(c => c.accessorKey === accessorKey)
+    return col?.header || accessorKey
+}
+
+const expandedCards = ref(new Set())
+
+function toggleCardExpand(rowId) {
+    if (expandedCards.value.has(rowId)) {
+        expandedCards.value.delete(rowId)
+    } else {
+        expandedCards.value.add(rowId)
+    }
+}
+
+function isCardExpanded(rowId) {
+    return expandedCards.value.has(rowId)
+}
+
+const CARD_BODY_MAX_LENGTH = 60
+
+function needsExpand(row, fields) {
+    if (!cardConfig.value || !fields?.length) return false
+    return fields.some(f => {
+        const val = String(getNestedValue(row, f) ?? '')
+        return val.length > CARD_BODY_MAX_LENGTH
+    })
+}
+
+function getRowActions(row) {
+    if (!props.Propiedades.rowActions) return []
+    return props.Propiedades.rowActions(row)
+}
+
 </script>
 
 <template>
@@ -194,9 +234,64 @@ watch(
             </div>
         </template>
     </UCard>
-    <!-- Tabla -->
-    <UTable v-model:column-pinning="columnPinning" sticky :loading="!props.Propiedades.data || varView.cargando || varView.actualizando" loading-color="primary" loading-animation="carousel" :data="datosPaginados" :columns="columns"
-        class="flex-1 max-h-[62vh]" />
+    <!-- Tabla Desktop -->
+    <div class="hidden md:block">
+        <UTable v-model:column-pinning="columnPinning" sticky :loading="!props.Propiedades.data || varView.cargando || varView.actualizando" loading-color="primary" loading-animation="carousel" :data="datosPaginados" :columns="columns"
+            class="flex-1 max-h-[62vh]" />
+    </div>
+    <!-- Cards Mobile (solo si card esta definido) -->
+    <div v-if="cardConfig" class="md:hidden block space-y-3">
+        <UCard v-for="row in datosPaginados" :key="row.id || row.id_analisis" :ui="{ body: { padding: 'px-4 py-3' }, header: { padding: 'px-4 py-3' }, footer: { padding: 'px-4 py-2' } }">
+            <template #header>
+                <div class="flex justify-between items-start">
+                    <div class="flex-1 min-w-0">
+                        <p v-for="(field, i) in cardConfig.header" :key="field"
+                            :class="[i === 0 ? 'font-bold text-base truncate' : 'text-xs text-gray-500 dark:text-gray-400']">
+                            {{ getNestedValue(row, field) || '—' }}
+                        </p>
+                    </div>
+                    <div v-if="cardConfig.headerBadge" class="ml-2 shrink-0">
+                        <UBadge variant="subtle"
+                            :color="getNestedValue(row, cardConfig.headerBadge.field) === cardConfig.headerBadge.activeValue ? 'success' : 'neutral'">
+                            {{ getNestedValue(row, cardConfig.headerBadge.field) === cardConfig.headerBadge.activeValue ? cardConfig.headerBadge.activeLabel : cardConfig.headerBadge.inactiveLabel }}
+                        </UBadge>
+                    </div>
+                    <div v-else class="w-5 h-5 rounded-full flex justify-center items-center">
+                        <UIcon :name="cardConfig.icon ? cardConfig.icon : 'i-lucide-file'"></UIcon>
+                    </div>
+                </div>
+            </template>
+
+            <div v-if="cardConfig.body?.length" class="space-y-2">
+                <template v-for="(field, idx) in cardConfig.body" :key="field">
+                    <div v-if="idx < 3 || isCardExpanded(row.id || row.id_analisis)"
+                        class="flex justify-between items-center gap-2">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 shrink-0">{{ columnHeader(field) }}</span>
+                        <span class="text-sm text-right truncate">{{ getNestedValue(row, field) || '—' }}</span>
+                    </div>
+                </template>
+                <button v-if="needsExpand(row, cardConfig.body)"
+                    @click="toggleCardExpand(row.id || row.id_analisis)"
+                    class="text-xs text-(--color-default) font-medium hover:underline w-full text-center mt-1">
+                    {{ isCardExpanded(row.id || row.id_analisis) ? 'Ver menos' : 'Ver más' }}
+                </button>
+            </div>
+
+            <template #footer v-if="Propiedades.rowActions">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs">Acciones:</h4>
+                    <UDropdownMenu :items="getRowActions(row)">
+                        <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" size="sm" />
+                    </UDropdownMenu>
+                </div>
+            </template>
+        </UCard>
+    </div>
+    <!-- Fallback: tabla en mobile si NO hay card config -->
+    <div v-else class="md:hidden block">
+        <UTable v-model:column-pinning="columnPinning" sticky :loading="!props.Propiedades.data || varView.cargando || varView.actualizando" loading-color="primary" loading-animation="carousel" :data="datosPaginados" :columns="columns"
+            class="flex-1 max-h-[62vh]" />
+    </div>
     <!-- Paginador -->
     <div class="flex justify-between mt-3">
         <UPagination v-model:page="paginaActual" active-color="primary" active-variant="subtle" :sibling-count="1"

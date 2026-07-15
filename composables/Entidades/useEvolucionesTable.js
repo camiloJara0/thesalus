@@ -103,8 +103,13 @@ export const useEvolucionesTable = (loadItem, exportar, exportarServicio, puedeP
     notificaciones.options.background = "#d33";
   };
 
+const card = {
+    header: ['terapia.fecha', 'profesional.info_usuario.name'],
+    body: ['servicio.name', 'terapia.sesion', 'terapia.objetivos', 'terapia.evolucion'],
+}
+
   function getRowItemsEvolucion(row) {
-    const terapia = row.original
+    const terapia = row.original || row
 
     return [
       {
@@ -145,6 +150,8 @@ export const useEvolucionesTable = (loadItem, exportar, exportarServicio, puedeP
 
   return {
     columns,
+    getRowItemsEvolucion,
+    card,
     filtros,
     headerConfig,
     acciones,

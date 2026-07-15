@@ -145,7 +145,8 @@ const {
     verPaciente,
     cerrar,
     eliminarPaciente,
-    columns
+    columns,
+    getRowItems
 } = usePacienteActions({
     pacientesStore,
     varView,
@@ -153,7 +154,6 @@ const {
     llamadatos,
     refresh,
 });
-
 
 // Refrescar pagina cuando se agrega o modifica Paciente
 watch(() => showNuevoPaciente.value,
@@ -323,6 +323,11 @@ const propiedadesTabla = computed(() => {
             { columna: 'eps.nombre', placeholder: 'EPS' },
         ],
         excel: true,
+        card: {
+            header: ['info_usuario.name', 'info_usuario.No_document'],
+            body: ['info_usuario.celular', 'sexo', 'info_usuario.municipio', 'regimen', 'eps.nombre', 'estado'],
+        },
+        rowActions: getRowItems,
     }
 })
 

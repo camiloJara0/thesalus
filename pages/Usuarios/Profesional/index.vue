@@ -95,6 +95,16 @@ const {
     refresh
 });
 
+function rowActionsProfesional(row) {
+    const profesional = row.original || row
+    return [
+        { label: 'Acciones', type: 'label' },
+        { label: 'Editar', onSelect: () => modificarMedico(profesional) },
+        { type: 'separator' },
+        { label: 'Eliminar', onSelect: () => eliminarProfesional(profesional) }
+    ]
+}
+
 // Watch para actualizar información al agregar o actualizar
 watch(() => showNuevoProfesional.value, async (estado) => {
     if (!estado && varView.cambioEnApi) {
@@ -227,6 +237,11 @@ const propiedadesTabla = computed(() => {
             { columna: 'zona_laboral', placeholder: 'Zona' },
         ],
         excel: true,
+        card: {
+            header: ['info_usuario.name', 'info_usuario.No_document'],
+            body: ['info_usuario.celular', 'municipio_laboral', 'zona_laboral', 'profesion.nombre', 'estado'],
+        },
+        rowActions: rowActionsProfesional,
     }
 })
 

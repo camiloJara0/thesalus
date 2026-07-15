@@ -22,6 +22,11 @@ export const useDiagnosticosTable = () => {
     { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año' }
   ]
 
+const card = {
+    header: ['codigo', 'descripcion'],
+    body: ['profesional.info_usuario.name', 'servicio.name', 'fecha'],
+}
+
   const headerConfig = {
     titulo: 'Diagnosticos',
     color: 'bg-[var(--color-default-600)] text-white',
@@ -33,6 +38,7 @@ export const useDiagnosticosTable = () => {
 
   return {
     columns,
+    card,
     filtros,
     headerConfig
   }

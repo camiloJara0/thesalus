@@ -267,6 +267,7 @@ async function cargarAlmacen(tabla, datos) {
             mapa.set(item.id, item)
         }
         notas.value = Array.from(mapa.values())
+        console.log(notas.value)
     } else if( tabla == 'Consultas') {
         analisis.value = datos
     } else if(tabla == 'Terapias') {
@@ -351,25 +352,25 @@ watch(() => showItem.value,
 const consultasConfig = computed(() => {
     const config = useConsultasTable(loadItem, exportar, exportarServicio, permisos.value.medicina_put, permisos.value.medicina_delete);
     return {
-        ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+        ...config.headerConfig, columns: config.columns, acciones: config.acciones, card: config.card, rowActions: config.getRowItems, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Medicina'})
                     cargarAlmacen('Consultas', data)
                 } },
             { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Medicina'})
                     cargarAlmacen('Consultas', data)
                 } },
             { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Medicina'})
                     cargarAlmacen('Consultas', data)
                 } },
             { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Medicina'})
                     cargarAlmacen('Consultas', data)
                 } }
         ]
@@ -378,31 +379,31 @@ const consultasConfig = computed(() => {
 
 const diagnosticosConfig = computed(() => {
     const config = useDiagnosticosTable();
-    return { ...config.headerConfig, columns: config.columns };
+    return { ...config.headerConfig, card: config.card, columns: config.columns };
 });
 
 const evolucionesConfig = computed(() => {
     const config = useEvolucionesTable(loadItem, exportar, exportarServicio, permisos.value.terapias_put, permisos.value.terapias_delete);
     return {
-        ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+        ...config.headerConfig, columns: config.columns, acciones: config.acciones, card: config.card, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Terapia'})
                     cargarAlmacen('Terapias', data)
                 } },
             { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Terapia'})
                     cargarAlmacen('Terapias', data)
                 } },
             { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Terapia'})
                     cargarAlmacen('Terapias', data)
                 } },
             { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Terapia'})
                     cargarAlmacen('Terapias', data)
                 } }
         ]
@@ -412,20 +413,22 @@ const evolucionesConfig = computed(() => {
 const notasConfig = computed(() => {
     const config = useNotasTable(loadItem, exportar, exportarServicio, permisos.value.notas_put, permisos.value.notas_delete);
     return {
-        ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => { const data = await historiasStore.analisisFiltrados(filtros); cargarAlmacen('Notas', data) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => { const data = await historiasStore.analisisFiltrados(filtros); cargarAlmacen('Notas', data) } },
-            { columna: 'fecha_mes', columnaReal: 'created_at', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
+        ...config.headerConfig, columns: config.columns, acciones: config.acciones, card: config.card, rowActions: config.getRowItemsNota, filtros: [
+            { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => { const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Nota'}); cargarAlmacen('Notas', data) } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => { const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Nota'}); cargarAlmacen('Notas', data) } },
+            { columna: 'fecha_mes', columnaReal: 'nota.fecha_nota', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Nota'})
                     cargarAlmacen('Notas', data)
                 }
             },
-            { columna: 'fecha_año', columnaReal: 'nota.fecha_nota', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
-                { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+            { 
+                columna: 'fecha_año', columnaReal: 'created_at', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
+                {
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Nota'})
                     cargarAlmacen('Notas', data)
-                } }
+                } 
+            }
         ]
     };
 });
@@ -433,42 +436,37 @@ const notasConfig = computed(() => {
 const tratamientosConfig = computed(() => {
     const config = useTratamientosTable(loadItem, exportar, exportarServicio, permisos.value.tratamientos_put, permisos.value.tratamientos_delete);
     return {
-        ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, },
-            { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', },
-            { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, }
-        ]
+        ...config.headerConfig, columns: config.columns, card: config.card, rowActions: config.getRowItemsTratamiento, acciones: config.acciones
     };
 });
 
 const medicacionConfig = computed(() => {
     const config = useMedicacionTable(loadItem, exportar, permisos.value.medicacion_put, permisos.value.medicacion_delete);
-    return { ...config.headerConfig, columns: config.columns, acciones: config.acciones };
+    return { ...config.headerConfig, columns: config.columns, card: config.card, rowActions: config.getRowItemsMedicacion, acciones: config.acciones };
 });
 
 const nutricionConfig = computed(() => {
     const config = useNutricionTable(loadItem, exportar, exportarServicio, permisos.value.evoluciones_put, permisos.value.evoluciones_delete);
     return {
-        ...config.headerConfig, columns: config.columns, acciones: config.acciones, filtros: [
+        ...config.headerConfig, columns: config.columns, acciones: config.acciones, card: config.card, rowActions: config.getRowItemsEvolucion, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Evolucion'})
                     cargarAlmacen('Evoluciones', data)
                 } },
             { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Evolucion'})
                     cargarAlmacen('Evoluciones', data)
                 } },
             { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Evolucion'})
                     cargarAlmacen('Evoluciones', data)
                 } },
             { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Evolucion'})
                     cargarAlmacen('Evoluciones', data)
                 } }
         ]
@@ -478,25 +476,25 @@ const nutricionConfig = computed(() => {
 const trabajoSocialConfig = computed(() => {
     const config = useTrabajoSocialTable(loadItem, exportar, exportarServicio, permisos.value.trabajo_put, permisos.value.trabajo_delete);
     return {
-        ...config.headerConfig, columns: config.columns, filtros: [
+        ...config.headerConfig, columns: config.columns, card: config.card, rowActions: config.getRowItemsTrabajoSocial, filtros: [
             { columna: 'servicio.name', placeholder: 'Servicio', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Trabajo Social'})
                     cargarAlmacen('Trabajos', data)
                 } },
             { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.profesionales, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Trabajo Social'})
                     cargarAlmacen('Trabajos', data)
                 } },
             { columna: 'fecha_mes', columnaReal: 'terapia.fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Trabajo Social'})
                     cargarAlmacen('Trabajos', data)
                 } },
             { columna: 'fecha_año', columnaReal: 'terapia.fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años, accion: async(filtros) => 
                 { 
-                    const data = await historiasStore.analisisFiltrados(filtros)
+                    const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Trabajo Social'})
                     cargarAlmacen('Trabajos', data)
                 } }
         ]
@@ -573,7 +571,22 @@ const propiedadesTablaPrincipal = computed(() => ({
                 varView.servicioPDF = ''
             }, texto: 'Exportar', color: 'primary', variant: 'subtle'
         }
-    ]
+    ],
+    card: {
+        header: ['paciente', 'cedula'],
+        headerBadge: {
+            activeValue: 'Creada',
+            field: 'estado',
+            activeLabel: 'Creada',
+            inactiveLabel: 'Nueva'
+        },
+    },
+    rowActions: (row) => {
+        const data = row.original || row
+        return [
+            { label: 'Seleccionar', icon: 'i-lucide-arrow-right', onSelect: () => seleccionarPaciente(data) }
+        ]
+    }
 }));
 
 function cerrarModalVer() {
@@ -681,7 +694,7 @@ const propiedadesItemHistoria = computed(() => {
                 </UCard>
 
                 <!-- Navegación de módulos -->
-                <div v-if="showPanel" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div v-if="showPanel" class="grid grid-cols-3 gap-3">
 
                     <!-- Registros -->
                     <UCard @click="cambiarTablas"
@@ -696,17 +709,16 @@ const propiedadesItemHistoria = computed(() => {
                             </div>
 
                             <div class="flex-1 min-w-0">
-                                <p class="font-medium text-sm">
+                                <p class="font-medium  md:text-sm text-xs">
                                     Registros
                                 </p>
 
-                                <p class="text-xs text-gray-500">
-                                    {{ analisis?.length + evoluciones?.length + notas?.length + nutricion?.length +
-                                    trabajosSocial?.length }} notas médicas
+                                <p class="hidden md:block text-xs text-gray-500">
+                                    Notas médicas
                                 </p>
                             </div>
 
-                            <UBadge v-if="showTablas" color="primary" variant="soft">
+                            <UBadge v-if="showTablas" class="hidden md:block" color="primary" variant="soft">
                                 Activo
                             </UBadge>
 
@@ -725,16 +737,16 @@ const propiedadesItemHistoria = computed(() => {
                                 <i class="fa-solid fa-chart-line text-emerald-600 dark:text-emerald-300"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="font-medium text-sm">
+                                <p class="font-medium  md:text-sm text-xs">
                                     Evolución
                                 </p>
 
-                                <p class="text-xs text-gray-500">
+                                <p class="hidden md:block text-xs text-gray-500">
                                     Dashboard clínico
                                 </p>
                             </div>
 
-                            <UBadge v-if="showGraficas" color="success" variant="soft">
+                            <UBadge v-if="showGraficas" color="success" variant="soft" class="hidden md:block">
                                 Activo
                             </UBadge>
 
@@ -754,16 +766,16 @@ const propiedadesItemHistoria = computed(() => {
                             </div>
 
                             <div class="flex-1">
-                                <p class="font-medium text-sm">
+                                <p class="font-medium md:text-sm text-xs">
                                     Inventario
                                 </p>
 
-                                <p class="text-xs text-gray-500">
+                                <p class="hidden md:block text-xs text-gray-500">
                                     {{ inventario.length }} productos asignados
                                 </p>
                             </div>
 
-                            <UBadge v-if="showInventario" color="warning" variant="soft">
+                            <UBadge v-if="showInventario" color="warning" variant="soft" class="hidden md:block">
                                 Activo
                             </UBadge>
 
@@ -791,7 +803,7 @@ const propiedadesItemHistoria = computed(() => {
                     <template #notas>
                         <div class="space-y-4 pt-4">
                             <div v-if="permisos.notas_ver" class="space-y-4">
-                                <TablaScroll :key="`notas-${refreshKey}`" :Propiedades="{
+                                <TablaScroll :Propiedades="{
                                     titulo: 'Notas Médicas',
                                     data: notas,
                                     cargarData: async(id, por_pagina) => {return await traerAnalisisPaginado(id, por_pagina, 'Nota', historiasStore.Formulario.Analisis.historia.id_paciente)},
@@ -799,6 +811,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: notasConfig.filtros,
                                     buttons: notasConfig.buttons,
                                     acciones: notasConfig.acciones,
+                                    card: notasConfig.card,
+                                    rowActions: notasConfig.rowActions,
                                 }" />
                             </div>
                             <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
@@ -817,6 +831,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: consultasConfig.filtros,
                                     buttons: consultasConfig.buttons,
                                     acciones: consultasConfig.acciones,
+                                    card: consultasConfig.card,
+                                    rowActions: consultasConfig.rowActions,
                                     cargarData: async(items, por_pagina) => { return await traerAnalisisPaginado(items, por_pagina, 'Medicina', historiasStore.Formulario.Analisis.historia.id_paciente) },
                                 }" />
                             </div>
@@ -836,6 +852,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: nutricionConfig.filtros,
                                     buttons: nutricionConfig.buttons,
                                     acciones: nutricionConfig.acciones,
+                                    card: nutricionConfig.card,
+                                    rowActions: nutricionConfig.rowActions,
                                     cargarData: async(items, por_pagina) => { return await traerAnalisisPaginado(items, por_pagina, 'Evolucion', historiasStore.Formulario.Analisis.historia.id_paciente) },
                                 }" />
                             </div>
@@ -855,6 +873,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: evolucionesConfig.filtros,
                                     buttons: evolucionesConfig.buttons,
                                     acciones: evolucionesConfig.acciones,
+                                    card: evolucionesConfig.card,
+                                    rowActions: evolucionesConfig.rowActions,
                                     cargarData: async(items, por_pagina) => { return await traerAnalisisPaginado(items, por_pagina, 'Terapia', historiasStore.Formulario.Analisis.historia.id_paciente) },
                                 }" />
                             </div>
@@ -873,6 +893,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: trabajoSocialConfig.filtros,
                                     buttons: trabajosSocial.buttons,
                                     acciones: trabajoSocialConfig.acciones,
+                                    card: trabajoSocialConfig.card,
+                                    rowActions: trabajoSocialConfig.card,
                                     cargarData: async(items, por_pagina) => { return await traerAnalisisPaginado(items, por_pagina, 'Trabajo Social', historiasStore.Formulario.Analisis.historia.id_paciente) },
                                 }" />
                             </div>
@@ -892,6 +914,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: medicacionConfig.filtros,
                                     excel: true,
                                     acciones: medicacionConfig.acciones,
+                                    card: medicacionConfig.card,
+                                    rowActions: medicacionConfig.rowActions,
                                 }" />
                             </div>
                             <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
@@ -909,6 +933,7 @@ const propiedadesItemHistoria = computed(() => {
                                     columns: diagnosticosConfig.columns,
                                     filtros: diagnosticosConfig.filtros,
                                     excel: true,
+                                    card: diagnosticosConfig.card,
                                 }" />
                             </div>
                             <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
@@ -927,6 +952,8 @@ const propiedadesItemHistoria = computed(() => {
                                     filtros: tratamientosConfig.filtros,
                                     excel: true,
                                     acciones: tratamientosConfig.acciones,
+                                    card: tratamientosConfig.card,
+                                    rowActions: tratamientosConfig.rowActions,
                                 }" />
                             </div>
                             <UAlert v-else icon="i-lucide-lock" title="Sin permisos"
