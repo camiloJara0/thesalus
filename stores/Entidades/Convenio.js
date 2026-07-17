@@ -26,14 +26,14 @@ export const useConvenioStore = defineStore('Convenio', {
     actions: {
 
         async guardar(datos) {
-            const validar = this.validar(datos)
+            const validar = await this.validar(datos)
             if(validar) {
                 return await guardarConvenio(datos)
             }
         },
 
         async actualizar(datos) {
-            const validar = this.validar(datos)
+            const validar = await this.validar(datos)
             if(validar){
                 return await guardarConvenio(datos)
             }

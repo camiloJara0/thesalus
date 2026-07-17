@@ -1,5 +1,5 @@
 
-import { traerProfesionales } from "~/Core/Profesional/GETProfesionales";
+import { traerProfesionales, traerProfesionalesInactivos } from "~/Core/Profesional/GETProfesionales";
 import { guardarProfesional } from "~/Core/Profesional/POSTMedico";
 import { editarProfesional } from "~/Core/Profesional/PUTMedico";
 import { eliminarProfesional } from "~/Core/Profesional/DELETEMedico";
@@ -51,17 +51,19 @@ export const useProfesionalStore = defineStore('Profesional', {
     actions: {
 
         async guardar(datos) {
-            const validacion = this.validar(datos)
+            const validacion = await this.validar(datos)
+            console.log(validacion)
             if(validacion) {
                 return await guardarProfesional(datos.Profesional);
             }
         },
 
         async actualizar(datos) {
-            const validacion = this.validar(datos)
-            if(validacion) {
-                return await editarProfesional(datos.Profesional);
-            }
+            const validacion = await this.validar(datos)
+            console.log(validacion)
+            // if(validacion) {
+            //     return await editarProfesional(datos.Profesional);
+            // }
         },
 
         async eliminar(datos) {
@@ -96,6 +98,20 @@ export const useProfesionalStore = defineStore('Profesional', {
             store.almacen = 'Profesional'
             this.NoEnviados = await store.leerNoEnviados()
             return this.NoEnviados
+        },
+
+        async traerInactivos() {
+            const apiRest = useApiRest();
+            const indexedDB = useIndexedDBStore();
+
+            indexedDB.almacen = 'Profesional';
+            let inactivos;
+            // Traer de API
+            inactivos = await traerProfesionalesInactivos();
+            // await apiRest.postOfflineData('Paciente', inactivos);
+
+            inactivos.map(i => this.Profesionales.push(i))
+            return inactivos;
         },
 
         async sincronizar() {

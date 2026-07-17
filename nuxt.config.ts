@@ -72,6 +72,9 @@ export default defineNuxtConfig({
       traeKardex: 'api/v1/traeKardex',
       traeProfesionales: 'api/v1/traeProfesionales',
       kardex: 'api/v1/kardex',
+      kardexPlantillas: 'api/v1/kardex/plantilla',
+      kardexCampos: 'api/v1/kardex/campo',
+      kardexRegistros: 'api/v1/kardex/registros',
       historialCambioSonda: 'api/v1/historialCambioSonda',
       profesionalHasPermisos: 'api/v1/profesionalHasPermisos',
       solicitarPermiso:  'api/v1/solicitarPermiso',
@@ -87,7 +90,9 @@ export default defineNuxtConfig({
       prestaciones: 'api/v1/prestaciones',
       vadecum: 'api/v1/vadecum',
       exportarPdf: 'api/v1/exportarPdf',
-      pacientesConHistoria: 'api/v1/pacientesConHistoria'
+      pacientesConHistoria: 'api/v1/pacientesConHistoria',
+      pacientesInactivos: 'api/v1/pacientesInactivos',
+      profesionalesInactivos: 'api/v1/profesionalesInactivos',
     }
   },
 

@@ -38,6 +38,8 @@ import { useConvenioStore } from '~/stores/Entidades/Convenio';
 // Codigos
 import { guardarCie10 } from '~/Core/Codigos/PostCie10';
 import { guardarVadecum } from '~/Core/Codigos/PostVadecum';
+// Kardex
+import { useKardexStore } from '../Entidades/Kardex';
 
 
 
@@ -202,5 +204,46 @@ export const accionesFormularios = {
     ModificarVadecum : async (data) => {
         const respuesta = await guardarVadecum(data.Vadecum)
         return respuesta
+    },
+    GuardarKardex: async (data) => {
+        const kardexStore = useKardexStore();
+        const valores = data.Kardex?.valores || {};
+        const campos = kardexStore.camposPlantilla || [];
+        const registros = {};
+        for (const [slug, valor] of Object.entries(valores)) {
+            const campo = campos.find(c => c.slug === slug || c.nombre === slug);
+            if (campo) registros[campo.id] = valor;
+        }
+        const respuesta = await kardexStore.guardarRegistrosPaciente(
+            data.Kardex?.paciente_id,
+            registros
+        );
+        return respuesta;
+    },
+    NuevaPlantilla: async (data) => {
+        const kardexStore = useKardexStore();
+        const respuesta = await kardexStore.crearPlantilla(data.Plantilla);
+        return respuesta ? true : false;
+    },
+    ModificarPlantilla: async (data) => {
+        const kardexStore = useKardexStore();
+        const respuesta = await kardexStore.actualizarPlantilla(
+            data.Plantilla.id,
+            data.Plantilla
+        );
+        return respuesta;
+    },
+    NuevoCampo: async (data) => {
+        const kardexStore = useKardexStore();
+        const respuesta = await kardexStore.crearCampo(data.Campo);
+        return respuesta ? true : false;
+    },
+    ModificarCampo: async (data) => {
+        const kardexStore = useKardexStore();
+        const respuesta = await kardexStore.actualizarCampo(
+            data.Campo.id,
+            data.Campo
+        );
+        return respuesta;
     },
 };

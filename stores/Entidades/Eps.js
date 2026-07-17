@@ -35,7 +35,7 @@ export const useEpsStore = defineStore('Eps', {
         },
 
         async actualizar(datos) {
-            const validate = this.validar(datos.EPS)
+            const validate = await this.validar(datos.EPS)
             if(validate){
                 return await actualizarEps(datos)
             }

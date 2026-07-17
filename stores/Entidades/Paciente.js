@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { actualizarPaciente } from "~/Core/Pacientes/PUTPaciente";
 import { eliminarPaciente } from "~/Core/Pacientes/DELETEPaciente";
-import { traerPacientes } from "~/Core/Pacientes/GETPacientes";
+import { traerPacientes, traerPacientesInactivos } from "~/Core/Pacientes/GETPacientes";
 import { enviarPaciente } from "~/Core/Pacientes/POSTPaciente";
 
 // Pinia Pacientes
@@ -220,7 +220,21 @@ export const usePacientesStore = defineStore('Pacientes', {
                 validacion: true,
                 datos
             };
-        }
+        },
+
+        async traerInactivos() {
+            const apiRest = useApiRest();
+            const indexedDB = useIndexedDBStore();
+
+            indexedDB.almacen = 'Paciente';
+            let inactivos;
+            // Traer de API
+            inactivos = await traerPacientesInactivos();
+            // await apiRest.postOfflineData('Paciente', inactivos);
+
+            inactivos.map(i => this.Pacientes.push(i))
+            return inactivos;
+        },
 
     }
 });

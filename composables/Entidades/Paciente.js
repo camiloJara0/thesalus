@@ -1,6 +1,7 @@
 import { mapCampos } from "~/components/organism/Forms/useFormulario";
 import { UBadge, UButton, UDropdownMenu } from '#components'
 import { h } from 'vue'
+import { actualizarPaciente } from "~/Core/Pacientes/PUTPaciente";
 
 export function usePacienteActions({
     pacientesStore,
@@ -77,7 +78,7 @@ export function usePacienteActions({
         {
             accessorKey: "info_usuario.municipio", header: "Ciudad",
             cell: ({ row }) => {
-                const texto = row.original.info_usuario.municipio || ''
+                const texto = row.original.info_usuario?.municipio || ''
                 const limitado = texto.length > 15 ? texto.substring(0, 15) + '...' : texto
                 return h('p', limitado)
             }
@@ -86,7 +87,7 @@ export function usePacienteActions({
         {
             accessorKey: "eps.nombre", header: "EPS",
             cell: ({ row }) => {
-                const texto = row.original.eps.nombre || ''
+                const texto = row.original.eps?.nombre || ''
                 const limitado = texto.length > 10 ? texto.substring(0, 10) + '...' : texto
                 return h('p', limitado)
             }
@@ -137,35 +138,59 @@ export function usePacienteActions({
     function getRowItems(row) {
         const paciente = row.original || row
 
-        return [
-            {
-                type: 'label',
-                label: 'Acciones'
-            },
-            {
-                label: 'Editar',
-                onSelect() {
-                    verPaciente(paciente)
+        if(paciente.estado === 1){
+            return [
+                {
+                    type: 'label',
+                    label: 'Acciones'
+                },
+                {
+                    label: 'Editar',
+                    onSelect() {
+                        verPaciente(paciente)
+                    }
+                },
+                {
+                    label: 'Asignar de Inventario',
+                    onSelect() {
+                        pacientesStore.showItem = true
+                        varView.tipoHistoria = 'Medicamento'
+                        pacientesStore.PacienteSeleccionado = paciente.id
+                    }
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: 'Eliminar',
+                    onSelect() {
+                        eliminarPaciente(paciente)
+                    }
                 }
-            },
-            {
-                label: 'Asignar de Inventario',
-                onSelect() {
-                    pacientesStore.showItem = true
-                    varView.tipoHistoria = 'Medicamento'
-                    pacientesStore.PacienteSeleccionado = paciente.id
-                }
-            },
-            {
-                type: 'separator'
-            },
-            {
-                label: 'Eliminar',
-                onSelect() {
-                    eliminarPaciente(paciente)
-                }
-            }
-        ]
+            ]
+        } else {
+            return [
+                {
+                    type: 'label',
+                    label: 'Acciones'
+                },
+                {
+                    label: 'Activar',
+                    onSelect: async() => {
+                        await actualizarPaciente({Paciente: paciente})
+                        notificaciones.options = {
+                            position: "top-end",
+                            texto: "Paciente activado con éxito.",
+                            background: "#6bc517",
+                            tiempo: 1500
+                        };
+
+                        await notificaciones.mensaje();
+                        await pacientesStore.traer(true, true)
+                    }
+                },
+            ]
+        }
     }
 
     return {

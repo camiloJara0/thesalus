@@ -51,7 +51,7 @@ const components = {
 
                 <UButton v-for="button in Propiedades.header.button" :color="button.color" :icon="button.icon" :variant="button.variant"
                     @click="button.action">
-                    {{ button.text }}
+                    <p class="hidden md:block">{{ button.text }}</p>
                 </UButton>
 
             </div>

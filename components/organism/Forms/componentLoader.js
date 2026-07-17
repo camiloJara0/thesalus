@@ -16,7 +16,8 @@ export function loadComponent(name) {
     Imagen: () => import('~/components/atoms/Images/Imagen.vue'),
     Permisos: () => import('~/components/atoms/Selects/Permisos.vue'),
     Card: () => import('~/components/molecules/Cards/Card.vue'),
-    Button: () => import('~/components/atoms/Buttons/Button.vue')
+    Button: () => import('~/components/atoms/Buttons/Button.vue'),
+    DynamicField: () => import('~/components/atoms/DynamicField/DynamicField.vue')
   };
 
   const loader = componentMap[name];
@@ -110,6 +111,11 @@ export async function cargarStore(storeName) {
     case 'Convenio': {
       const { useConvenioStore } = await import('~/stores/Entidades/Convenio');
       tablaStore = useConvenioStore();
+      break;
+    }
+    case 'Kardex': {
+      const { useKardexStore } = await import('~/stores/Entidades/Kardex');
+      tablaStore = useKardexStore();
       break;
     }
     case 'Vadecum': {

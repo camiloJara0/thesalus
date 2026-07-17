@@ -51,7 +51,7 @@ export const useInsumoStore = defineStore('Insumo', {
     actions: {
 
         async guardar(datos) {
-            const validate = this.validar(datos.Insumos)
+            const validate = await this.validar(datos.Insumos)
             if (!validate) {
                 return false;
             }
@@ -59,7 +59,7 @@ export const useInsumoStore = defineStore('Insumo', {
         },
 
         async actualizar(datos) {
-            const validate = this.validar(datos.Insumos)
+            const validate = await this.validar(datos.Insumos)
             if (!validate) {
                 return false;
             }
@@ -191,7 +191,7 @@ export const useInsumoStore = defineStore('Insumo', {
         },
 
         async guardarMovimiento(datos) {
-            const validate = this.validarMovimiento(datos)
+            const validate = await this.validarMovimiento(datos)
             if (!validate) {
                 return false;
             }
@@ -199,7 +199,7 @@ export const useInsumoStore = defineStore('Insumo', {
         },
 
         async actualizarMovimiento(datos) {
-            const validate = this.validarMovimiento(datos)
+            const validate = await this.validarMovimiento(datos)
             if (!validate) {
                 return false;
             }

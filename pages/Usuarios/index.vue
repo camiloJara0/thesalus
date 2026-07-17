@@ -146,7 +146,9 @@ const {
     cerrar,
     eliminarPaciente,
     columns,
-    getRowItems
+    columnsInactivo,
+    getRowItems,
+    getRowItemsInactivo
 } = usePacienteActions({
     pacientesStore,
     varView,
@@ -321,6 +323,13 @@ const propiedadesTabla = computed(() => {
         filtros: [
             { columna: 'info_usuario.municipio', placeholder: 'Ciudad' },
             { columna: 'eps.nombre', placeholder: 'EPS' },
+            { columna: 'estado', placeholder: 'Estado', options: [{label: 'Activos', value: 1}, {label:'Inactivos', value: 0}], accion: async(filtros) => {
+                if(filtros.estado == 0){
+                    pacientesStore.Pacientes = await pacientesStore.traerInactivos()
+                } else {
+                    pacientesStore.Pacientes = await pacientesStore.traer(false, false)
+                }
+            }}
         ],
         excel: true,
         card: {
@@ -345,7 +354,7 @@ const propiedadesTabla = computed(() => {
         <!-- Sección Integrada (Tabs) -->
         <UTabs :items="tabsIntegrados">
             <template #paciente>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                 <UAlert color="warning" class="my-4" v-if="historias.Pacientes?.length > 0 || historias.EPS?.length > 0 || historias.Convenios?.length > 0">
                     <template #title>
                         <div class="flex items-center justify-between gap-2">
@@ -369,34 +378,26 @@ const propiedadesTabla = computed(() => {
             </template>
 
             <template #eps>
-                <div class="p-6">
+                <div class="md:p-6">
                     <CardEPS />
                 </div>
             </template>
 
             <template #convenios>
-                <div class="p-6">
+                <div class="md:p-6">
                     <CardConvenios />
                 </div>
             </template>
 
             <template #kardex>
-                <div class="p-6">
-                    <CardKardex :historias="convenios"
-                        @ver-detalle="(historia) => { historiaSeleccionada.value = historia; showKardexDetalle = true; }"
-                        @descargar="() => { }" />
+                <div class="md:p-6">
+                    <CardKardex />
                 </div>
             </template>
 
 
         </UTabs>
 
-
-        <!-- Panel de Acciones Integrado -->
-        <!-- <div class="mb-6">
-            <PanelAccionesPacientes :pacientes="Pacientes" :eps="eps" :convenios="convenios" :kardex="historias"
-                @showNoEnviados="verNoEnviados" @sincronizarDatos="sincronizarDatos" />
-        </div> -->
     </FondoDefault>
 
     <Restringido v-else/>

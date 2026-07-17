@@ -240,7 +240,7 @@ function getRowActions(row) {
             class="flex-1 max-h-[62vh]" />
     </div>
     <!-- Cards Mobile (solo si card esta definido) -->
-    <div v-if="cardConfig" class="md:hidden block space-y-3">
+    <div v-if="cardConfig" class="md:hidden block space-y-3 px-2">
         <UCard v-for="row in datosPaginados" :key="row.id || row.id_analisis" :ui="{ body: { padding: 'px-4 py-3' }, header: { padding: 'px-4 py-3' }, footer: { padding: 'px-4 py-2' } }">
             <template #header>
                 <div class="flex justify-between items-start">

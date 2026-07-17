@@ -31,14 +31,14 @@ export const useProfesionStore = defineStore('Profesion', {
     actions: {
 
         async guardar(datos) {
-            const validar = this.validar(datos.Profesion)
+            const validar = await this.validar(datos.Profesion)
             if(validar) {
                 return await enviarProfesion(datos)
             }
         },
 
         async actualizar(datos) {
-            const validar = this.validar(datos.Profesion)
+            const validar = await this.validar(datos.Profesion)
             if(validar) {
                 return await actualizarProfesion(datos)
             }

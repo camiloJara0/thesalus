@@ -356,7 +356,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Cards Mobile (solo si card esta definido) -->
-    <div v-if="cardConfig" ref="cards" class="md:hidden block space-y-3 overflow-y-auto max-h-[62vh]">
+    <div v-if="cardConfig" ref="cards" class="md:hidden block space-y-3 overflow-y-auto max-h-[62vh] px-2">
         <UCard v-for="row in datosOrdenados" :key="row.id || row.id_analisis"
             :ui="{ body: { padding: 'px-4 py-3' }, header: { padding: 'px-4 py-3' }, footer: { padding: 'px-4 py-2' } }">
             <template #header>

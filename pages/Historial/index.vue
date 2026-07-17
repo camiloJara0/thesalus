@@ -704,7 +704,7 @@ const propiedadesItemHistoria = computed(() => {
                             : ''">
                         <div class="flex items-center gap-3">
                             <div
-                                class="size-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                                class="md:size-10 h-full rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
                                 <i class="fa-solid fa-file-medical text-blue-600 dark:text-blue-300"></i>
                             </div>
 
@@ -733,7 +733,7 @@ const propiedadesItemHistoria = computed(() => {
                             : ''">
                         <div class="flex items-center gap-3">
                             <div
-                                class="size-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                                class="md:size-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
                                 <i class="fa-solid fa-chart-line text-emerald-600 dark:text-emerald-300"></i>
                             </div>
                             <div class="flex-1">
@@ -761,7 +761,7 @@ const propiedadesItemHistoria = computed(() => {
                             : ''">
                         <div class="flex items-center gap-3">
                             <div
-                                class="size-10 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                                class="md:size-10 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                                 <i class="fa-solid fa-pills text-amber-600 dark:text-amber-300"></i>
                             </div>
 

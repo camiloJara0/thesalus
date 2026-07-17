@@ -26,14 +26,14 @@ export const useCie10Store = defineStore('Cie10', {
     actions: {
 
         async guardar(datos) {
-            const validar = this.validar(datos.Cie10)
+            const validar = await this.validar(datos.Cie10)
             if(validar) {
                 return await guardarCie10(datos)
             }
         },
 
         async actualizar(datos) {
-            const validar = this.validar(datos.Cie10)
+            const validar = await this.validar(datos.Cie10)
             if(validar) {
                 return await guardarCie10(datos)
             }

@@ -96,7 +96,7 @@ const columns = [
 
 // 🎯 ACCIONES PARA INSUMOS
 function getRowItemsInsumos(row) {
-    const insumo = row.original
+    const insumo = row.original || row
     return [
         { type: 'label', label: 'Acciones' },
         {
@@ -157,7 +157,8 @@ const {
     eliminarInsumo,
     verMovimiento,
     eliminarMovimiento,
-    columnsMovimiento
+    columnsMovimiento,
+    getRowItemsMovimiento
 } = useInsumoActions({
     notificaciones
 })
@@ -329,6 +330,11 @@ const propiedadesTabla = computed(() => {
             { columna: 'ubicacion', placeholder: 'Ubicacion' },
         ],
         excel: true,
+        card: {
+            header: ['nombre', 'id'],
+            body: ['categoria', 'stock', 'es_prestable']
+        },
+        rowActions: getRowItemsInsumos
     }
 })
 
@@ -345,6 +351,11 @@ const propiedadesTablaMovimiento = computed(() => {
         llamadatos: llamadatosMovimiento,
         data: Movimientos,
         columns: columnsMovimiento,
+        card: {
+            header: ['fechaMovimiento', 'insumo.nombre'],
+            body: ['insumo.categoria', 'tipoMovimiento',]
+        },
+        rowActions: getRowItemsMovimiento
     }
 })
 
@@ -364,19 +375,19 @@ const propiedadesTablaMovimiento = computed(() => {
         <!-- Sección Integrada (Tabs) -->
         <UTabs :items="tabsIntegrados">
             <template #inventario>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt>
                 </div>
             </template>
 
             <template #movimientos>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTablaMovimiento" />
                 </div>
             </template>
 
             <template #prestaciones>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TimelineMovimientos :movimientos="Prestaciones" @agregar-movimiento="() => { agregarMovimiento() }"
                         @recargar="() => llamadatosPrestados(true)" />
                 </div>

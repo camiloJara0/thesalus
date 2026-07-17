@@ -108,13 +108,13 @@ function llamaDatos() {
     <div class="flex items-center justify-between">
       <div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Profesiones Registradas</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Distribución de profesionales por especialidad</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 hidden md:block">Distribución de profesionales por especialidad</p>
       </div>
       <div class="flex gap-2">
           <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
-            Filtrar
+            <p class="hidden md:block">Filtrar</p>
           </UButton>
-        <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarProfesion">Agregar</UButton>
+        <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarProfesion"><p class="hidden md:block">Agregar</p></UButton>
           <UButton icon="i-lucide-cloud-sync" variant="subtle" color="primary" @click="llamaDatos"/>
       </div>
     </div>

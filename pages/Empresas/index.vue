@@ -426,19 +426,19 @@ const tabsIntegrados = [
     <FondoDefault v-if="puedeVer">
         <UTabs :items="tabsIntegrados">
             <template #servicios>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTabla" />
                 </div>
             </template>
 
             <template #cie10>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTablaCie10" />
                 </div>
             </template>
 
             <template #vademecums>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTablaVadecums" />
                 </div>
             </template>

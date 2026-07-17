@@ -26,8 +26,9 @@ export const actualizarPaciente = async (datos, reintento = false) => {
             descripcion: a.descripcion,
         }));
 
-    datos.Paciente.Plan_manejo_procedimientos = Plan_manejo_procedimientos;
-    datos.Paciente.Antecedentes = Antecedentes;
+    datos.Paciente.Plan_manejo_procedimientos = Plan_manejo_procedimientos || [];
+    datos.Paciente.Antecedentes = Antecedentes || [];
+    datos.Paciente.estado = 1
 
     const online = navigator.onLine;
     if (online) {

@@ -72,17 +72,17 @@ function llamaDatos () {
             <i class="fa-solid fa-hospital text-green-600 dark:text-green-400 text-xl"></i>
           </div>
           <div>
-            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Aseguradoras (EPS)</h3>
+            <h3 class="font-bold md:text-lg text-sm text-gray-900 dark:text-white">Aseguradoras (EPS)</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ Eps.length }} registradas</p>
           </div>
         </div>
         <div class="flex gap-2">
 
           <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
-            Filtrar
+            <p class="hidden md:block">Filtrar</p>
           </UButton>
           <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarEps">
-            Agregar
+            <p class="hidden md:block">Agregar</p>
           </UButton>
           <UButton icon="i-lucide-cloud-sync" variant="subtle" color="primary" @click="llamaDatos"/>
         </div>
@@ -125,7 +125,7 @@ function llamaDatos () {
     </template>
 
     <!-- Lista de EPS -->
-    <div v-if="Eps.length > 0" class="space-y-1 h-[40vh] overflow-y-auto grid md:grid-cols-2 gap-3">
+    <div v-if="Eps.length > 0" class="space-y-1 h-[50vh] overflow-y-auto grid md:grid-cols-2 gap-3">
       <div v-for="(item, index) in datosOrdenados" :key="index"
         class="flex items-center justify-between p-4 rounded-lg bg-linear-to-r from-[#f9fbfd] to-white dark:from-gray-700 dark:to-gray-600 border border-green-100 dark:border-gray-500 hover:shadow-md transition-all duration-300 group">
         <div class="flex items-center gap-4">

@@ -89,16 +89,16 @@ function llamaDatos(){
             <i class="fa-solid fa-handshake text-blue-600 text-xl"></i>
           </div>
           <div>
-            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Convenios</h3>
+            <h3 class="font-bold md:text-lg text-sm text-gray-900 dark:text-white">Convenios</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ Convenios.length }} activos</p>
           </div>
         </div>
         <div class="flex gap-2">
           <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
-            Filtrar
+            <p class="hidden md:block">Filtrar</p>
           </UButton>
           <UButton icon="i-lucide-plus" :disabled="!puedePost" @click="agregarConvenio">
-            Nuevo
+            <p class="hidden md:block">Agregar</p>
           </UButton>
           <UButton icon="i-lucide-cloud-sync" variant="subtle" color="primary" @click="llamaDatos"/>
         </div>

@@ -185,7 +185,7 @@ export function useInsumoActions({
 
   // 🎯 ACCIONES PARA MOVIMIENTOS
   function getRowItemsMovimiento(row) {
-    const movimiento = row.original
+    const movimiento = row.original || row
     return [
       { type: 'label', label: 'Acciones' },
       {
@@ -223,6 +223,7 @@ export function useInsumoActions({
     verMovimiento,
     eliminarMovimiento,
     columnsMovimiento,
+    getRowItemsMovimiento,
     agregarPrestacion,
     devolverMovimiento
   };

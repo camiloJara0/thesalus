@@ -1,6 +1,7 @@
 import { mapCampos, mapCamposLimpios } from "~/components/organism/Forms/useFormulario";
 import { UBadge, UButton, UDropdownMenu } from '#components'
 import { h } from 'vue'
+import { editarProfesional } from "~/Core/Profesional/PUTMedico";
 
 export function useProfesionalActions({
     profesionalStore,
@@ -179,57 +180,107 @@ const columnsOffline = [
 ]
 
 function getRowItems(row) {
-    const profesional = row.original
+    const profesional = row.original || row
 
-    return [
-        {
-            type: 'label',
-            label: 'Acciones'
-        },
-        {
-            label: 'Editar',
-            onSelect() {
-                modificarMedico(profesional)
+    if(profesional.estado === 1){
+        return [
+            {
+                type: 'label',
+                label: 'Acciones'
             },
-            disabled: !puedePut
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Eliminar',
-            onSelect() {
-                eliminarProfesional(profesional)
+            {
+                label: 'Editar',
+                onSelect() {
+                    modificarMedico(profesional)
+                },
+                disabled: !puedePut
             },
-            disabled: !puedeDelete
-        }
-    ]
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Eliminar',
+                onSelect() {
+                    eliminarProfesional(profesional)
+                },
+                disabled: !puedeDelete
+            }
+        ]
+    } else if(profesional.estado === 0){
+        return [
+            {
+                type: 'label',
+                label: 'Acciones'
+            },
+            {
+                label: 'Activar',
+                onSelect: async() => {
+                    await editarProfesional(profesional)
+                    notificaciones.options = {
+                        position: "top-end",
+                        texto: "Profesional activado con éxito.",
+                        background: "#6bc517",
+                        tiempo: 1500
+                    };
+
+                    await notificaciones.mensaje();
+                    await profesionalStore.traer(true, true)
+                },
+                disabled: !puedePut
+            },
+        ]
+    }
 }
 
 function getRowItemsOffline(row) {
     const profesional = row.original
 
-    return [
-        {
-            type: 'label',
-            label: 'Acciones'
-        },
-        {
-            label: 'Editar',
-            onSelect() {
-                modificarMedico(profesional)
+    if(profesional.estado === 1){
+        return [
+            {
+                type: 'label',
+                label: 'Acciones'
+            },
+            {
+                label: 'Editar',
+                onSelect() {
+                    modificarMedico(profesional)
+                }
+            },
+            {
+                type: 'separator'
+            },
+            {
+                label: 'Eliminar',
+                onSelect() {
+                    eliminarProfesionalOffline(profesional)
+                }
             }
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Eliminar',
-            onSelect() {
-                eliminarProfesionalOffline(profesional)
-            }
-        }
-    ]
+        ]
+    } else if(profesional.estado === 0){
+        return [
+            {
+                type: 'label',
+                label: 'Acciones'
+            },
+            {
+                label: 'Activar',
+                onSelect: async() => {
+                    await editarProfesional(profesional)
+                    notificaciones.options = {
+                        position: "top-end",
+                        texto: "Profesional activado con éxito.",
+                        background: "#6bc517",
+                        tiempo: 1500
+                    };
+
+                    await notificaciones.mensaje();
+                    await profesionalStore.traer(true, true)
+                },
+                disabled: !puedePut
+            },
+        ]
+    }
 }
 
     return {
@@ -239,6 +290,7 @@ function getRowItemsOffline(row) {
         eliminarProfesional,
         eliminarProfesionalOffline,
         columns,
+        getRowItems,
         columnsOffline
     };
 }

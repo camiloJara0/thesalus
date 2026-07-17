@@ -26,14 +26,14 @@ export const useServicioStore = defineStore('Servicio', {
     actions: {
 
         async guardar(datos) {
-            const validar = this.validar(datos.Servicio)
+            const validar = await this.validar(datos.Servicio)
             if(validar){
                 return enviarServicio(datos)
             }
         },
 
         async actualizar(datos) {
-            const validar = this.validar(datos.Servicio)
+            const validar = await this.validar(datos.Servicio)
             if(validar){
                 return actualizarServicio(datos)
             }

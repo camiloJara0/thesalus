@@ -1,26 +1,33 @@
 <script setup>
-import { computed, onMounted, ref, h } from 'vue'
+import { computed, onMounted, ref, h, watch } from 'vue'
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue'
-import { validarYEnviarKardex } from '~/Core/Pacientes/POSTKardex.js';
-import Restringido from '../NoEnviados/Restringido.vue';
-import { usePaginacion } from '~/composables/Tabla/usePaginacion.js';
+import DynamicField from '~/components/atoms/DynamicField/DynamicField.vue'
+import ModalAdminPlantilla from './ModalAdminPlantilla.vue'
+import { usePaginacion } from '~/composables/Tabla/usePaginacion.js'
+import { useKardexStore } from '~/stores/Entidades/Kardex'
 
-const historias = ref([])
-let copiaKardex = [];
-const filasCambiadas = ref(new Set())
-const actualizarCambios = ref(false)
 const apiRest = useApiRest()
 const varView = useVarView()
-const puedeVer = varView.getPermisos.includes('Kardex_view');
-const puedeGet = varView.getPermisos.includes('Kardex_get');
-const puedePost = varView.getPermisos.includes('Kardex_put');
-const puedePut = varView.getPermisos.includes('Kardex_put');
+const kardexStore = useKardexStore()
+
+const puedeVer = varView.getPermisos.includes('Kardex_view')
+const puedeGet = varView.getPermisos.includes('Kardex_get')
+const puedePost = varView.getPermisos.includes('Kardex_put')
+const esAdmin = varView.getRol === 'Admin'
 
 const {
-  options,
-  mensaje,
-  alertRespuestaInput
-} = useNotificacionesStore();
+    options,
+    mensaje,
+    alertRespuestaInput
+} = useNotificacionesStore()
+
+const historias = ref([])
+let copiaKardex = []
+const filasCambiadas = ref(new Set())
+const actualizarCambios = ref(false)
+const plantillaSeleccionadaId = ref(null)
+const showAdminPlantilla = ref(false)
+const cargandoTabla = ref(false)
 
 const {
     paginaActual,
@@ -28,558 +35,325 @@ const {
     totalPaginas,
     ultimaPagina,
     cambiarItemsPorPagina,
-    siguientePagina,
-    paginaAnterior,
-    irAPagina,
     datosPaginados,
-} = usePaginacion(historias);
+} = usePaginacion(historias)
+
+const plantillasOptions = computed(() =>
+    kardexStore.plantillas
+        .filter(p => p.estado !== 'INACTIVO')
+        .map(p => ({ label: p.nombre, value: p.id }))
+)
+
+const camposPlantilla = computed(() => kardexStore.camposPlantilla)
 
 onMounted(async () => {
-  const kardex = await apiRest.getData('', 'traeKardex')
-  historias.value = kardex.map(k => {
-    return { ...k, id: k.paciente_id }
-  })
-  copiaKardex = JSON.parse(JSON.stringify(historias.value))
-});
+    await kardexStore.cargarPlantillas()
+
+    if (plantillasOptions.value.length > 0) {
+        const primera = plantillasOptions.value[0]
+        plantillaSeleccionadaId.value = primera.value
+        await kardexStore.seleccionarPlantilla(primera.value)
+    }
+
+    await cargarPacientes()
+})
+
+watch(plantillaSeleccionadaId, async (nuevoId) => {
+    if (nuevoId) {
+        cargandoTabla.value = true
+        await kardexStore.seleccionarPlantilla(nuevoId)
+        await cargarRegistrosPacientes()
+        regenerarColumnas()
+        cargandoTabla.value = false
+    }
+})
+
+async function cargarPacientes() {
+    const kardex = await apiRest.getData('', 'traeKardex')
+    historias.value = kardex.map(k => ({
+        ...k,
+        id: k.paciente_id,
+        _kardexValores: {}
+    }))
+    copiaKardex = JSON.parse(JSON.stringify(historias.value))
+    await cargarRegistrosPacientes()
+}
+
+async function cargarRegistrosPacientes() {
+    if (!historias.value.length) return
+    // await kardexStore.cargarTodosLosRegistros(plantillaSeleccionadaId.value)
+
+    historias.value.forEach(paciente => {
+        paciente._kardexValores = kardexStore.getRegistros(paciente.paciente_id)
+    })
+}
+
+function getKardexValue(pacienteId, campoId) {
+    const registros = kardexStore.getRegistros(pacienteId)
+    return registros[campoId] || ''
+}
+
+function setKardexValue(pacienteId, campoId, valor) {
+    if (!kardexStore.todosLosRegistros[pacienteId]) {
+        kardexStore.todosLosRegistros[pacienteId] = {}
+    }
+    kardexStore.todosLosRegistros[pacienteId][campoId] = valor
+    const fila = historias.value.find(h => h.paciente_id === pacienteId)
+    if (fila) {
+        fila._kardexValores = { ...fila._kardexValores, [campoId]: valor }
+    }
+}
 
 function actualizarFila(id) {
-  actualizarCambios.value = true
-  filasCambiadas.value.add(id)
+    actualizarCambios.value = true
+    filasCambiadas.value.add(id)
 }
 
 function filaFueCambiada(id) {
-  return filasCambiadas.value.has(id)
+    return filasCambiadas.value.has(id)
+}
+
+const columnasFijas = [
+    {
+        accessorKey: 'No_document',
+        header: 'Documento',
+        ordenar: true,
+        pinned: true,
+        size: 120,
+        meta: { class: 'sticky-col col-1' }
+    },
+    {
+        accessorKey: 'name',
+        header: 'Nombre',
+        ordenar: true,
+        pinned: true,
+        size: 200,
+        meta: { class: 'sticky-col col-2' }
+    },
+    {
+        accessorKey: 'Eps',
+        header: 'EPS',
+        ordenar: true,
+        pinned: true,
+        size: 200,
+        meta: { class: 'sticky-col col-3' }
+    },
+]
+
+const columnasKardex = computed(() => {
+    return camposPlantilla.value?.map(campo => ({
+        accessorKey: `kardex_${campo.nombre}`,
+        header: campo.titulo,
+        size: campo.tipo === 'textarea' ? 250 : 150,
+        cell: ({ row }) => {
+            const pacienteId = row.original.paciente_id
+            const valor = getKardexValue(pacienteId, campo.id)
+            return h(DynamicField, {
+                campo,
+                placeholder: valor || '...',
+                modelValue: valor,
+                variant: 'ghost',
+                'onUpdate:modelValue': (val) => {
+                    setKardexValue(pacienteId, campo.id, val)
+                    actualizarFila(pacienteId)
+                }
+            })
+        }
+    })) || []
+})
+
+const columns = computed(() => [...columnasFijas, ...columnasKardex.value])
+
+function regenerarColumnas() {
+    filasCambiadas.value.clear()
+    actualizarCambios.value = false
 }
 
 async function guardarCambios() {
-  const datosActualizados = historias.value.filter(dato =>
-    filasCambiadas.value.has(dato.id)
-  )
-  console.log(datosActualizados)
-  for (const fila of datosActualizados) {
-    await guardar(fila)
-  }
+    const datosActualizados = historias.value.filter(dato =>
+        filasCambiadas.value.has(dato.paciente_id)
+    )
 
-  filasCambiadas.value.clear()
-  actualizarCambios.value = false
-}
-
-const columns = [
-  // Fijas
-  { accessorKey: "No_document", header: "Documento", ordenar: true, pinned: true, size: 120, meta: { class: "sticky-col col-1" } },
-  { accessorKey: "name", header: "Nombre", ordenar: true, pinned: true, size: 200, meta: { class: "sticky-col col-2" } },
-  { accessorKey: "Eps", header: "EPS", ordenar: true, pinned: true, size: 230, meta: { class: "sticky-col col-3" } },
-
-  // Inputs simples
-  { accessorKey: "type_doc", header: "Tipo Doc", },
-  { accessorKey: "celular", header: "Tel", },
-  { accessorKey: "direccion", header: "Dirección", },
-  { accessorKey: "barrio", header: "Barrio", },
-  { accessorKey: "nacimiento", header: "Fecha Nto", },
-  { accessorKey: "municipio", header: "Municipio Atención", },
-  { accessorKey: "regimen", header: "Regimen", },
-  { accessorKey: "diagnostico", header: "Diagnóstico", 
-      cell: ({ row }) => {
-        const texto = row.original.diagnostico || ''
-        const limitado = texto.length > 50 ? texto.substring(0, 50) + '...' : texto
-        return h('p', limitado)
-      }
-  },
-  // Selects
-  {
-    accessorKey: "kit_cateterismo",
-    header: "Kit Cateterismo",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.kit_cateterismo,
-      "onUpdate:modelValue": (val) => {
-        row.original.kit_cateterismo = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  {
-    accessorKey: "rango",
-    header: "C/ cuanto",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.rango,
-      "onUpdate:modelValue": (val) => {
-        row.original.rango = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "Cada 4 horas", value: "Cada 4 horas" },
-        { label: "Cada 6 horas", value: "Cada 6 horas" },
-        { label: "Cada 8 horas", value: "Cada 8 horas" },
-        { label: "Cada 12 horas", value: "Cada 12 horas" },
-        { label: "No requiere", value: "No requiere" }
-      ]
-    })
-  },
-  {
-    accessorKey: "kit_cambioSonda",
-    header: "Cambio de sonda",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.kit_cambioSonda,
-      "onUpdate:modelValue": (val) => {
-        row.original.kit_cambioSonda = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  {
-    accessorKey: "kit_gastro",
-    header: "Kit gastro",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.kit_gastro,
-      "onUpdate:modelValue": (val) => {
-        row.original.kit_gastro = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  {
-    accessorKey: "traqueo",
-    header: "Traqueo",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.traqueo,
-      "onUpdate:modelValue": (val) => {
-        row.original.traqueo = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  {
-    accessorKey: "equipos_biomedicos",
-    header: "Equipos Biomedicos",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.equipos_biomedicos,
-      "onUpdate:modelValue": (val) => {
-        row.original.equipos_biomedicos = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  {
-    accessorKey: "oxigeno",
-    header: "Oxigeno",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.oxigeno,
-      "onUpdate:modelValue": (val) => {
-        row.original.oxigeno = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  {
-    accessorKey: "estado",
-    header: "Estado",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.estado,
-      "onUpdate:modelValue": (val) => {
-        row.original.estado = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "ACTIVO", value: "ACTIVO" },
-        { label: "FALLECIDO", value: "FALLECIDO" },
-        { label: "CAMBIO DE PRESTADOR", value: "CAMBIO DE PRESTADOR" },
-        { label: "RETIRADO", value: "RETIRADO" },
-        { label: "EGRESO", value: "EGRESO" },
-        { label: "SUSPENDIDO", value: "SUSPENDIDO" },
-        { label: "CANCELADO", value: "CANCELADO" }
-      ]
-    })
-  },
-  {
-    accessorKey: "vm",
-    header: "VM",
-    cell: ({ row }) => h(USelect, {
-      modelValue: row.original.vm,
-      "onUpdate:modelValue": (val) => {
-        row.original.vm = val
-        actualizarFila(row.original.id)
-      },
-      variant: "ghost",
-      items: [
-        { label: "SI", value: 1 },
-        { label: "NO", value: 0 }
-      ]
-    })
-  },
-  // Inputs
-  {
-    accessorKey: "fecha_ultima_visita",
-    header: "Fecha última visita médica",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.fecha_ultima_visita = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapia_respiratoria",
-    header: "TR",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapia_respiratoria = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapeuta_respiratoria",
-    header: "Terapeuta Respiratoria",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapeuta_respiratoria = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapia_fisica",
-    header: "TF",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapia_fisica = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapeuta_fisica",
-    header: "Terapeuta Físico",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapeuta_fisica = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapia_fonoaudiologia",
-    header: "TFO",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapia_fonoaudiologia = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapeuta_fonoaudiologia",
-    header: "Terapeuta Fonoaudiología",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapeuta_fonoaudiologia = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapia_ocupacional",
-    header: "TO",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapia_ocupacional = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "terapeuta_ocupacional",
-    header: "Terapeuta Ocupacional",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.terapeuta_ocupacional = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "TEO_cantidad",
-    header: "TEO Cantidad",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.TEO_cantidad = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "profesional_nutricionista",
-    header: "Nutricionista",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.profesional_nutricionista = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "nutricionista",
-    header: "Control Nutrición",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.nutricionista = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "VPSico",
-    header: "VPSico",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.VPSico = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "psicologia",
-    header: "Control Psicología",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.psicologia = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "trabajo_social",
-    header: "T social",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.trabajo_social = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-  {
-    accessorKey: "profesional_trabajo_social",
-    header: "Control T social",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.profesional_trabajo_social = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost"
-      })
-  },
-
-  // Inputs
-
-  {
-    accessorKey: "ultimoCambio", header: "Último cambio de sonda",
-    cell: ({ row, getValue }) =>
-      h(UInput, {
-        modelValue: getValue(),
-        "onUpdate:modelValue": (val) => {
-          row.original.ultimoCambio = val
-          actualizarFila(row.original.id)
-        },
-        variant: "ghost",
-        type: "date"
-      }),
-  },
-
-]
-
-async function guardar(fila) {
-  const filaAfectada = copiaKardex.find(k => k.id_paciente === fila.id_paciente)
-  const cambioSonda = filaAfectada.ultimoCambio !== fila.ultimoCambio
-  console.log(cambioSonda, filaAfectada.ultimoCambio, fila.ultimoCambio)
-  if (fila.ultimoCambio && cambioSonda) {
-    options.icono = 'warning'
-    options.titulo = 'Agrega detalles del cambio de sonda'
-    options.html = `<div class="flex flex-col items-start">`
-    options.input = 'text'
-    options.inputAtributes = { placeholder: 'Observaciones de cambio de sonda' }
-    options.confirmtext = 'Si, Guardar'
-    options.canceltext = 'Atras'
-
-    const respuesta = await alertRespuestaInput()
-
-    if (respuesta.estado !== 'confirmado') return
-
-    if (!respuesta.valor) {
-      options.position = 'top-end'
-      options.texto = 'Ingrese una observación de cambio de sonda.'
-      options.background = '#d33'
-      options.tiempo = 1500
-      mensaje()
-      return
+    for (const fila of datosActualizados) {
+        await guardar(fila)
     }
 
-    fila.observacion = respuesta.valor
-  }
-  try {
-    await validarYEnviarKardex(fila);
-    options.tipo = 'success',
-    options.background = '#22c55e',
-    options.texto = 'Kardex actualizado correctamente',
-    options.tiempo = 3000,
-    options.position = 'top-right',
-    mensaje()
-  } catch (error) {
-    options.tipo = 'error',
-    options.background = '#d33',
-    options.texto = 'No se pudo actualizar Kardex',
-    options.tiempo = 3000,
-    options.position = 'top-right',
-    mensaje()
-  }
+    filasCambiadas.value.clear()
+    actualizarCambios.value = false
+}
+
+async function guardar(fila) {
+    const pacienteId = fila.paciente_id
+    const valoresNuevos = kardexStore.getRegistros(pacienteId)
+    const valoresViejos = copiaKardex.find(k => k.paciente_id === pacienteId)?._kardexValores || {}
+
+    if (plantillaActivaTieneSonida()) {
+        const cambioSonda = valoresNuevos.ultimoCambio !== valoresViejos.ultimoCambio
+        if (valoresNuevos.ultimoCambio && cambioSonda) {
+            options.icono = 'warning'
+            options.titulo = 'Agrega detalles del cambio de sonda'
+            options.html = '<div class="flex flex-col items-start">'
+            options.input = 'text'
+            options.inputAtributes = { placeholder: 'Observaciones de cambio de sonda' }
+            options.confirmtext = 'Si, Guardar'
+            options.canceltext = 'Atras'
+
+            const respuesta = await alertRespuestaInput()
+
+            if (respuesta.estado !== 'confirmado') return
+
+            if (!respuesta.valor) {
+                options.position = 'top-end'
+                options.texto = 'Ingrese una observación de cambio de sonda.'
+                options.background = '#d33'
+                options.tiempo = 1500
+                mensaje()
+                return
+            }
+
+            valoresNuevos.observacion_sonda = respuesta.valor
+        }
+    }
+
+    try {
+        await kardexStore.guardarRegistrosPaciente(pacienteId, valoresNuevos)
+        options.tipo = 'success'
+        options.background = '#22c55e'
+        options.texto = 'Kardex actualizado correctamente'
+        options.tiempo = 3000
+        options.position = 'top-right'
+        mensaje()
+    } catch (error) {
+        options.tipo = 'error'
+        options.background = '#d33'
+        options.texto = 'No se pudo actualizar Kardex'
+        options.tiempo = 3000
+        options.position = 'top-right'
+        mensaje()
+    }
+}
+
+function plantillaActivaTieneSonida() {
+    return camposPlantilla.value.some(c => c.slug === 'ultimoCambio' || c.slug === 'kit_cambioSonda')
+}
+
+async function onPlantillaGuardada() {
+    await kardexStore.cargarPlantillas()
+    showAdminPlantilla.value = false
 }
 
 const columnPinning = ref({
-  left: ['No_document'],
+    left: ['No_document'],
 })
 </script>
-<template>
-  <UCard v-if="puedeVer" :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }" class="bg-white dark:bg-gray-800">
-    <template #header>
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div
-            class="w-12 h-12 rounded-lg bg-linear-to-br from-amber-100 to-amber-50 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-            <i class="fa-solid fa-file-medical text-amber-600 dark:text-amber-400 text-xl"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Kardex Médico</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ historias.value?.length }} registros</p>
-          </div>
-        </div>
-        <UButton icon="i-lucide-download" color="amber" variant="ghost">
-          Actualizar
-          <download-excel
-              :data="historias"
-              name="kardex" type="xlsx" style="display: none;">
-              <p>Descargar</p>
-          </download-excel>
-        </UButton>
-      </div>
-    </template>
 
-    <!-- Timeline de Historias -->
-    <div v-if="historias.length > 0" class="space-y-4">
-      <!-- <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt> -->
-      <UTable :columns="columns" :data="datosPaginados" sticky v-model:column-pinning="columnPinning"
-        :row-class="(row) => filaFueCambiada(row.id) ? 'bg-yellow-100' : ''" class="flex-1 max-h-[62vh]"></UTable>
-    </div>
-    <div class="flex justify-between mt-3">
-        <UPagination v-model:page="paginaActual" active-color="primary" active-variant="subtle" :sibling-count="1"
-            :total="historias.length" :items-per-page="itemsPorPagina"></UPagination>
-        <p class="text-sm text-gray-500 md:flex gap-1 hidden items-center">
-            Mostrando
-            <span class="text-gray-500">{{ ultimaPagina - itemsPorPagina + 1 }} al {{ ultimaPagina }}</span>
-            <span class="text-gray-500">de {{ historias.length }}</span>
-            <select name="numRegistros"
-                class="ml-3 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                @change="cambiarItemsPorPagina($event.target.value)">
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-            </select>
-        </p>
-    </div>
-    <Transition name="slide-up">
-      <div v-if="actualizarCambios && puedePost"
-        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-3 rounded-xl shadow-xl bg-yellow-400">
-        <span class="text-sm font-medium">
-          Tienes cambios sin guardar en Kardex
-        </span>
-        <ButtonRounded @click="guardarCambios">
-          <i class="fa-solid fa-floppy-disk"></i>
-        </ButtonRounded>
-      </div>
-    </Transition>
-    <!-- Empty State -->
-    <div v-if="historias.length < 1" class="text-center py-12">
-      <i class="fa-solid fa-clipboard text-5xl text-gray-300 mb-4"></i>
-      <p class="text-gray-500 dark:text-gray-400 mb-2 font-medium">Kardex</p>
-      <p class="text-sm text-gray-400 dark:text-gray-500">Pacientes sin registros médicos aún</p>
-    </div>
-  </UCard>
-  <Restringido v-else />
+<template>
+    <UCard v-if="puedeVer"
+        :ui="{ body: { padding: 'p-6' }, header: { padding: 'p-6' } }"
+        class="bg-white dark:bg-gray-800">
+        <template #header>
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-linear-to-br from-amber-100 to-amber-50 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                        <i class="fa-solid fa-file-medical text-amber-600 dark:text-amber-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold md:text-lg text-sm text-gray-900 dark:text-white">Kardex Médico</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ historias.length }} registros</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <USelect
+                        v-model="plantillaSeleccionadaId"
+                        :items="plantillasOptions"
+                        placeholder="Seleccionar plantilla"
+                        class="w-52"
+                    />
+                    <ModalAdminPlantilla
+                        v-if="esAdmin"
+                        @guardado="onPlantillaGuardada"
+                    >
+                    </ModalAdminPlantilla>
+                    <download-excel :data="historias" name="kardex" type="xlsx">
+                        <UButton icon="i-lucide-file-chart-column" color="primary" variant="ghost">
+                            Descargar
+                        </UButton>
+                    </download-excel>
+                </div>
+            </div>
+        </template>
+
+        <div v-if="historias.length > 0 && columns.length > 0" class="space-y-4">
+            <UTable
+                :columns="columns"
+                :data="datosPaginados"
+                sticky
+                v-model:column-pinning="columnPinning"
+                :row-class="(row) => filaFueCambiada(row.paciente_id) ? 'bg-yellow-100' : ''"
+                class="flex-1 max-h-[62vh]"
+            />
+        </div>
+
+        <div v-if="historias.length > 0 && columns.length <= 3" class="text-center py-8">
+            <i class="fa-solid fa-table-cells-large text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500 dark:text-gray-400 mb-1 font-medium">Sin campos configurados</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">
+                Selecciona una plantilla o configura los campos desde el botón de administrar
+            </p>
+        </div>
+
+        <div v-if="historias.length > 0" class="flex justify-between mt-3">
+            <UPagination
+                v-model:page="paginaActual"
+                active-color="primary"
+                active-variant="subtle"
+                :sibling-count="1"
+                :total="historias.length"
+                :items-per-page="itemsPorPagina"
+            />
+            <p class="text-sm text-gray-500 md:flex gap-1 hidden items-center">
+                Mostrando
+                <span class="text-gray-500">{{ ultimaPagina - itemsPorPagina + 1 }} al {{ ultimaPagina }}</span>
+                <span class="text-gray-500">de {{ historias.length }}</span>
+                <select name="numRegistros"
+                    class="ml-3 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                    @change="cambiarItemsPorPagina($event.target.value)">
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </p>
+        </div>
+
+        <Transition name="slide-up">
+            <div v-if="actualizarCambios && puedePost"
+                class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-3 rounded-xl shadow-xl bg-yellow-400">
+                <span class="text-sm font-medium">
+                    Tienes cambios sin guardar en Kardex
+                </span>
+                <ButtonRounded @click="guardarCambios">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                </ButtonRounded>
+            </div>
+        </Transition>
+
+        <div v-if="historias.length < 1" class="text-center py-12">
+            <i class="fa-solid fa-clipboard text-5xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500 dark:text-gray-400 mb-2 font-medium">Kardex</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">Pacientes sin registros médicos aún</p>
+        </div>
+    </UCard>
 </template>
+
+<style scoped>
+.slide-up-enter-active,
+.slide-up-leave-active {
+    transition: all 0.3s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+}
+</style>

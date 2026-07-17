@@ -138,7 +138,7 @@ const mes = computed(() => {
 
         </UTabs>
 
-        <div v-else class="grid gap-2"
+        <div v-else class="grid gap-2 p-4"
             :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
             <Card v-for="cita in citasFiltradas" :cita="cita" :Propiedades="props.Propiedades"></Card>
         </div>

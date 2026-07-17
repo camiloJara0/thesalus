@@ -2,10 +2,8 @@
 import TablaNuxt from "~/components/organism/Table/TablaNuxt.vue";
 import Form from "~/components/organism/Forms/Form.vue";
 import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue';
-import PanelAccionesProfesionales from '~/components/organism/Profesionales/PanelAccionesProfesionales.vue';
 import CardProfesiones from '~/components/organism/Profesionales/CardProfesiones.vue';
 import CardPermisos from '~/components/organism/Profesionales/CardPermisos.vue';
-import CardEstadisticas from '~/components/organism/Profesionales/CardEstadisticas.vue';
 
 // Data
 import { ref, onMounted, computed, h, watch } from 'vue';
@@ -86,6 +84,7 @@ const {
     eliminarProfesional,
     eliminarProfesionalOffline,
     columns,
+    getRowItems,
     columnsOffline
 } = useProfesionalActions({
     profesionalStore,
@@ -94,16 +93,6 @@ const {
     llamadatos,
     refresh
 });
-
-function rowActionsProfesional(row) {
-    const profesional = row.original || row
-    return [
-        { label: 'Acciones', type: 'label' },
-        { label: 'Editar', onSelect: () => modificarMedico(profesional) },
-        { type: 'separator' },
-        { label: 'Eliminar', onSelect: () => eliminarProfesional(profesional) }
-    ]
-}
 
 // Watch para actualizar información al agregar o actualizar
 watch(() => showNuevoProfesional.value, async (estado) => {
@@ -235,13 +224,20 @@ const propiedadesTabla = computed(() => {
         filtros: [
             { columna: 'municipio_laboral', placeholder: 'Ciudad' },
             { columna: 'zona_laboral', placeholder: 'Zona' },
+            { columna: 'estado', placeholder: 'Estado', options: [{label: 'Activos', value: 1}, {label:'Inactivos', value: 0}], accion: async(filtros) => {
+                if(filtros.estado == 0){
+                    profesionalStore.Profesionales = await profesionalStore.traerInactivos()
+                } else {
+                    profesionalStore.Profesionales = await profesionalStore.traer(false, false)
+                }
+            }}
         ],
         excel: true,
         card: {
             header: ['info_usuario.name', 'info_usuario.No_document'],
             body: ['info_usuario.celular', 'municipio_laboral', 'zona_laboral', 'profesion.nombre', 'estado'],
         },
-        rowActions: rowActionsProfesional,
+        rowActions: getRowItems,
     }
 })
 
@@ -257,37 +253,26 @@ const propiedadesTabla = computed(() => {
     <!-- Página Principal -->
     <FondoDefault v-if="puedeVer">
         <!-- Panel de Acciones Integrado -->
-        <!-- <div class="mb-6">
-            <PanelAccionesProfesionales :profesionales="medicos" :profesiones="profesionesList"
-                :datos-no-enviados="datosNoEnviados" @showNoEnviados="verNoEnviados"
-                @sincronizarDatos="sincronizarDatos" />
-        </div> -->
 
         <!-- Sección Integrada (Tabs) -->
         <UTabs :items="tabsIntegrados">
             <template #profesionales>
-                <div class="p-6 pb-0">
+                <div class="md:p-6 pb-0">
                     <TablaNuxt :Propiedades="propiedadesTabla"></TablaNuxt>
                 </div>
             </template>
 
             <template #profesiones>
-                <div class="p-6">
+                <div class="md:p-6">
                     <CardProfesiones :profesionales="Profesionales" :profesiones="profesionesList" />
                 </div>
             </template>
 
             <template #permisos>
-                <div class="p-6">
+                <div class="md:p-6">
                     <CardPermisos :profesionales="medicos" />
                 </div>
             </template>
-
-            <!-- <template #estadisticas>
-                <div class="p-6">
-                    <CardEstadisticas :profesionales="medicos" :profesiones="profesionesList" />
-                </div>
-            </template> -->
 
         </UTabs>
     </FondoDefault>
