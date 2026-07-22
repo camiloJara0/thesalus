@@ -10,162 +10,15 @@ Analisis basado en: Revison completa de pages/, stores/, Core/,
 
 INDICE
 ------
-  1. Problemas Criticos (Seguridad y Datos)
-  2. Problemas de Codigo (Bugs y Errores)
   3. Mejoras en la Experiencia de Usuario (UX)
   4. Mejoras en la Arquitectura
-  5. Modulos Incompletos
   6. Rendimiento
   7. Mantenibilidad del Codigo
 
 
 ================================================================================
-1. PROBLEMAS CRITICOS (SEGURIDAD Y DATOS)
-================================================================================
-
-
-[CRITICO] 1.1 SECRET_KEY EXPUESTA EN CODIGO FUENTE
-  Archivo: nuxt.config.ts, linea 17
-  Problema: La llave de encriptacion 'THESALUS943875PL' esta
-            hardcodeada en el codigo fuente.
-  Riesgo:   Cualquiera con acceso al repositorio puede ver la llave
-            y descifrar los tokens y datos de usuarios.
-  Solucion: Mover a archivo .env y usar useRuntimeConfig().public.SECRET_KEY
-            sin exponer el valor en el codigo.
-
-
-[CRITICO] 1.2 TOKEN EN LOCALSTORAGE
-  Archivo: Core/Login/Ingresar.js
-  Problema: El token de autenticacion se guarda en localStorage
-            encriptado con crypto-js, pero la llave esta en el
-            mismo frontend. Un atacante podria descifrarlo.
-  Solucion: Considerar usar httpOnly cookies para el token, o
-            un mecanismo de refresh token con backend.
-
-
-[CRITICO] 1.3 API URL DE DESARROLLO EN PRODUCCION
-  Archivo: nuxt.config.ts, linea 19
-  Problema: La URL activa es 'http://127.0.0.1:8000' (local).
-            La URL de produccion esta comentada.
-  Riesgo:   Si se genera un build sin verificar, la app apuntara
-            al servidor local en vez del produccion.
-  Solucion: Usar variables de entorno (.env) para URL de API
-            y descomentar la URL de produccion.
-
-
-[ALTO] 1.4 LIMPIEZA DE LOCALSTORAGE INCOMPLETA
-  Archivo: pages/index.vue, lineas 44-48
-  Problema: Se limpian token, user, Rol, Permisos y
-            permisosTemporales, pero no se limpia 'seccion',
-            'Empresa' ni 'ultimaSincronizacion'.
-  Solucion: Consolidar la limpieza en una funcion centralizada
-            y asegurar que todos los datos se eliminen al cerrar sesion.
-
-
-================================================================================
-2. PROBLEMAS DE CODIGO (BUGS Y ERRORES)
-================================================================================
-
-
-[ALTO] 2.1 VARIABLE NO DECLARADA EN Vadecum.vue
-  Archivo: pages/Empresas/Codigos/Vadecum.vue, linea 144
-  Problema: Se usa 'acciones.length' pero la variable se llama
-            'accionesVademecum'. Esto generara un error de
-            referencia o funcionara por coincidencia con otra variable.
-  Codigo actual:
-    if (acciones.length > 0) {  // <-- Deberia ser accionesVademecum
-    builderTablaVademecum.setAcciones({ icons: accionesVademecum, botones: true });
-  Solucion: Cambiar 'acciones.length' por 'accionesVademecum.length'.
-
-
-[ALTO] 2.2 VARIABLE 'convenios' NO DEFINIDA EN Usuarios/index.vue
-  Archivo: pages/Usuarios/index.vue, linea 380
-  Problema: Se pasa ':historias="convenios"' al componente CardKardex,
-            pero 'convenios' no esta definida como ref() en el
-            script setup. Se declara como variable local en
-            llamaConvenios() pero no como ref reactiva.
-  Solucion: Declarar 'const convenios = ref([])' y popularlo
-            desde llamaConvenios().
-
-
-[MEDIO] 2.3 CONSOLE.LOG EN PRODUCCION
-  Archivos: multiples archivos en pages/, Core/, composables/
-  Problema: Hay multiples console.log() que deberian eliminarse
-            o reemplazarse con un sistema de logging apropiado.
-  Ejemplos:
-    - pages/index.vue: linea 34, 37
-    - pages/Historial/index.vue: linea 271, 383
-    - Core/Login/Ingresar.js: linea 82
-  Solucion: Eliminar console.log() o usar un logger configurable
-            que se pueda desactivar en produccion.
-
-
-[MEDIO] 2.4 FUNCION vacia validarCodigo()
-  Archivo: pages/index.vue, linea 98-100
-  Problema: La funcion validarCodigo() esta declarada vacia pero
-            se pasa como prop al builder de recuperar contrasena.
-  Solucion: Implementar la logica o eliminar la referencia.
-
-
-[MEDIO] 2.5 CODIGO COMENTADO EXTENSO
-  Archivo: pages/Historial/index.vue, lineas 302-336
-  Problema: Hay un bloque grande de codigo comentado con un switch
-            case que parece ser la implementacion anterior de
-            carga de datos. Esto genera confusion.
-  Solucion: Eliminar el codigo comentado. Usar git para mantener
-            el historial de cambios.
-
-
-[BAJO] 2.6 DUPLICACION DE IMPORTACIONES
-  Archivo: pages/Usuarios/Profesional/index.vue, linea 22
-  Problema: 'useProfesionalStore' se importa dos veces (lineas 15
-            y 22) desde el mismo archivo.
-  Solucion: Eliminar la importacion duplicada.
-
-
-[BAJO] 2.7 PUNTO Y COMA DUPLICADO
-  Archivo: pages/Home.vue, linea 10
-  Problema: Doble punto y coma en el import:
-            import { useProfesionalStore } from '~/stores/Entidades/Profesional';;
-  Solucion: Eliminar el punto y coma extra.
-
-
-[BAJO] 2.8 TYPO EN COMENTARIO
-  Archivo: pages/Usuarios/index.vue, linea 31
-  Problema: Comentario dice "cunso" en vez de "cuando":
-            // Actualizar pagina cunso se agrega Nuevo Usuario
-  Solucion: Corregir el typo.
-
-
-[BAJO] 2.9 TYPO EN VARIABLE
-  Archivo: pages/Usuarios/index.vue, linea 232-233
-  Problema: La variable se llama 'puedePost' pero en la condicion
-            ternaria se usa 'puedePost' (correcto), pero la variable
-            'puedediagnosticar' (linea 32) tiene un nombre inconsistente
-            con la convencion (deberia ser 'puedeDiagnosticar').
-  Solucion: Renombrar a 'puedeDiagnosticar' para mantener consistencia.
-
-
-================================================================================
 3. MEJORAS EN LA EXPERIENCIA DE USUARIO (UX)
 ================================================================================
-
-
-[ALTO] 3.1 NAVEGACION CON location.href
-  Archivos:
-    - pages/Home.vue, linea 397: location.href = '/Historial'
-  Problema: Se usa location.href en vez del router de Vue, lo cual
-            provoca una recarga completa de la aplicacion y pierde
-            el estado global.
-  Solucion: Usar router.push('/Historial') o useRouter().push().
-
-
-[MEDIO] 3.2 FALTA CONFIRMACION ANTES DE CERRAR SESION
-  Archivo: data/NavMenu.js
-  Problema: Al cerrar sesion, se eliminan datos directamente sin
-            preguntar al usuario si esta seguro.
-  Solucion: Agregar una alerta de confirmacion antes de cerrar sesion
-            (especialmente si hay datos sin sincronizar).
 
 
 [MEDIO] 3.3 FALTA INDICADOR DE CARGA CONSISTENTE
@@ -221,30 +74,11 @@ INDICE
               const { puedeVerPacientes, puedeCrearPacientes } = usePermisos()
 
 
-[MEDIO] 4.3 REDUCIR DUPLICACION EN WATCHERS
-  Problema: Hay multiples watchers con la misma estructura
-            (verificar cambioEnApi, llamar datos, incrementar refresh).
-            Este patron se repite en casi todos los modulos.
-  Solucion: Crear un composable useActualizacionAutomatica() que
-            maneje este patron comun:
-              useActualizacionAutomatica({
-                  store, llamadatos, refresh, showRef
-              })
-
-
 [MEDIO] 4.4 CONSOLIDAR CONSTRUCCION DE TABLAS
   Problema: Las columnas de tablas se definen inline en muchos
             archivos, lo que dificulta mantener consistencia.
   Solucion: Crear un directorio data/columns/ con las definiciones
             de columnas reutilizables.
-
-
-[MEDIO] 4.5 NOMBRE INCONSISTENTE DE DIRECTORIO
-  Problema: El directorio de layouts se llama 'Layouts/' con L
-            mayuscula, pero Nuxt espera 'layouts/' en minusculas
-            para el file-based routing automatico.
-  Solucion: Verificar que Nuxt reconoce el directorio. Si no,
-            renombrar a 'layouts/'.
 
 
 [BAJO] 4.6 FALTA TIPO DE DATOS EN FORMULARIOS
@@ -262,31 +96,6 @@ INDICE
   Solucion: Reemplazar por texto plano o usar una convencion
             de comentarios estandar.
 
-
-================================================================================
-5. MODULOS INCOMPLETOS
-================================================================================
-
-Los siguientes modulos estan marcados como "en desarrollo" y
-muestran unicamente un mensaje placeholder:
-
-  1. Facturacion/Rips.vue      -> Reportes RIPS
-  2. Facturacion/Reportes.vue  -> Reportes (codigo comentado)
-  3. Facturacion/Crear.vue     -> Crear facturacion (vacia)
-  4. Empresas/Cajas/index.vue  -> Cajas
-  5. Empresas/Inventarios/     -> Inventarios (empresa)
-  6. Empresas/Negocios/        -> Negocios
-  7. Empresas/Productos/       -> Productos
-  8. Empresas/Impuestos/       -> Impuestos
-  9. Empresas/Formas de pago/  -> Formas de pago
-
-Recomendacion: Definir un roadmap de priorizacion para estos
-modulos. Los mas criticos para el negocio podrian ser:
-  1. Facturacion/Rips (requerido por normativa de salud)
-  2. Empresas/Inventarios (gestion de inventario empresarial)
-  3. Empresas/Cajas (control de caja)
-
-
 ================================================================================
 6. RENDIMIENTO
 ================================================================================
@@ -300,20 +109,6 @@ modulos. Los mas criticos para el negocio podrian ser:
   Solucion: Implementar carga lazy (bajo demanda) de codigos
             que no se usan inmediatamente. Cargar solo lo esencial
             al login y el resto cuando se necesite.
-
-
-[MEDIO] 6.2 MULTIPLICACION DE LLAMADAS A LA API
-  Archivo: pages/Usuarios/index.vue, onMounted
-  Problema: Se hacen 8 llamadas secuenciales a la API al cargar
-            el modulo de pacientes (traer pacientes, profesionales,
-            insumos, EPS, convenios, etc.). Esto puede ser lento.
-  Solucion: Usar Promise.all() para llamadas independientes:
-              await Promise.all([
-                  pacientesStore.traer(false),
-                  llamadatos(),
-                  llamaProfesionales(),
-                  ...
-              ])
 
 
 [MEDIO] 6.3 RENDERIZADO CONDICIONAL DE FORMULARIOS
@@ -370,13 +165,6 @@ modulos. Los mas criticos para el negocio podrian ser:
                */
 
 
-[MEDIO] 7.3 ARCHIVO .ENV EXPUESTO
-  Archivo: .env esta en el repositorio
-  Problema: El archivo .env con posibles secretos esta versionado.
-  Solucion: Agregar .env a .gitignore y crear un .env.example
-            con las variables necesarias sin valores sensibles.
-
-
 [MEDIO] 7.4 FALTA TESTS
   Problema: No se encontraron pruebas unitarias ni de integracion.
   Solucion: Implementar al menos:
@@ -384,12 +172,6 @@ modulos. Los mas criticos para el negocio podrian ser:
     - Tests de stores (acciones CRUD basicas)
     - Tests de Core (funciones de login, envio de datos)
     Framework sugerido: Vitest (compatible con Nuxt 3)
-
-
-[BAJO] 7.5 CARPETA .output EN EL REPOSITORIO
-  Problema: La carpeta .output/ (build generada) esta en el
-            repositorio, lo cual增加了 el tamano innecesariamente.
-  Solucion: Agregar .output/ y .output.zip a .gitignore.
 
 
 [BAJO] 7.6 SIN ESLINT CONFIGURADO
@@ -405,49 +187,27 @@ modulos. Los mas criticos para el negocio podrian ser:
                     RESUMEN DE PRIORIDADES
 ================================================================================
 
-  CRITICOS (Resolver inmediatamente):
-    1.1 SECRET_KEY hardcodeada
-    1.2 Seguridad del token
-    1.3 URL de API en produccion
-    2.1 Bug en Vadecum.vue (variable incorrecta)
-
   ALTOS (Resolver pronto):
-    1.4 Limpieza de localStorage incompleta
-    2.2 Variable 'convenios' no definida
-    3.1 Navegacion con location.href
     4.1 Carga de datos inicial centralizada
-    6.1 Carga masiva al login
     7.1 Convencion de nombres inconsistente
 
   MEDIOS (Planificar):
-    2.3 Console.logs en produccion
-    2.4 Funcion vacia validarCodigo
-    2.5 Codigo comentado extenso
-    3.2 Confirmacion al cerrar sesion
     3.3 Indicador de carga inconsistente
     3.4 Modales que no se cierran solos
     4.2 Separar logica de permisos
-    4.3 Reducir duplicacion en watchers
     4.4 Consolidar construccion de tablas
     4.5 Nombre inconsistente de directorio
-    6.2 Multiplicacion de llamadas API
     6.3 Renderizado condicional de formularios
     6.4 Falta memoizacion
     7.2 Falta documentacion
-    7.3 Archivo .env expuesto
     7.4 Falta tests
 
   BAJOS (Mejoras a largo plazo):
-    2.6 Importaciones duplicadas
-    2.7 Punto y coma duplicado
-    2.8 Typos en comentarios
     2.9 Nombres inconsistentes
     3.5 Mensajes de error genericos
     3.6 Validacion en tiempo real
-    4.6 Falta TypeScript
     4.7 Comentarios con emoji
     6.5 Archivos muy grandes
-    7.5 Carpeta .output en repositorio
     7.6 Sin ESLint configurado
 
 

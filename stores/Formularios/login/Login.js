@@ -23,12 +23,10 @@ export const useUsuariosStore = defineStore('Usuario', {
 
         getUsuario() {
             if (typeof window === 'undefined') {
-                console.log('No estás en el navegador.');
                 return 'Usuario';
             }
 
             const Usuario = JSON.parse(localStorage.getItem('User'));
-            console.log(Usuario)
 
             if (!Usuario) return 'Usuario';
 

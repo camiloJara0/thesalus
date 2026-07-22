@@ -7,7 +7,6 @@ export const eliminarAnalisis = async (datos) => {
     const config = useRuntimeConfig()
     const token = decryptData(localStorage.getItem('token'))
     const store = useHistoriasStore()
-console.log(datos)
     // Guardar Local
     const online = navigator.onLine;
     if (online) {

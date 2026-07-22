@@ -10,11 +10,12 @@ import { useEmpresaStore } from '~/stores/Formularios/empresa/Empresa';
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue';
 
 const varView = useVarView()
-const puedeVer = varView.getPermisos.includes('Configuracion_view');
-const puedeGet = varView.getPermisos.includes('Configuracion_get');
-const puedePost = varView.getPermisos.includes('Configuracion_post');
-const puedePut = varView.getPermisos.includes('Configuracion_put');
-const puedeDelete = varView.getPermisos.includes('Configuracion_delete');
+const { hasPermiso } = usePermisos()
+const puedeVer = hasPermiso('Configuracion_view')
+const puedeGet = hasPermiso('Configuracion_get')
+const puedePost = hasPermiso('Configuracion_post')
+const puedePut = hasPermiso('Configuracion_put')
+const puedeDelete = hasPermiso('Configuracion_delete')
 const empresaStore = useEmpresaStore()
 
 onMounted(async() => {

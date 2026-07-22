@@ -9,23 +9,24 @@ import { ref, onMounted } from 'vue'
 import { CardBuilder } from '~/build/Constructores/CardBuilder'
 import { storeToRefs } from 'pinia'
 import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue'
-import TablaNuxt from '~/components/organism/Table/TablaNuxt.vue'
 import { useCitaActions } from '~/composables/Entidades/Cita'
+import { useMultiAutoRefresh } from '~/composables/useAutoRefresh'
 import { traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
-import { useInfiniteScroll } from '@vueuse/core'
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue'
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue'
 
 const varView = useVarView()
+const { hasPermiso } = usePermisos()
 const citasStore = useCitasStore();
+const {showNuevaCita, showActualizarCita, showNuevaHistoria} = storeToRefs(varView)
 
 const calendarioCitasStore = useCalendarioCitas();
 const show = ref(false);
 const refresh = ref(1);
 const filtros = ref([])
-const puedeVer = varView.getPermisos.includes('Citas_view');
-const puedeGet = varView.getPermisos.includes('Citas_get');
-const puedePost = varView.getPermisos.includes('Citas_post')
+const puedeVer = hasPermiso('Citas_view')
+const puedeGet = hasPermiso('Citas_get')
+const puedePost = hasPermiso('Citas_post')
 
 const {
     fecha,
@@ -51,35 +52,32 @@ async function llamadatos(cambio) {
     filtros.value = await traerFiltros()
     varView.datosActualizados()
 }
-// Watch para actualizar citas al agregar nueva
-watch(() => varView.showNuevaCita,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true);
-        }
-    }
-);
+const cambioEnApi = computed(() => varView.cambioEnApi)
+const dummyRefresh = ref(0)
 
-watch(() => varView.showActualizarCita,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true);
-            refresh.value++;
-        }
+useMultiAutoRefresh([
+    {
+        showRef: showNuevaCita,
+        fetchFn: () => llamadatos(true),
+        refresh: dummyRefresh,
+        cambioEnApi
+    },
+    {
+        showRef: showActualizarCita,
+        fetchFn: () => llamadatos(true),
+        refresh,
+        cambioEnApi
+    },
+    {
+        showRef: showNuevaHistoria,
+        fetchFn: () => llamadatos(true),
+        refresh: dummyRefresh,
+        cambioEnApi
     }
-);
-
-watch(() => varView.showNuevaHistoria,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true);
-        }
-    }
-);
+])
 
 onMounted(async () => {
-    await citasStore.citasHoy(false)
-    filtros.value = await traerFiltros()
+    await llamadatos(false)
     // Rellenar fecha del formulario
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
 });

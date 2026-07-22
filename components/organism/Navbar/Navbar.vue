@@ -52,11 +52,11 @@ const removeStorage = () => {
     <div class="navbar">
         <div class="navbar__content">
 
-            <a href="/Home"
+            <nuxt-link to="/Home"
                 class="seccionLogo text-white md:text-xl font-extrabold py-2 px-3 md:w-[20%] w-[40%] h-fit bg-(--color-default-200) shadow-xl">
                 <i class="fa-solid fa-laptop-medical md:text-2xl text-lg"></i>
                 Thesalus
-            </a>
+            </nuxt-link>
             <p class="text-xs text-white mr-10 mt-2 md:hidden block">{{ usuario }}</p>
             <div class="menuResponsive" @click="cambiarEstado()">
                 <div :class="{ 'text-white': !showNavbarBurguer, 'text-gray-300': showNavbarBurguer }">

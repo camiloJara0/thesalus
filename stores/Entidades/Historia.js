@@ -38,7 +38,8 @@ export const useHistoriaStore = defineStore('Historia', {
     actions: {
 
         async guardar(datos) {
-            this.validar(datos.HistoriaClinica)
+            const valido = await this.validar(datos.HistoriaClinica)
+            if (!valido) return { success: false }
             const api = useApiRest();
             const config = useRuntimeConfig()
             const token = decryptData(localStorage.getItem('token'))
@@ -54,7 +55,8 @@ export const useHistoriaStore = defineStore('Historia', {
         },
 
         async actualizar(datos) {
-            this.validar(datos.HistoriaClinica)
+            const valido = await this.validar(datos.HistoriaClinica)
+            if (!valido) return { success: false }
             const api = useApiRest();
             const config = useRuntimeConfig()
             const token = decryptData(localStorage.getItem('token'))

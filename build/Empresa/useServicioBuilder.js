@@ -11,7 +11,8 @@ export function useServicioBuilder({
 }) {
   const builder = new FormularioBuilder()
   const varView = useVarView()
-  const puedeDelete = varView.getPermisos.includes('Datos_delete');
+  const { hasPermiso } = usePermisos()
+  const puedeDelete = hasPermiso('Datos_delete')
   
   if (actualizar) {
     builder

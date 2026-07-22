@@ -4,7 +4,6 @@ import { decryptData } from '~/composables/Formulario/crypto';
 // funcion para Validar campos del formulario Nuevo Paciente
 export const validarYEnviarKardex = async (datos) => {
     const notificacionesStore = useNotificacionesStore();
-    console.log(datos)
     // 🔍 Validar campos obligatorios
     const errores = []
 

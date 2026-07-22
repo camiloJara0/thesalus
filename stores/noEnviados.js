@@ -144,8 +144,6 @@ export const useNoEnviados = defineStore('noEnviados', {
                     const data = JSON.parse(event.target.result);
 
                     await actualizarEnIndexedDB(data);
-
-                    console.log('Importación completada');
                 } catch (error) {
                     console.error('Error al leer el archivo:', error);
                 }

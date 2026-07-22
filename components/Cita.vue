@@ -11,8 +11,9 @@ import { ref, onMounted } from 'vue'
 
 const citasStore = useCitasStore();
 const varView = useVarView();
-const puedePost = varView.getPermisos.includes('Citas_post')
-const puedePut = varView.getPermisos.includes('Citas_put')
+const { hasPermiso } = usePermisos()
+const puedePost = hasPermiso('Citas_post')
+const puedePut = hasPermiso('Citas_put')
 
 const pacientesStore = usePacientesStore();
 const medicosStore = useProfesionalStore();

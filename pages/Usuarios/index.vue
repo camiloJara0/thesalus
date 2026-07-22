@@ -8,7 +8,7 @@ import ModalEPS from "~/components/organism/Pacientes/ModalEPS.vue";
 import ModalConvenios from "~/components/organism/Pacientes/ModalConvenios.vue";
 import ModalKardexDetalle from "~/components/organism/Pacientes/ModalKardexDetalle.vue";
 
-import { ref, onMounted, watch, computed, h } from "vue";
+import { ref, onMounted, computed, h } from "vue";
 import { usePacientesStore } from "~/stores/Entidades/Paciente";
 import { usePacienteBuilder } from "~/build/Pacientes/usePacienteFormBuilder";
 import { useUsuarioValidaciones } from "~/composables/Usuarios/Usuarios.js";
@@ -18,18 +18,20 @@ import { useInsumosStore } from "~/stores/Formularios/insumos/Insumos.js";
 import { useProfesionalStore } from '~/stores/Entidades/Profesional';
 import { useEpsStore } from '~/stores/Entidades/Eps';
 import { useConvenioStore } from '~/stores/Entidades/Convenio';
-import { useHistoriaStore } from '~/stores/Entidades/Historia';
 import FondoDefault from "~/components/atoms/Fondos/FondoDefault.vue";
 import { useVarView } from '~/stores/varview';
 import { useNotificacionesStore } from '~/stores/notificaciones';
 import Restringido from "~/components/organism/NoEnviados/Restringido.vue";
+import { useMultiAutoRefresh } from '~/composables/useAutoRefresh';
 
 // Verificar permisos específicos
 const varView = useVarView();
-const puedeVer = varView.getPermisos.includes('Pacientes_view');
-const puedePost = varView.getPermisos.includes('Pacientes_post');
-const puedePut = varView.getPermisos.includes('Pacientes_put');
-const puedediagnosticar = varView.getPermisos.includes('Diagnosticos_view');
+const { hasPermiso } = usePermisos()
+const puedeVer = hasPermiso('Pacientes_view')
+const puedePost = hasPermiso('Pacientes_post')
+const puedePut = hasPermiso('Pacientes_put')
+const puedediagnosticar = hasPermiso('Diagnosticos_view')
+const puedeVerKardex = hasPermiso('Kardex_view')
 const notificaciones = useNotificacionesStore();
 const pacientesStore = usePacientesStore();
 const insumoStore = useInsumosStore();
@@ -37,9 +39,7 @@ const insumoStore = useInsumosStore();
 // Stores para entidades relacionadas
 const epsStore = useEpsStore();
 const convenioStore = useConvenioStore();
-const historiaStore = useHistoriaStore();
 const profesionalStore = useProfesionalStore();
-const noEnviados = useNoEnviados()
 
 const { Pacientes, NoEnviados, showNuevoPaciente, showModificarPaciente, showItem } = storeToRefs(pacientesStore)
 const { showNuevoConvenio, showModificarConvenio, Convenios, ConveniosNoEnviados } = storeToRefs(convenioStore)
@@ -52,8 +52,6 @@ const profesionales = ref([])
 const refresh = ref(1);
 const conveniosOptions = ref([]);
 const municipiosList = ref([])
-const importacion = ref(null)
-const isOpen = ref(false)
 
 // Estados para modales integrados
 const showKardexDetalle = ref(false);
@@ -157,77 +155,28 @@ const {
     refresh,
 });
 
-// Refrescar pagina cuando se agrega o modifica Paciente
-watch(() => showNuevoPaciente.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true);
-            await llamaNoEnviados()
-            refresh.value++;
-        }
-    }
-);
-
-watch(() => showModificarPaciente.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true);
-            await llamaNoEnviados()
-            refresh.value++;
-        }
-    }
-);
-
-watch(() => showNuevoConvenio.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamaConveniosEntidades(true);
-            await llamaConvenios()
-            refresh.value++;
-        }
-    }
-);
-
-watch(() => showModificarConvenio.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamaConveniosEntidades(true);
-            await llamaConvenios()
-            refresh.value++;
-        }
-    }
-);
-
-watch(() => showNuevaEps.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamaEpsEntidades(true);
-            await llamaEps()
-            refresh.value++;
-        }
-    }
-);
-
-watch(() => showModificarEps.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamaEpsEntidades(true);
-            await llamaEps()
-            refresh.value++;
-        }
-    }
-);
+useMultiAutoRefresh([
+    { showRef: showNuevoPaciente, fetchFn: async () => { await llamadatos(true); await llamaNoEnviados() }, refresh, cambioEnApi: varView },
+    { showRef: showModificarPaciente, fetchFn: async () => { await llamadatos(true); await llamaNoEnviados() }, refresh, cambioEnApi: varView },
+    { showRef: showNuevoConvenio, fetchFn: async () => { await llamaConveniosEntidades(true); await llamaConvenios() }, refresh, cambioEnApi: varView },
+    { showRef: showModificarConvenio, fetchFn: async () => { await llamaConveniosEntidades(true); await llamaConvenios() }, refresh, cambioEnApi: varView },
+    { showRef: showNuevaEps, fetchFn: async () => { await llamaEpsEntidades(true); await llamaEps() }, refresh, cambioEnApi: varView },
+    { showRef: showModificarEps, fetchFn: async () => { await llamaEpsEntidades(true); await llamaEps() }, refresh, cambioEnApi: varView },
+]);
 
 // Cargar los pacientes desde el store
 onMounted(async () => {
-    await pacientesStore.traer(false);
-    await llamadatos();
-    await llamaProfesionales();
-    await llamaInsumos();
-    await llamaEpsEntidades();
-    await llamaConveniosEntidades();
-    await llamaConvenios();
-    await llamaEps();
+    await Promise.all([
+        llamadatos(),
+        llamaProfesionales(),
+        llamaInsumos(),
+        llamaEpsEntidades(),
+        llamaConveniosEntidades(),
+    ]);
+    await Promise.all([
+        llamaConvenios(),
+        llamaEps(),
+    ]);
     await llamaNoEnviados();
 });
 
@@ -329,7 +278,7 @@ const propiedadesTabla = computed(() => {
                 } else {
                     pacientesStore.Pacientes = await pacientesStore.traer(false, false)
                 }
-            }}
+            }},
         ],
         excel: true,
         card: {
@@ -390,9 +339,10 @@ const propiedadesTabla = computed(() => {
             </template>
 
             <template #kardex>
-                <div class="md:p-6">
+                <div class="md:p-6" v-if="puedeVerKardex">
                     <CardKardex />
                 </div>
+                <Restringido v-else />
             </template>
 
 

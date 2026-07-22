@@ -4,6 +4,7 @@ import { useButtonsAside } from '~/stores/ButtonActive';
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
 import { storeToRefs } from 'pinia';
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia.js';
+import { useSession } from '~/composables/useSession';
 
 const storeAside = useButtonsAside();
 const historiaStore = useHistoriasStore()
@@ -11,6 +12,7 @@ const buttons = ref([]);
 const varView = useVarView()
 const route = useRoute()
 const noEnviados = useNoEnviados()
+const { clearSession } = useSession();
 
 const { numeroPendientes } = storeToRefs(historiaStore)
 
@@ -92,7 +94,7 @@ const isActive = (path) => route.path === path
                 </nav>
 
                 <!-- Perfil / Logout -->
-                <NuxtLink to="/" class="flex-col items-center gap-3 md:flex flex-none">
+                <NuxtLink @click="clearSession" class="flex-col items-center gap-3 md:flex flex-none">
                     <i
                         class="fa-solid fa-right-from-bracket text-lg text-white md:text-gray-300 dark:text-black hover:text-red-600 cursor-pointer"></i>
                 </NuxtLink>
@@ -143,9 +145,9 @@ const isActive = (path) => route.path === path
                         <NuxtLink to="/Ayuda" class="mt-1 text-yellow-400 dark:text-yellow-600 font-semibold text-sm hover:text-yellow-500 text-wrap transition">
                             <i class="fa-solid fa-circle-question mr-1"></i>Ayuda
                         </NuxtLink>
-                        <a href="/" class="text-red-500 font-semibold text-sm hover:text-red-700 text-wrap transition">
+                        <NuxtLink @click="clearSession" class="text-red-500 font-semibold text-sm hover:text-red-700 text-wrap transition">
                             Cerrar Sesion
-                        </a>
+                        </NuxtLink>
                     </div>
                 </div>
             </div>

@@ -14,9 +14,10 @@ const emit = defineEmits(['update:modelValue', 'guardado'])
 const varView = useVarView()
 const notificaciones = useNotificacionesStore()
 const kardexStore = useKardexStore()
+const { hasPermiso } = usePermisos()
 
-const puedePost = varView.getPermisos.includes('Kardex_put')
-const puedeDelete = varView.getPermisos.includes('Kardex_put')
+const puedePost = hasPermiso('Kardex_put')
+const puedeDelete = hasPermiso('Kardex_put')
 
 const vista = ref('lista')
 const plantillaSeleccionada = ref(null)

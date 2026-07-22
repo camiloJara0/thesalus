@@ -111,24 +111,7 @@ export const useHistoriasStore = defineStore('HistoriaClinica', {
 
         // Dashboard
         async ultimasHistorias() {
-            const pacientesStore = usePacientesStore()
-            let historias = await this.listHistorias
-            // Validar que todos los objetos tengan el campo fecha_historia
-            const faltanFechas = historias?.some(h => !h.fecha_historia || typeof h.fecha_historia !== 'string');
-
-            if (faltanFechas) {
-                // Volver a llamar si hay datos incompletos
-                historias = await this.listHistorias;
-            }
-            const pacientes = await pacientesStore.traer(false)
-
-            historias = historias.map((historia) => {
-                const paciente = pacientes.find(p => p.id_paciente == historia.id_paciente)
-                return {
-                    ...historia,
-                    ...paciente
-                }
-            })
+            let historias = await this.datosHistoria
 
             return historias?.sort(
                 (a, b) => {

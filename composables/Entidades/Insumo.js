@@ -10,8 +10,9 @@ export function useInsumoActions({
 }) {
   const store = useInsumoStore()
   const varView = useVarView()
-  const puedePut = varView.getPermisos.includes('Insumos_put')
-  const puedeDelete = varView.getPermisos.includes('Insumos_delete')
+  const { hasPermiso } = usePermisos()
+  const puedePut = hasPermiso('Insumos_put')
+  const puedeDelete = hasPermiso('Insumos_delete')
 
 
   const agregarInsumo = () => {
@@ -202,7 +203,7 @@ export function useInsumoActions({
       {
         label: 'Imprimir',
         disabled: !movimiento.id_paciente || movimiento.tipoMovimiento === 'Devuelto',
-        onSelect() { console.log(movimiento); imprimirPDFComoDato(movimiento) }
+        onSelect() { imprimirPDFComoDato(movimiento) }
       }
     ]
   }

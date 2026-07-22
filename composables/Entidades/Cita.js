@@ -199,17 +199,18 @@ export function useCitaActions({ fecha }) {
             const ultimosAnalisisConExamenes = allAnalisis.filter(a => a.examen_fisico && a.examen_fisico.signosVitales)
             const ultimoAnalisisConExamenes = ultimosAnalisisConExamenes[ultimosAnalisisConExamenes.length - 1]
 
-            if (ultimoAnalisisConExamenes.length < 1) return 
+            if (!ultimoAnalisisConExamenes && ultimoAnalisisConExamenes?.length < 1 && !ultimoAnalisisConExamenes.examen_fisico) return
+
             Object.assign(historiasStore.Formulario.Analisis.ExamenFisico, {
                 signosVitales : {
-                    ta: ultimoAnalisisConExamenes.examen_fisico.signosVitales.ta,
-                    fc: ultimoAnalisisConExamenes.examen_fisico.signosVitales.fc,
-                    fr: ultimoAnalisisConExamenes.examen_fisico.signosVitales.fr,
-                    t: ultimoAnalisisConExamenes.examen_fisico.signosVitales.t,
-                    SATo2: ultimoAnalisisConExamenes.examen_fisico.signosVitales.SATo2,
+                    ta: ultimoAnalisisConExamenes?.examen_fisico.signosVitales.ta,
+                    fc: ultimoAnalisisConExamenes?.examen_fisico.signosVitales.fc,
+                    fr: ultimoAnalisisConExamenes?.examen_fisico.signosVitales.fr,
+                    t: ultimoAnalisisConExamenes?.examen_fisico.signosVitales.t,
+                    SATo2: ultimoAnalisisConExamenes?.examen_fisico.signosVitales.SATo2,
                 },
-                peso: ultimoAnalisisConExamenes.examen_fisico.peso,
-                altura: ultimoAnalisisConExamenes.examen_fisico.altura,
+                peso: ultimoAnalisisConExamenes?.examen_fisico.peso,
+                altura: ultimoAnalisisConExamenes?.examen_fisico.altura,
             })
         }
     }

@@ -4,6 +4,7 @@ import { CUPS } from '~/data/CUPS'
 import { usePacientesStore } from "~/stores/Entidades/Paciente"
 import { reducirImagen } from '~/Core/Profesional/POSTMedico'
 import { useProfesionalStore } from '~/stores/Entidades/Profesional';
+import { validarCelular, validarTelefono, validarDocumento, validarNombre, validarDireccion, validarPasswordFortaleza } from '~/composables/Formulario/useValidaciones'
 
 export function useUserBuilder({
     storeId,
@@ -35,27 +36,18 @@ export function useUserBuilder({
     const user = varView.getRol
 
     const validarContraseña = (event) => {
-        let mensaje = '';
-
         const valor = event.target.value
+        const result = validarPasswordFortaleza(valor)
 
-        const letras = valor?.match(/[a-zA-Z]/g) || []; // Al menos 3 letras (mayúsculas o minúsculas)
-        const numeros = valor?.match(/[0-9]/g) || []; // Al menos 2 números
-        const simbolos = valor?.match(/[^a-zA-Z0-9]/g) || []; // Al menos 1 símbolo (cualquier cosa que no sea letra o número)
-
-        if (letras.length >= 3 && numeros.length >= 2 && simbolos.length >= 1) {
-            mensaje = 'Contraseña poco segura'
-        }
-
-        const errorDiv = document.getElementById(`error-password`);
+        const errorDiv = document.getElementById(`error-password`)
         if (errorDiv) {
-            if (mensaje) {
-                errorDiv.innerHTML = `<p>${mensaje}</p>`;
+            if (result.level > 0) {
+                const colors = { 1: 'text-red-400', 2: 'text-yellow-400', 3: 'text-green-400' }
+                errorDiv.innerHTML = `<p class="${colors[result.level]}">${result.text}</p>`
             } else {
-                errorDiv.innerHTML = ''; // Limpia el mensaje si no hay error
+                errorDiv.innerHTML = ''
             }
         }
-
     }
 
     const builder = new FormularioBuilder()
@@ -99,6 +91,7 @@ export function useUserBuilder({
             max: '10000000000',
             min: '1000000',
             vmodel: 'InformacionUser.No_document',
+            validate: validarDocumento,
             events: {
                 onKeyUp: buscarUsuario
             },
@@ -130,6 +123,7 @@ export function useUserBuilder({
             upperCase: true,
             vmodel: 'InformacionUser.name',
             minlength: 5,
+            validate: validarNombre,
         })
         .addCampo({
             component: 'Input',
@@ -216,6 +210,7 @@ export function useUserBuilder({
             minLength: '5',
             vmodel: 'InformacionUser.direccion',
             upperCase: true,
+            validate: validarDireccion,
         })
 
         // 📌 Sección: Contacto
@@ -227,7 +222,7 @@ export function useUserBuilder({
         })
         .addCampo({
             component: 'Input',
-            type: 'number',
+            type: 'tel',
             placeholder: 'Celular',
             id: 'celular',
             name: 'celular',
@@ -235,10 +230,11 @@ export function useUserBuilder({
             max: '10000000000',
             min: '1000000000',
             vmodel: 'InformacionUser.celular',
+            validate: validarCelular,
         })
         .addCampo({
             component: 'Input',
-            type: 'number',
+            type: 'tel',
             placeholder: 'Teléfono (opcional)',
             id: 'telefono',
             name: 'telefono',
@@ -246,6 +242,7 @@ export function useUserBuilder({
             max: '100000000',
             min: '100000',
             vmodel: 'InformacionUser.telefono',
+            validate: validarTelefono,
         })
 
     if (tipoUsuario === 'Administrador') {

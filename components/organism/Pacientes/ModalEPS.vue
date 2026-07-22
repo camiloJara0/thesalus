@@ -8,8 +8,9 @@ import { storeToRefs } from 'pinia'
 
 const varView = useVarView()
 const store = useEpsStore()
-const puedePostEPS = varView.getPermisos.includes('Datos_post');
-const puedePutEPS = varView.getPermisos.includes('Datos_put');
+const { hasPermiso } = usePermisos()
+const puedePostEPS = hasPermiso('Datos_post')
+const puedePutEPS = hasPermiso('Datos_put')
 const notificaciones = useNotificacionesStore()
 
 // Usar storeToRefs para mantener reactividad

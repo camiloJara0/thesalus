@@ -7,7 +7,7 @@
         <Permiso v-if="varView.permisoTemporal"></Permiso>
         <Navbar></Navbar>
         <Aside></Aside>
-        <div class="section-content">
+        <div class="section-content md:mx-2.5">
             <div class="container-content">
                 <slot></slot>
                 <FooterPage></FooterPage>
@@ -62,14 +62,12 @@ onMounted(async() => {
 
     .section-content {
         padding: 5px;
-        margin: 0;
     }
 }
 
 .section-content {
     grid-area: main;
     overflow-y: hidden;
-    margin: 0 10px;
     border-radius: 5px;
 }
 

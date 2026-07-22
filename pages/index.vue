@@ -8,18 +8,19 @@ import { useLoginBuilder } from '~/build/Login/useLoginBuilder';
 import { useRecuperarContraseñaBuilder } from '~/build/Login/useRecuperarContraseñaBuilder.js';
 import { validarYEnviarRecuperarContraseña } from '~/Core/Login/RecuperarContraseña';
 import { useIngresoContraseñaBuilder } from '~/build/Login/useIngresoContraseñaBuilder';
+import { useSession } from '~/composables/useSession';
 
 definePageMeta({
     layout: 'authentication'
 });
 
-// 
 const varView = useVarView();
 const api = useApiRest()
 const config = useRuntimeConfig()
 const indexedDB = useIndexedDBStore();
 const storeCodigos = useCodigos();
 const mostrarContraseña = ref(false)
+const { clearSession } = useSession()
 
 onMounted(async () => {
     try {
@@ -31,21 +32,14 @@ onMounted(async () => {
         const isValid = await indexedDB.validateVersion('db-thesalus');
 
         if (isValid) {
-            console.log("✅ Versión válida, limpiando datos...");
             await indexedDB.clearDatabase('db-thesalus');
         } else {
-            console.log("⚠️ Versión inválida o tabla faltante, eliminando...");
             await indexedDB.deleteDatabase('db-thesalus');
-            // await indexedDB.initialize();
         }
 
         await storeCodigos.initialize();
         await storeCodigos.guardardatos()
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('Rol');
-        localStorage.removeItem('Permisos');
-        localStorage.removeItem('permisosTemporales')
+        clearSession()
         varView.cargando = false;
     } catch (e) {
         console.error('No se pudo reiniciar IndexedDB:', e);
@@ -95,10 +89,6 @@ function cerrar() {
     showCambiar.value = false
 }
 
-function validarCodigo() {
-
-}
-
 async function enviarCodigo(data) {
     varView.cargando = true
     stateCodigo.value = await validarYEnviarRecuperarContraseña(data)
@@ -135,7 +125,6 @@ const propiedadesRecuperar = computed(() => {
         cerrar: cerrar,
         show: show,
         enviarCodigo,
-        validarCodigo,
         stateCodigo: stateCodigo.value
     });
 

@@ -1,6 +1,7 @@
 // builders/useFormularioCitaBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { municipios } from "~/data/municipios.js";
+import { validarCelular, validarTelefono, validarDocumento, validarNombre, validarDireccion } from '~/composables/Formulario/useValidaciones'
 
 export function useAdministradorBuilder({
     storeId,
@@ -70,6 +71,7 @@ export function useAdministradorBuilder({
             max: '10000000000',
             min: '1000000',
             vmodel: 'InformacionUser.No_document',
+            validate: validarDocumento,
             events: {
                 onKeyUp: buscarUsuario
             },
@@ -101,6 +103,7 @@ export function useAdministradorBuilder({
             upperCase: true,
             vmodel: 'InformacionUser.name',
             minlength: 5,
+            validate: validarNombre,
         })
         .addCampo({
             component: 'Input',
@@ -182,6 +185,7 @@ export function useAdministradorBuilder({
             minLength: '5',
             vmodel: 'InformacionUser.direccion',
             upperCase: true,
+            validate: validarDireccion,
         })
 
         // 📌 Sección: Contacto
@@ -194,7 +198,7 @@ export function useAdministradorBuilder({
         })
         .addCampo({
             component: 'Input',
-            type: 'number',
+            type: 'tel',
             placeholder: 'Celular',
             id: 'celular',
             name: 'celular',
@@ -202,10 +206,11 @@ export function useAdministradorBuilder({
             max: '10000000000',
             min: '1000000000',
             vmodel: 'InformacionUser.celular',
+            validate: validarCelular,
         })
         .addCampo({
             component: 'Input',
-            type: 'number',
+            type: 'tel',
             placeholder: 'Teléfono (opcional)',
             id: 'telefono',
             name: 'telefono',
@@ -213,6 +218,7 @@ export function useAdministradorBuilder({
             max: '100000000',
             min: '100000',
             vmodel: 'InformacionUser.telefono',
+            validate: validarTelefono,
         })
 
 

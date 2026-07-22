@@ -29,11 +29,12 @@ const { showNuevaHistoria } = storeToRefs(varView)
 
 const refresh = ref(1)
 
-const puedeVer = varView.getPermisos.includes('Datos_view');
-const puedeGet = varView.getPermisos.includes('Datos_get');
-const puedePost = varView.getPermisos.includes('Datos_post');
-const puedePut = varView.getPermisos.includes('Datos_put');
-const puedeDelete = varView.getPermisos.includes('Datos_delete');
+const { hasPermiso } = usePermisos()
+const puedeVer = hasPermiso('Datos_view')
+const puedeGet = hasPermiso('Datos_get')
+const puedePost = hasPermiso('Datos_post')
+const puedePut = hasPermiso('Datos_put')
+const puedeDelete = hasPermiso('Datos_delete')
 
 async function llamadatosServicio(cambio) {
     await storeServicio.traer(true, cambio)

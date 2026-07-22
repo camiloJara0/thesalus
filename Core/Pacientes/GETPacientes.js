@@ -2,13 +2,14 @@ import { decryptData } from "~/composables/Formulario/crypto";
 
 export async function traerPacientes() {
   const varView = useVarView();
+  const { hasPermiso } = usePermisos()
   const rol = varView.getRol;
   const apiRest = useApiRest();
   const store = useIndexedDBStore();
   const token = decryptData(localStorage.getItem('token'))
   const config = useRuntimeConfig()
 
-  let filtrar = !varView.getPermisos.includes('ListaPacientes')
+  let filtrar = !hasPermiso('ListaPacientes')
   let pacientes = []
 
   if(rol === 'Profesional' && filtrar ) {
@@ -33,13 +34,14 @@ export async function traerPacientes() {
 
 export async function traerPacientesInactivos() {
   const varView = useVarView();
+  const { hasPermiso } = usePermisos()
   const rol = varView.getRol;
   const apiRest = useApiRest();
   const store = useIndexedDBStore();
   const token = decryptData(localStorage.getItem('token'))
   const config = useRuntimeConfig()
 
-  let filtrar = !varView.getPermisos.includes('ListaPacientes')
+  let filtrar = !hasPermiso('ListaPacientes')
   let pacientes = []
 
   if(rol === 'Profesional' && filtrar ) {

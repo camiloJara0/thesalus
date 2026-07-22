@@ -4,7 +4,7 @@ import ExportarPDFs from '~/components/paginas/ExportarPDFs.vue';
 import ChartComponent from '~/components/molecules/Charts/ChartComponent.vue';
 import TablaNuxt from '~/components/organism/Table/TablaNuxt.vue';
 import Form from '~/components/organism/Forms/Form.vue';
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia.js';
 import { useVarView } from "~/stores/varview.js";
 import { usePacientesStore } from "~/stores/Entidades/Paciente";
@@ -30,6 +30,7 @@ import { useInsumoActions } from '~/composables/Entidades/Insumo';
 import { useMovimientoBuilder } from '~/build/Historial/useMovimientoBuilder';
 import { traerAnalisisPaginado, traerFiltrosHistoria } from '~/Core/Historial/Historia/GetHistoria';
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue';
+import { useAutoRefresh } from '~/composables/useAutoRefresh';
 
 // ============ STORES Y COMPOSABLES ============
 const varView = useVarView();
@@ -50,31 +51,32 @@ const { NoEnviados, showActualizarRegistro } = storeToRefs(historiasStore)
 const { showModificarMovimiento } = storeToRefs(insumoStore)
 
 // ============ PERMISOS ============
+const { hasPermiso } = usePermisos()
 const permisos = computed(() => ({
-    ver: varView.getPermisos.includes('Historias_view'),
-    get: varView.getPermisos.includes('Historias_get'),
-    notas_ver: varView.getPermisos.includes('Notas_view'),
-    notas_put: varView.getPermisos.includes('Notas_put'),
-    notas_delete: varView.getPermisos.includes('Notas_delete'),
-    evoluciones_ver: varView.getPermisos.includes('Evoluciones_view'),
-    evoluciones_put: varView.getPermisos.includes('Evoluciones_put'),
-    evoluciones_delete: varView.getPermisos.includes('Evoluciones_delete'),
-    terapias_ver: varView.getPermisos.includes('Terapias_view'),
-    terapias_put: varView.getPermisos.includes('Terapias_put'),
-    terapias_delete: varView.getPermisos.includes('Terapias_delete'),
-    diagnosticos_ver: varView.getPermisos.includes('Diagnosticos_view'),
-    tratamientos_ver: varView.getPermisos.includes('Tratamientos_view'),
-    tratamientos_put: varView.getPermisos.includes('Tratamientos_put'),
-    tratamientos_delete: varView.getPermisos.includes('Tratamientos_delete'),
-    medicacion_ver: varView.getPermisos.includes('Medicacion_view'),
-    medicacion_put: varView.getPermisos.includes('Medicacion_put'),
-    medicacion_delete: varView.getPermisos.includes('Medicacion_delete'),
-    medicina_ver: varView.getPermisos.includes('MedicinaGeneral_view'),
-    medicina_put: varView.getPermisos.includes('MedicinaGeneral_put'),
-    medicina_delete: varView.getPermisos.includes('MedicinaGeneral_delete'),
-    trabajo_ver: varView.getPermisos.includes('TrabajoSocial_view'),
-    trabajo_put: varView.getPermisos.includes('TrabajoSocial_put'),
-    trabajo_delete: varView.getPermisos.includes('TrabajoSocial_delete'),
+    ver: hasPermiso('Historias_view'),
+    get: hasPermiso('Historias_get'),
+    notas_ver: hasPermiso('Notas_view'),
+    notas_put: hasPermiso('Notas_put'),
+    notas_delete: hasPermiso('Notas_delete'),
+    evoluciones_ver: hasPermiso('Evoluciones_view'),
+    evoluciones_put: hasPermiso('Evoluciones_put'),
+    evoluciones_delete: hasPermiso('Evoluciones_delete'),
+    terapias_ver: hasPermiso('Terapias_view'),
+    terapias_put: hasPermiso('Terapias_put'),
+    terapias_delete: hasPermiso('Terapias_delete'),
+    diagnosticos_ver: hasPermiso('Diagnosticos_view'),
+    tratamientos_ver: hasPermiso('Tratamientos_view'),
+    tratamientos_put: hasPermiso('Tratamientos_put'),
+    tratamientos_delete: hasPermiso('Tratamientos_delete'),
+    medicacion_ver: hasPermiso('Medicacion_view'),
+    medicacion_put: hasPermiso('Medicacion_put'),
+    medicacion_delete: hasPermiso('Medicacion_delete'),
+    medicina_ver: hasPermiso('MedicinaGeneral_view'),
+    medicina_put: hasPermiso('MedicinaGeneral_put'),
+    medicina_delete: hasPermiso('MedicinaGeneral_delete'),
+    trabajo_ver: hasPermiso('TrabajoSocial_view'),
+    trabajo_put: hasPermiso('TrabajoSocial_put'),
+    trabajo_delete: hasPermiso('TrabajoSocial_delete'),
 }));
 
 // ============ ESTADO DEL COMPONENTE ============
@@ -110,7 +112,6 @@ const refreshKey = ref(0);
 onMounted(async () => {
     medicos.value = await medicosStore.traer();
     await pacientesStore.traer(false)
-    await apiRest.getData('Kardex', 'kardex');
     await cargarHistorias();
     await historiasStore.traerNoEnviados()
     filtros.value = await traerFiltrosHistoria()
@@ -267,7 +268,6 @@ async function cargarAlmacen(tabla, datos) {
             mapa.set(item.id, item)
         }
         notas.value = Array.from(mapa.values())
-        console.log(notas.value)
     } else if( tabla == 'Consultas') {
         analisis.value = datos
     } else if(tabla == 'Terapias') {
@@ -299,54 +299,16 @@ function exportarServicio(servicio) {
     varView.servicioPDF = servicio
 }
 
-watch(() => showItem.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
-            await historiasStore.analisisFiltrados({ plantilla: varView.tipoHistoria === 'Medicina' ? 'Medicina' : varView.tipoHistoria === 'Evolucion' ? 'Evolucion' : varView.tipoHistoria === 'Trabajo Social' ? 'Trabajo Social' : varView.tipoHistoria === 'Nota' ? 'Nota' : varView.tipoHistoria === 'Terapia' ? 'Terapia' : varView.tipoHistoria === 'Tratamientos' ? 'Medicina' : 'Medicina' })
-            cargarDatosPaciente(id_paciente.value)
-            refreshKey.value += 1
-            // switch (varView.tipoHistoria) {
-            //     case 'Terapia':
-            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
-            //         await historiasStore.analisisFiltrados({plantilla: 'Terapia'})
-            //         cargarDatosPaciente(id_paciente.value)
-            //         refreshKey.value += 1
-            //     case 'Medicamento':
-
-            //     case 'Tratamientos':
-            //         // await apiRest.getData('Plan_manejo_procedimientos', 'planManejoProcedimientos')
-            //         // tratamientos.value = await pacientesStore.listDatos(id_paciente.value, 'Plan_manejo_procedimientos')
-            //     case 'Consulta':
-            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
-            //         await historiasStore.analisisFiltrados({plantilla: 'Medicina'})
-            //         cargarDatosPaciente(id_paciente.value)
-            //         refreshKey.value += 1
-            //     case 'Evolucion':
-            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
-            //         await historiasStore.analisisFiltrados({plantilla: 'Evolucion'})
-            //         cargarDatosPaciente(id_paciente.value)
-            //         refreshKey.value += 1
-            //     case 'TrabajoSocial':
-            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
-            //         await historiasStore.analisisFiltrados({plantilla: 'Trabajo Social'})
-            //         cargarDatosPaciente(id_paciente.value)
-            //         refreshKey.value += 1
-            //     case 'Nota':
-            //         historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
-            //         await historiasStore.analisisFiltrados({plantilla: 'Nota'})
-            //         cargarDatosPaciente(id_paciente.value)
-            //         refreshKey.value += 1
-            //     default:
-            //         console.log('Tipo de consulta no encontrado')
-
-            // }
-
-
-        }
-
+useAutoRefresh({
+    showRef: showItem,
+    cambioEnApi: computed(() => varView.cambioEnApi),
+    refresh: refreshKey,
+    fetchFn: async () => {
+        historiasStore.Formulario.Analisis.historia.id_paciente = id_paciente.value
+        await historiasStore.analisisFiltrados({ plantilla: varView.tipoHistoria === 'Medicina' ? 'Medicina' : varView.tipoHistoria === 'Evolucion' ? 'Evolucion' : varView.tipoHistoria === 'Trabajo Social' ? 'Trabajo Social' : varView.tipoHistoria === 'Nota' ? 'Nota' : varView.tipoHistoria === 'Terapia' ? 'Terapia' : varView.tipoHistoria === 'Tratamientos' ? 'Medicina' : 'Medicina' })
+        cargarDatosPaciente(id_paciente.value)
     }
-);
+});
 
 // ============ CONFIGURACIONES DE TABLAS ============
 const consultasConfig = computed(() => {
@@ -609,7 +571,7 @@ const propiedadesItemHistoria = computed(() => {
 <template>
     <FondoDefault>
         <Form :Propiedades="propiedadesItemHistoria" />
-        <Form v-if="varView.getPermisos.includes('Insumos_put')" :Propiedades="propiedadesFormularioVerMovimiento" />
+        <Form v-if="hasPermiso('Insumos_put')" :Propiedades="propiedadesFormularioVerMovimiento" />
         <!-- VISTA INICIAL - LISTA DE PACIENTES -->
         <div v-if="!showHistorialCompleto && (permisos.ver || permisos.get)" class="space-y-4">
             <!-- Módulo: Notas Pendientes -->

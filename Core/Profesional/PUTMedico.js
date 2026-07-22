@@ -7,7 +7,6 @@ export const editarProfesional = async (datos, reintento = false) => {
     const config = useRuntimeConfig()
     const api = useApiRest();
     const token = decryptData(localStorage.getItem('token'))
-console.log(datos)
     const online = navigator.onLine;
     if (online) {
         try {

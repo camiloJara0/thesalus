@@ -27,7 +27,6 @@ export async function verificarAPIPermisos(id) {
 
             allPermisos.push(...permisos)
             allPermisos.push(respuesta.data[0].nombre)
-            console.log(allPermisos)
             const permisosEncrypt = encryptData(allPermisos);
 
             sessionStorage.removeItem('Permisos')

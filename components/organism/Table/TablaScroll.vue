@@ -31,7 +31,7 @@ const {
     columnaOrden,
     menorAMayor,
     borrarFiltros
-} = useOrdenamiento(data || ref([]), props.Propiedades.filtros || [], props.Propiedades.noFiltrar || []);
+} = useOrdenamiento(data || ref([]), props.Propiedades.filtros || [], props.Propiedades.noFiltrar || [], props.Propiedades.columns || []);
 
 const isFiltrando = computed(() => {
     const busquedaActiva = busqueda.value?.trim() !== ''

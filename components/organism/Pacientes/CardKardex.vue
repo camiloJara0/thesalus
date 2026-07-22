@@ -5,14 +5,16 @@ import DynamicField from '~/components/atoms/DynamicField/DynamicField.vue'
 import ModalAdminPlantilla from './ModalAdminPlantilla.vue'
 import { usePaginacion } from '~/composables/Tabla/usePaginacion.js'
 import { useKardexStore } from '~/stores/Entidades/Kardex'
+import { storeHistorialCambioSonda } from '~/Core/Pacientes/KardexAPI.js'
 
 const apiRest = useApiRest()
 const varView = useVarView()
 const kardexStore = useKardexStore()
+const { hasPermiso } = usePermisos()
 
-const puedeVer = varView.getPermisos.includes('Kardex_view')
-const puedeGet = varView.getPermisos.includes('Kardex_get')
-const puedePost = varView.getPermisos.includes('Kardex_put')
+const puedeVer = hasPermiso('Kardex_view')
+const puedeGet = hasPermiso('Kardex_get')
+const puedePost = hasPermiso('Kardex_put')
 const esAdmin = varView.getRol === 'Admin'
 
 const {
@@ -73,10 +75,10 @@ async function cargarPacientes() {
     historias.value = kardex.map(k => ({
         ...k,
         id: k.paciente_id,
-        _kardexValores: {}
+        _kardexValores: kardexStore.getRegistros(k.id_paciente)
     }))
     copiaKardex = JSON.parse(JSON.stringify(historias.value))
-    await cargarRegistrosPacientes()
+
 }
 
 async function cargarRegistrosPacientes() {
@@ -84,7 +86,7 @@ async function cargarRegistrosPacientes() {
     // await kardexStore.cargarTodosLosRegistros(plantillaSeleccionadaId.value)
 
     historias.value.forEach(paciente => {
-        paciente._kardexValores = kardexStore.getRegistros(paciente.paciente_id)
+        paciente._kardexValores = kardexStore.getRegistros(paciente.id)
     })
 }
 
@@ -183,13 +185,13 @@ async function guardarCambios() {
 }
 
 async function guardar(fila) {
-    const pacienteId = fila.paciente_id
+    const pacienteId = fila.id_paciente
     const valoresNuevos = kardexStore.getRegistros(pacienteId)
-    const valoresViejos = copiaKardex.find(k => k.paciente_id === pacienteId)?._kardexValores || {}
+    const valoresViejos = copiaKardex.find(paciente => paciente.id === pacienteId)._kardexValores
 
     if (plantillaActivaTieneSonida()) {
-        const cambioSonda = valoresNuevos.ultimoCambio !== valoresViejos.ultimoCambio
-        if (valoresNuevos.ultimoCambio && cambioSonda) {
+        const cambioSonda = valoresNuevos[9] !== valoresViejos[9]
+        if (valoresNuevos[9] && cambioSonda) {
             options.icono = 'warning'
             options.titulo = 'Agrega detalles del cambio de sonda'
             options.html = '<div class="flex flex-col items-start">'
@@ -211,7 +213,13 @@ async function guardar(fila) {
                 return
             }
 
-            valoresNuevos.observacion_sonda = respuesta.valor
+            const data = {
+                id_paciente: fila.id_paciente,
+                ultimoCambio: valoresNuevos[9],
+                tipo_sonda: 'Sonda',
+                observacion: respuesta.valor
+            }
+            await storeHistorialCambioSonda(data)
         }
     }
 
@@ -234,7 +242,7 @@ async function guardar(fila) {
 }
 
 function plantillaActivaTieneSonida() {
-    return camposPlantilla.value.some(c => c.slug === 'ultimoCambio' || c.slug === 'kit_cambioSonda')
+    return camposPlantilla.value.some(c => c.nombre === 'ultimo_cambio' || c.nombre === 'kit_cambioSonda')
 }
 
 async function onPlantillaGuardada() {

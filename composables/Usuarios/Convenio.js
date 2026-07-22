@@ -26,7 +26,6 @@ export function useConvenioActions({
         mapCampos(convenio, convenioStore.Formulario);
 
         convenioStore.Formulario.Convenio.id = convenio.id;
-        console.log(convenio.pacientes)
         convenioStore.Formulario.Convenio.pacientes_ids = convenio.pacientes.map(p => p.id);
         showVer.value = true;
     };

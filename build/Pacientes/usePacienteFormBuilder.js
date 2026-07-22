@@ -3,6 +3,7 @@ import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { CUPS } from '~/data/CUPS'
 import { usePacientesStore } from "~/stores/Entidades/Paciente"
 import { municipios } from "~/data/municipios.js";
+import { validarCelular, validarTelefono, validarDocumento, validarNombre, validarDireccion } from '~/composables/Formulario/useValidaciones'
 
 export function usePacienteBuilder({
     storeId,
@@ -86,6 +87,7 @@ export function usePacienteBuilder({
             max: '10000000000',
             min: '1000000',
             vmodel: 'Paciente.info_usuario.No_document',
+            validate: validarDocumento,
             events: {
                 onKeyUp: buscarUsuario
             },
@@ -117,6 +119,7 @@ export function usePacienteBuilder({
             upperCase: true,
             vmodel: 'Paciente.info_usuario.name',
             minlength: 5,
+            validate: validarNombre,
         })
         .addCampo({
             component: 'Input',
@@ -198,6 +201,7 @@ export function usePacienteBuilder({
             minLength: '5',
             vmodel: 'Paciente.info_usuario.direccion',
             upperCase: true,
+            validate: validarDireccion,
         })
 
         // 📌 Sección: Contacto
@@ -218,6 +222,7 @@ export function usePacienteBuilder({
             max: '10000000000',
             min: '1000000000',
             vmodel: 'Paciente.info_usuario.celular',
+            validate: validarCelular,
         })
         .addCampo({
             component: 'Input',
@@ -229,6 +234,7 @@ export function usePacienteBuilder({
             max: '100000000',
             min: '100000',
             vmodel: 'Paciente.info_usuario.telefono',
+            validate: validarTelefono,
         })
 
 

@@ -12,6 +12,7 @@ import { useProfesionalStore } from '~/stores/Entidades/Profesional'
 import { usePacientesStore } from "~/stores/Entidades/Paciente"
 import { UBadge, UButton, UDropdownMenu } from '#components'
 import { useInsumoActions } from "~/composables/Entidades/Insumo";
+import { useMultiAutoRefresh } from '~/composables/useAutoRefresh';
 import { storeToRefs } from "pinia";
 import { useMovimientoBuilder } from "~/build/Historial/useMovimientoBuilder";
 import { usePlanesBuilder } from "~/build/Historial/usePlanesBuilder";
@@ -22,7 +23,6 @@ const notificaciones = useNotificacionesStore()
 const apiRest = useApiRest()
 
 const insumoStore = useInsumoStore()
-const storeNoEnviados = useNoEnviados()
 const refresh = ref(1)
 const medicosStore = useProfesionalStore()
 const medicosList = ref([])
@@ -35,24 +35,15 @@ const tiposEquipos = ref([])
 const insumos = ref([])
 const medicamentos = ref([])
 
-const puedeVer = varView.getPermisos.includes('Insumos_view')
-const puedeGet = varView.getPermisos.includes('Insumos_get')
-const puedePost = varView.getPermisos.includes('Insumos_post')
-const puedePut = varView.getPermisos.includes('Insumos_put')
-const puedeDelete = varView.getPermisos.includes('Insumos_delete')
+const { hasPermiso } = usePermisos()
+const puedeVer = hasPermiso('Insumos_view')
+const puedeGet = hasPermiso('Insumos_get')
+const puedePost = hasPermiso('Insumos_post')
+const puedePut = hasPermiso('Insumos_put')
+const puedeDelete = hasPermiso('Insumos_delete')
 
 const { Insumos, Movimientos, Prestaciones, NoEnviados, showNuevoInsumo, showModificarInsumo, showMovimiento, showModificarMovimiento } = storeToRefs(insumoStore)
-const { importacion } = storeToRefs(storeNoEnviados)
 const { showItem, Pacientes } = storeToRefs(pacientesStore)
-
-const {
-    descargarNoEnviados,
-    importarNoEnviados
-} = storeNoEnviados
-
-async function sincronizarDatos() {
-    await insumoStore.sincronizar()
-}
 
 // 📊 COLUMNS PARA TABLA DE INSUMOS
 const columns = [
@@ -122,6 +113,7 @@ async function llamadatos(cambio) {
     await insumoStore.traer(true, cambio)
     await insumoStore.traerNoEnviados()
     await llamaInsumos()
+    await llamaTipoEquipos()
     varView.datosActualizados()
 }
 
@@ -129,6 +121,7 @@ async function llamadatosMovimiento(cambio) {
     await insumoStore.traer(true, cambio)
     await insumoStore.traerMovimiento(true, cambio)
     await insumoStore.traerNoEnviados()
+    await insumoStore.traerPrestaciones(true, cambio)
     await llamaInsumos()
     varView.datosActualizados()
 }
@@ -148,6 +141,11 @@ async function llamaInsumos() {
     })
 }
 
+async function llamaTipoEquipos() {
+    const tiposEquiposData = await apiRest.getData('', 'tipoEquipos')
+    tiposEquipos.value = tiposEquiposData.map(tipo => ({ label: tipo.nombre, value: tipo.id }))
+}
+
 // 📋 FUNCIONES DE FORMULARIOS
 const {
     agregarInsumo,
@@ -164,42 +162,12 @@ const {
 })
 
 // 👁️ WATCHERS
-watch(() => showNuevoInsumo.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true)
-            refresh.value++
-        }
-    }
-)
-
-watch(() => showModificarInsumo.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos(true)
-            refresh.value++
-        }
-    }
-)
-
-watch(() => showMovimiento.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatosMovimiento(true)
-            refresh.value++
-        }
-    }
-)
-
-watch(() => showItem.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatosMovimiento(true)
-            await insumoStore.traerPrestaciones(true, true)
-            refresh.value++
-        }
-    }
-)
+useMultiAutoRefresh([
+    { showRef: showNuevoInsumo, fetchFn: () => llamadatos(true), refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showModificarInsumo, fetchFn: () => llamadatos(true), refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showMovimiento, fetchFn: () => llamadatosMovimiento(true), refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showItem, fetchFn: async () => { await llamadatosMovimiento(true); await insumoStore.traerPrestaciones(true, true) }, refresh, cambioEnApi: varView.cambioEnApi },
+])
 
 // 📌 ONMOUNTED
 onMounted(async () => {
@@ -207,12 +175,11 @@ onMounted(async () => {
     await llamadatosMovimiento()
     await llamadatosPrestados()
     await llamaInsumos()
+    await llamaTipoEquipos()
     const medicos = await medicosStore.traer(true)
     medicosList.value = medicos.map(m => { return { label: `${m.info_usuario.name} - ${m.info_usuario.No_document}`, value: m.id } })
     const pacientes = await pacientesStore.traer(true)
     pacientesList.value = pacientes.map(m => { return { label: `${m.info_usuario.name} - ${m.info_usuario.No_document}`, value: m.id } })
-    const tiposEquiposData = await apiRest.getData('', 'tipoEquipos')
-    tiposEquipos.value = tiposEquiposData.map(tipo => ({ label: tipo.nombre, value: tipo.id }))
 })
 
 // 📦 PROPIEDADES DE FORMULARIOS

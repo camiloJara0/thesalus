@@ -1,4 +1,5 @@
 import { useIndexedDBStore } from '@/stores/indexedDB.js';
+import { decryptData } from './crypto.js';
 
 export async function guardarEnDB(data) {
     const store = useIndexedDBStore();
@@ -6,7 +7,6 @@ export async function guardarEnDB(data) {
 
     for (const [almacen, contenido] of Object.entries(data)) {
         store.almacen = almacen;
-        // Contexto Generico
         if (Array.isArray(contenido)) {
             for (const item of contenido) await store.guardardatosID({ ...item });
         } else if (typeof contenido === "object" && contenido !== null) {
@@ -18,12 +18,11 @@ export async function guardarEnDB(data) {
 export async function getAll(url) {
     const notificacionesStore = useNotificacionesStore();
     const api = useApiRest();
-    const token = localStorage.getItem('token')
+    const token = decryptData(localStorage.getItem('token'))
 
     const online = navigator.onLine;
     if (online) {
         try {
-            // mandar a api
             let options = {
                 metodo: 'GET',
                 url: url,
@@ -47,11 +46,9 @@ export async function getAll(url) {
     }
 }
 
-// Función para actualizar datos en IndexedDB
 export async function actualizarEnIndexedDB(data) {
     const store = useIndexedDBStore();
     await store.initialize();
-    console.log(data)
     for (const [almacen, contenido] of Object.entries(data)) {
         store.almacen = almacen;
 
@@ -60,7 +57,6 @@ export async function actualizarEnIndexedDB(data) {
                 await store.actualiza({ ...item });
             }
         } else if (typeof contenido === 'object' && contenido !== null) {
-            console.log(almacen, contenido)
             await store.actualiza({ ...contenido });
         }
     }

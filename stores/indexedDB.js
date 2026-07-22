@@ -354,6 +354,7 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                     // Marcar como inactivos los que ya no vienen
                     registrosActuales.forEach(registro => {
                         if (this.almacen == 'Cita') return
+                        if(registro.estado == 'Inactiva' || registro.estado == 'Realizada') return
                         if (registro.sincronizado === 0) return;
                         if (registro.id == null) return;
 
@@ -431,7 +432,6 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                 const request = indexedDB.deleteDatabase(dbName);
 
                 request.onsuccess = () => {
-                    console.log(`✅ Base de datos '${dbName}' eliminada correctamente.`);
                     resolve(true);
                 };
 
@@ -450,7 +450,6 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             if (!this.bd) {
                 await this.initialize()
             }
-            console.log(this.bd)
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(dbName);
 
@@ -459,7 +458,6 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                     const transaction = db.transaction(db.objectStoreNames, "readwrite");
 
                     transaction.oncomplete = () => {
-                        console.log(`✅ Base de datos '${dbName}' limpiada correctamente.`);
                         resolve(true);
                     };
 

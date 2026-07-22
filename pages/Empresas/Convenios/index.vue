@@ -1,12 +1,13 @@
 <script setup>
 import Pagina from '~/components/organism/Pagina/Pagina.vue';
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useConvenioStore } from '~/stores/Formularios/Convenios/Convenio';
 import { ComponenteBuilder } from '~/build/Constructores/ComponentesBuilder';
 import { TablaBuilder } from '~/build/Constructores/TablaBuilder';
 import { useConvenioBuilder } from '~/build/Convenios/useConvenioBuilder';
 import { CardBuilder } from '~/build/Constructores/CardBuilder';
 import { useConvenioActions } from '~/composables/Usuarios/Convenio';
+import { useMultiAutoRefresh } from '~/composables/useAutoRefresh';
 
 const varView = useVarView();
 const notificaciones = useNotificacionesStore();
@@ -36,19 +37,20 @@ const {
     llamadatos
 });
 
-watch(() => show.value, async (estado) => {
-    if (!estado && varView.cambioEnApi) {
-        llamadatos();
-        refresh.value++;
+useMultiAutoRefresh([
+    {
+        showRef: show,
+        cambioEnApi: computed(() => varView.cambioEnApi),
+        refresh,
+        fetchFn: () => { llamadatos() },
+    },
+    {
+        showRef: showVer,
+        cambioEnApi: computed(() => varView.cambioEnApi),
+        refresh,
+        fetchFn: () => { llamadatos() },
     }
-});
-
-watch(() => showVer.value, async (estado) => {
-    if (!estado && varView.cambioEnApi) {
-        llamadatos();
-        refresh.value++;
-    }
-});
+]);
 
 onMounted(async () => {
     await llamadatos();
@@ -56,13 +58,15 @@ onMounted(async () => {
 
 const builderTabla = new TablaBuilder();
 
+const { hasPermiso } = usePermisos()
+
 const propiedades = computed(() => {
     const pagina = new ComponenteBuilder();
 
-    const puedeVer = varView.getPermisos.includes('Convenios_view');
-    const puedeGet = varView.getPermisos.includes('Convenios_get');
-    const puedePost = varView.getPermisos.includes('Convenios_post');
-    const puedePut = varView.getPermisos.includes('Convenios_put');
+    const puedeVer = hasPermiso('Convenios_view')
+    const puedeGet = hasPermiso('Convenios_get')
+    const puedePost = hasPermiso('Convenios_post')
+    const puedePut = hasPermiso('Convenios_put')
 
     if (!puedeVer && !puedePost && !puedePut && !puedeGet) {
         pagina

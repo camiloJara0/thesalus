@@ -11,12 +11,13 @@ const varView = useVarView()
 const notificaciones = useNotificacionesStore()
 const mostrarFiltros = ref(false)
 const { Eps } = storeToRefs(store)
+const { hasPermiso } = usePermisos()
 
-const puedeVer = varView.getPermisos.includes('Datos_view');
-const puedeGet = varView.getPermisos.includes('Datos_get');
-const puedePost = varView.getPermisos.includes('Datos_post');
-const puedePut = varView.getPermisos.includes('Datos_put');
-const puedeDelete = varView.getPermisos.includes('Datos_delete');
+const puedeVer = hasPermiso('Datos_view')
+const puedeGet = hasPermiso('Datos_get')
+const puedePost = hasPermiso('Datos_post')
+const puedePut = hasPermiso('Datos_put')
+const puedeDelete = hasPermiso('Datos_delete')
 
 const {
   agregarEps,

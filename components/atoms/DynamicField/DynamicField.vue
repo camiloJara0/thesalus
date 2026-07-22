@@ -24,8 +24,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const SI_NO_OPTIONS = [
-    { label: 'SI', value: 1 },
-    { label: 'NO', value: 0 }
+    { label: 'SI', value: "1" },
+    { label: 'NO', value: "0" }
 ]
 
 const componenteRender = computed(() => {

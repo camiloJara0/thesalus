@@ -25,6 +25,5 @@ export const traerCeldasPintadas = async () => {
             console.error('Fallo al enviar.', error);
         }
     } else {
-        console.log('error guardando colores')
     }
 };

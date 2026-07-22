@@ -12,8 +12,9 @@ export function useProfesionesBuilder({
 }) {
   const builder = new FormularioBuilder()
   const varView = useVarView()
+  const { hasPermiso } = usePermisos()
 
-  const puedeDelete = varView.getPermisos.includes('Datos_delete');
+  const puedeDelete = hasPermiso('Datos_delete')
   if (eliminar) {
     builder
       .setFormularioFondo(true)

@@ -5,7 +5,6 @@ export async function consumirPermiso(data) {
     const api = useApiRest();
     const config = useRuntimeConfig()
     const token = decryptData(localStorage.getItem('token'))
-console.log(data)
     try {
         // Mandar a API
         let options = {

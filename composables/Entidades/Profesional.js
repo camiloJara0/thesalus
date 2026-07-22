@@ -13,8 +13,9 @@ export function useProfesionalActions({
     /* ===============================
        MODALES
     =============================== */
-    const puedeDelete = varView.getPermisos.includes('Profesional_delete');
-    const puedePut = varView.getPermisos.includes('Profesional_put');
+    const { hasPermiso } = usePermisos()
+    const puedeDelete = hasPermiso('Profesional_delete')
+    const puedePut = hasPermiso('Profesional_put')
     const agregarMedico = () => {
         mapCamposLimpios(profesionalStore.Formulario);
         profesionalStore.showNuevoProfesional = true;

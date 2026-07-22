@@ -14,9 +14,8 @@ export default defineNuxtConfig({
   colorMode: { preference: 'system', classSuffix: '' },
   runtimeConfig: {
     public: {
-      SECRET_KEY: 'THESALUS943875PL',
-      api: 'https://api2.ctsantaisabel.com',
-      // api: 'http://127.0.0.1:8000',
+      SECRET_KEY: process.env.NUXT_SECRET_KEY || 'THESALUS943875PL',
+      api: process.env.NUXT_PUBLIC_API_URL || 'https://api2.ctsantaisabel.com',
       login: 'api/v1/login',
       eps: 'api/v1/eps',
       professions: 'api/v1/professions',

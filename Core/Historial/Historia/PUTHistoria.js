@@ -8,6 +8,7 @@ export const validarYEnviarActualizarHistoria = async (datos) => {
     const notificacionesStore = useNotificacionesStore();
     const calendarioStore = useCalendarioCitas();
     const varView = useVarView();
+    const { hasPermiso } = usePermisos()
 
     const errores = [];
     // --- Validaciones por tipo de consulta ---
@@ -189,7 +190,7 @@ export const validarYEnviarActualizarHistoria = async (datos) => {
             datos.HistoriaClinica.fecha_historia = calendarioStore.fechaActual;
             datos.Analisis.fecha = calendarioStore.fechaActual;
 
-            const puedePostAnalisis = varView.getPermisos.includes('Analisis_post')
+            const puedePostAnalisis = hasPermiso('Analisis_post')
 
             // Validacion si no se registran medicamentos
             if (datos.Plan_manejo_medicamentos?.length < 1 && puedePostAnalisis) {

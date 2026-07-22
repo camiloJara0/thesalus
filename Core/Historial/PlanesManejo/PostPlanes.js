@@ -3,6 +3,7 @@ import { useCalendarioCitas } from '~/stores/Calendario.js';
 import { decryptData } from '~/composables/Formulario/crypto';
 import { actualizarEnIndexedDB } from '~/composables/Formulario/useIndexedDBManager.js';
 import { usePacientesStore } from '~/stores/Entidades/Paciente.js';
+import { useInsumoStore } from '~/stores/Entidades/Insumo.js';
 
 // funcion para Validar campos del formulario Historia Clinica
 export const validarYEnviarPlan = async (datos) => {
@@ -98,6 +99,7 @@ const enviarFormularioActualizarMedicamento = async (datos) => {
     const api = useApiRest();
     const config = useRuntimeConfig()
     const token = decryptData(localStorage.getItem('token'))
+    const insumoStore = useInsumoStore()
 
     // Guardar Local
     const online = navigator.onLine;
@@ -114,19 +116,20 @@ const enviarFormularioActualizarMedicamento = async (datos) => {
                 body: JSON.stringify(datos)
             });
 
-            if (!respuesta.ok) {
-                throw new Error(`Error en la petición: ${respuesta.status}`);
-            }
-
-            if(respuesta.success) {
-                return true
+            if(!respuesta.success || !respuesta.ok) {
+                notificacionesStore.options.icono = 'warning'
+                notificacionesStore.options.titulo = '¡Ha ocurrido un problema!'
+                notificacionesStore.options.texto = respuesta.message || 'Comprueba cantidad del insumo o fecha de prestacion'
+                notificacionesStore.options.tiempo = 3000
+                notificacionesStore.simple()
+                return false
             }
 
             // Detectar si la respuesta es PDF o JSON
             const contentType = respuesta.headers.get('Content-Type');
 
             if (contentType && !contentType.includes('application/pdf')) {
-                return true
+                return false
             }
             const blob = await respuesta.blob();
             const url = window.URL.createObjectURL(blob);
@@ -152,7 +155,10 @@ const enviarFormularioActualizarMedicamento = async (datos) => {
 
             setTimeout(() => window.URL.revokeObjectURL(url), 10000);
 
+            await insumoStore.traerMovimiento(true, true)
+            await insumoStore.traerPrestaciones(true, true)
             return true
+
         } catch (error) {
             console.error('Fallo al enviar.', error);
         }

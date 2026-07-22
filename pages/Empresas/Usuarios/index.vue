@@ -9,6 +9,7 @@ import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue';
 import Form from '~/components/organism/Forms/Form.vue';
 import { useAdministradorBuilder } from '~/build/Administradores/useAdministradoresBuilder';
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue';
+import { useMultiAutoRefresh } from '~/composables/useAutoRefresh';
 
 const varView = useVarView();
 const notificaciones = useNotificacionesStore();
@@ -18,34 +19,31 @@ const refresh = ref(1)
 const show = ref(false)
 const showVer = ref(false)
 const municipiosOptions = ref([])
-const puedeVer = varView.getPermisos.includes('Usuarios_view');
-const puedeGet = varView.getPermisos.includes('Usuarios_get');
-const puedePut = varView.getPermisos.includes('Usuarios_put');
-const puedePostUsuarios = varView.getPermisos.includes('Usuarios_post');
-const puedeDelete = varView.getPermisos.includes('Usuarios_delete');
+const { hasPermiso } = usePermisos()
+const puedeVer = hasPermiso('Usuarios_view')
+const puedeGet = hasPermiso('Usuarios_get')
+const puedePut = hasPermiso('Usuarios_put')
+const puedePostUsuarios = hasPermiso('Usuarios_post')
+const puedeDelete = hasPermiso('Usuarios_delete')
 
 async function llamadatos() {
     Users.value = await traerAdministradores()
     await UsersStore.indexDBDatos()
 }
-// Actualizar pagina cunso se agrega Nuevo Usuario
-watch(() => show.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos();
-            refresh.value++;
-        }
+useMultiAutoRefresh([
+    {
+        showRef: show,
+        cambioEnApi: computed(() => varView.cambioEnApi),
+        refresh,
+        fetchFn: async () => { await llamadatos() },
+    },
+    {
+        showRef: showVer,
+        cambioEnApi: computed(() => varView.cambioEnApi),
+        refresh,
+        fetchFn: async () => { await llamadatos() },
     }
-)
-
-watch(() => showVer.value,
-    async (estado) => {
-        if (!estado && varView.cambioEnApi) {
-            await llamadatos();
-            refresh.value++;
-        }
-    }
-)
+])
 
 // Cargar los pacientes desde el store
 onMounted(async () => {

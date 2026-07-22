@@ -11,7 +11,6 @@ export const enviarEps = async (datos, reintento = false) => {
     const online = navigator.onLine;
     if (online) {
         try {
-            console.log('enviando:', datos.EPS)
             // mandar a api
             let options = {
                 metodo: 'POST',

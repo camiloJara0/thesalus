@@ -8,8 +8,9 @@ import { useProfesionesBuilder } from '~/build/Empresa/useProfesionesBuilder.js'
 
 const varView = useVarView()
 const store = useProfesionStore()
-const puedePostProfesion = varView.getPermisos.includes('Datos_post');
-const puedePutProfesion = varView.getPermisos.includes('Datos_put');
+const { hasPermiso } = usePermisos()
+const puedePostProfesion = hasPermiso('Datos_post')
+const puedePutProfesion = hasPermiso('Datos_put')
 const notificaciones = useNotificacionesStore()
 
 // Usar storeToRefs para mantener reactividad

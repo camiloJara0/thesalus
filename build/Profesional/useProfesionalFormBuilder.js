@@ -3,6 +3,7 @@ import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { reducirImagen } from '~/Core/Profesional/POSTMedico'
 import { useProfesionalStore } from '~/stores/Entidades/Profesional'
 import { municipios } from "~/data/municipios.js";
+import { validarCelular, validarTelefono, validarDocumento, validarNombre, validarDireccion } from '~/composables/Formulario/useValidaciones'
 
 export function useProfesionalBuilder({
     storeId,
@@ -81,6 +82,7 @@ export function useProfesionalBuilder({
             max: '10000000000',
             min: '1000000',
             vmodel: 'Profesional.info_usuario.No_document',
+            validate: validarDocumento,
             events: {
                 onKeyUp: buscarUsuario
             },
@@ -112,6 +114,7 @@ export function useProfesionalBuilder({
             upperCase: true,
             vmodel: 'Profesional.info_usuario.name',
             minlength: 5,
+            validate: validarNombre,
         })
         .addCampo({
             component: 'Input',
@@ -192,6 +195,7 @@ export function useProfesionalBuilder({
             minLength: '5',
             vmodel: 'Profesional.info_usuario.direccion',
             upperCase: true,
+            validate: validarDireccion,
         })
 
         // 📌 Sección: Contacto
@@ -203,7 +207,7 @@ export function useProfesionalBuilder({
         })
         .addCampo({
             component: 'Input',
-            type: 'number',
+            type: 'tel',
             placeholder: 'Celular',
             id: 'celular',
             name: 'celular',
@@ -211,10 +215,11 @@ export function useProfesionalBuilder({
             max: '10000000000',
             min: '1000000000',
             vmodel: 'Profesional.info_usuario.celular',
+            validate: validarCelular,
         })
         .addCampo({
             component: 'Input',
-            type: 'number',
+            type: 'tel',
             placeholder: 'Teléfono (opcional)',
             id: 'telefono',
             name: 'telefono',
@@ -222,6 +227,7 @@ export function useProfesionalBuilder({
             max: '100000000',
             min: '100000',
             vmodel: 'Profesional.info_usuario.telefono',
+            validate: validarTelefono,
         })
 
 

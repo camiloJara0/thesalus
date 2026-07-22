@@ -6,7 +6,7 @@ import CardProfesiones from '~/components/organism/Profesionales/CardProfesiones
 import CardPermisos from '~/components/organism/Profesionales/CardPermisos.vue';
 
 // Data
-import { ref, onMounted, computed, h, watch } from 'vue';
+import { ref, onMounted, computed, h } from 'vue';
 import { municipios } from '~/data/municipios.js'
 import { useUsuarioValidaciones } from "~/composables/Usuarios/Usuarios.js";
 import { useProfesionalActions } from '~/composables/Entidades/Profesional';
@@ -15,12 +15,12 @@ import { useProfesionalBuilder } from '~/build/Profesional/useProfesionalFormBui
 import { useProfesionStore } from "~/stores/Entidades/Profesion";
 import ModalProfesiones from "~/components/organism/Profesionales/ModalProfesiones.vue";
 import Restringido from "~/components/organism/NoEnviados/Restringido.vue";
+import { useMultiAutoRefresh } from '~/composables/useAutoRefresh';
 
 const varView = useVarView();
 const notificaciones = useNotificacionesStore();
 const profesionalStore = useProfesionalStore();
 const profesionStore = useProfesionStore();
-const noEnviados = useNoEnviados()
 
 const medicos = ref([]);
 const profesiones = ref([]);
@@ -28,10 +28,11 @@ const profesionesList = ref([]);
 const municipiosList = ref([])
 const municipios_laboral = ref([])
 const refresh = ref(1);
-const puedeVer = varView.getPermisos.includes('Profesional_view');
-const puedeGet = varView.getPermisos.includes('Profesional_get');
-const puedePost = varView.getPermisos.includes('Profesional_post');
-const puedePut = varView.getPermisos.includes('Profesional_put');
+const { hasPermiso } = usePermisos()
+const puedeVer = hasPermiso('Profesional_view')
+const puedeGet = hasPermiso('Profesional_get')
+const puedePost = hasPermiso('Profesional_post')
+const puedePut = hasPermiso('Profesional_put')
 
 // Estados para modales y vistas
 
@@ -95,38 +96,45 @@ const {
 });
 
 // Watch para actualizar información al agregar o actualizar
-watch(() => showNuevoProfesional.value, async (estado) => {
-    if (!estado && varView.cambioEnApi) {
-        await llamadatos(true);
-        await llamaNoEnviados()
-        refresh.value++
-    }
-})
-
-watch(() => showModificarProfesional.value, async (estado) => {
-    if (!estado && varView.cambioEnApi) {
-        await llamadatos(true);
-        await llamaNoEnviados()
-        refresh.value++
-    }
-})
-
-watch(() => showNuevaProfesion.value, async (estado) => {
-    if (!estado && varView.cambioEnApi) {
-        await llamaProfesiones(true);
-        await llamaProfesionesList()
-        await llamaNoEnviados()
-        refresh.value++
-    }
-})
-
-watch(() => showModificarProfesion.value, async (estado) => {
-    if (!estado && varView.cambioEnApi) {
-        await llamaProfesiones(true);
-        await llamaNoEnviados()
-        refresh.value++
-    }
-})
+useMultiAutoRefresh([
+    {
+        showRef: showNuevoProfesional,
+        fetchFn: async () => {
+            await llamadatos(true);
+            await llamaNoEnviados();
+        },
+        refresh,
+        cambioEnApi: varView.cambioEnApi,
+    },
+    {
+        showRef: showModificarProfesional,
+        fetchFn: async () => {
+            await llamadatos(true);
+            await llamaNoEnviados();
+        },
+        refresh,
+        cambioEnApi: varView.cambioEnApi,
+    },
+    {
+        showRef: showNuevaProfesion,
+        fetchFn: async () => {
+            await llamaProfesiones(true);
+            await llamaProfesionesList();
+            await llamaNoEnviados();
+        },
+        refresh,
+        cambioEnApi: varView.cambioEnApi,
+    },
+    {
+        showRef: showModificarProfesion,
+        fetchFn: async () => {
+            await llamaProfesiones(true);
+            await llamaNoEnviados();
+        },
+        refresh,
+        cambioEnApi: varView.cambioEnApi,
+    },
+]);
 
 // Cargar los Profesionales desde el store
 onMounted(async () => {

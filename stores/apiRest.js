@@ -100,8 +100,6 @@ export const useApiRest = defineStore('apiRest', {
                     const mensajeCorto = mensajeCompleto.split('(')[0].trim();
 
 
-                    console.log('Error response:', errorData);
-
                     // Validar si es Unauthorized (401) o Forbidden (403)
                     if (response.status === 401 || response.status === 403) {
                         notificacionesStore.options.icono = 'warning';
@@ -337,8 +335,6 @@ export const useApiRest = defineStore('apiRest', {
                 this.permisoUsado = true; // marcar que se usó
                 return true;
             }
-            console.log(permisoNecesario)
-
             // 🔑 Validar si el permiso existe en el array del usuario
             if (permisosUsuario.includes(permisoNecesario)) {
                 return true;

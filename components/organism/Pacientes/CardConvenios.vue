@@ -12,12 +12,13 @@ const varView = useVarView()
 const notificaciones = useNotificacionesStore()
 const mostrarFiltros = ref(false)
 const pacientesStore = usePacientesStore()
+const { hasPermiso } = usePermisos()
 
-const puedeVer = varView.getPermisos.includes('Convenios_view');
-const puedeGet = varView.getPermisos.includes('Convenios_get');
-const puedePost = varView.getPermisos.includes('Convenios_post');
-const puedePut = varView.getPermisos.includes('Convenios_put');
-const puedeDelete = varView.getPermisos.includes('Convenios_delete');
+const puedeVer = hasPermiso('Convenios_view')
+const puedeGet = hasPermiso('Convenios_get')
+const puedePost = hasPermiso('Convenios_post')
+const puedePut = hasPermiso('Convenios_put')
+const puedeDelete = hasPermiso('Convenios_delete')
 
 const {
   agregarConvenio,

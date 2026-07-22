@@ -3,7 +3,6 @@ import { decryptData } from '~/composables/Formulario/crypto';
 
 // funcion para Validar campos del formulario Nuevo Paciente
 export const validarYEnviarDatosFacturacion = async (datos) => {
-    console.log(datos)
     return await enviarFormulario(datos);
 };
 
@@ -60,7 +59,6 @@ const enviarFormulario = async (datos) => {
                     }
                 }
                 await actualizarEnIndexedDB(JSON.parse(JSON.stringify(datosActualizadosLocal)));
-                console.log('datos actualizados')
                 return true
             }
         } catch (error) {

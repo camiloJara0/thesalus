@@ -24,7 +24,6 @@ export function useEpsActions({
   // EDITAR PACIENTE
   const verEps = async (eps) => {
     store.Formulario.EPS = JSON.parse(JSON.stringify(eps))
-    console.log(store.Formulario.EPS)
     store.Formulario.EPS.nombre = eps.nombre
     // mapCampos(eps, store.Formulario);
     store.showModificarEps = true;

@@ -5,12 +5,13 @@ export async function traerHistorias () {
     const config = useRuntimeConfig()
     const token = decryptData(localStorage.getItem('token'))
     const varView = useVarView()
+    const { hasPermiso } = usePermisos()
     const rol = varView.getRol;
 
     const online = navigator.onLine;
     if (online) {
         try {
-            let filtrar = !varView.getPermisos.includes('ListaPacientes')
+            let filtrar = !hasPermiso('ListaPacientes')
             let historias = []
 
             if(rol === 'Profesional' && filtrar ) {

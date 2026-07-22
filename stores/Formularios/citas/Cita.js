@@ -161,7 +161,7 @@ export const useCitasStore = defineStore('Citas', {
                 const fechaA = new Date(`${a.fecha}T${a.hora}`);
                 const fechaB = new Date(`${b.fecha}T${b.hora}`);
                 return fechaA - fechaB;
-            }).slice(0, 3);
+            }).slice(0, 6);
 
             this.Citas = citasPendientes;
             return citasPendientes;

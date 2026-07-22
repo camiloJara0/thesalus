@@ -52,7 +52,6 @@ export const useProfesionalStore = defineStore('Profesional', {
 
         async guardar(datos) {
             const validacion = await this.validar(datos)
-            console.log(validacion)
             if(validacion) {
                 return await guardarProfesional(datos.Profesional);
             }
@@ -60,7 +59,6 @@ export const useProfesionalStore = defineStore('Profesional', {
 
         async actualizar(datos) {
             const validacion = await this.validar(datos)
-            console.log(validacion)
             // if(validacion) {
             //     return await editarProfesional(datos.Profesional);
             // }
@@ -189,6 +187,8 @@ export const useProfesionalStore = defineStore('Profesional', {
                 await notificaciones.simple();
                 return false;
             }
+
+            return true
 
         }
 

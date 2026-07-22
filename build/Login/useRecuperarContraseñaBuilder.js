@@ -8,7 +8,6 @@ export function useRecuperarContraseñaBuilder({
   cerrar,
   show,
   enviarCodigo,
-  validarCodigo,
   stateCodigo,
 }) {
   const builder = new FormularioBuilder()
@@ -89,9 +88,6 @@ export function useRecuperarContraseñaBuilder({
       name: 'codigo',
       tamaño: 'lg:w-2/3 w-full justify-self-center col-span-2',
       vmodel: 'Usuario.codigo',
-      events: {
-        OnChange: validarCodigo
-      }
     })
     .addCampo({
       component: 'InputContraseña',

@@ -256,7 +256,7 @@ export const useInsumoStore = defineStore('Insumo', {
             }
 
             if (
-                Movimiento.cantidadMovimiento > datos.Insumos.stock && Movimiento.tipoMovimiento === 'Egreso'
+                datos.Insumos.stock && Movimiento.cantidadMovimiento > datos.Insumos.stock && Movimiento.tipoMovimiento === 'Egreso'
             ) {
                 const msg = 'Cantidad de movimiento mayor al stock actual.';
                 notificacionesStore.options.icono = 'error';

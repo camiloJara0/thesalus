@@ -15,9 +15,10 @@ export function useHistoriaBuilder({
 
     const historiaStore = useHistoriasStore()
     const varView = useVarView()
+    const { hasPermiso } = usePermisos()
 
     const id_paciente = ref(null)
-    const puedePostAnalisis = ref(varView.getPermisos.includes('Diagnosticos_view'))
+    const puedePostAnalisis = ref(hasPermiso('Diagnosticos_view'))
 
     function seleccionarCIE_10(code) {
         historiaStore.Formulario.Analisis.Diagnosticos.at(-1).descripcion = code.description

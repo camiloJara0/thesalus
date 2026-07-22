@@ -55,6 +55,29 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'blur', 'change']);
 
+const errorBlur = ref('')
+
+function onInputBlur(event) {
+  errorBlur.value = ''
+  const validateFn = props.Propiedades?.validate
+  if (typeof validateFn === 'function') {
+    const msg = validateFn(props.modelValue)
+    if (msg) {
+      errorBlur.value = msg
+    }
+  }
+  emit('blur', event)
+  props.Propiedades.events?.onBlur?.(event)
+}
+
+function onInputChange(event) {
+  if (errorBlur.value) {
+    errorBlur.value = ''
+  }
+  emit('change', event)
+  props.Propiedades.events?.onChange?.(event)
+}
+
 // Fusionar propiedades antiguas con nuevas
 const getMergedProps = () => {
   const old = props.Propiedades;
@@ -83,6 +106,7 @@ const mergedProps = computed(() => getMergedProps());
       v-if="Propiedades.label || Propiedades.name" 
       :label="Propiedades.label" 
       :name="Propiedades.name"
+      :error="errorBlur.length > 0 ? errorBlur : false"
     >
       <UInput
         :modelValue="modelValue"
@@ -100,7 +124,7 @@ const mergedProps = computed(() => getMergedProps());
         :required="required || Propiedades.required"
         :disabled="mergedProps.disabled"
         :autocomplete="autocomplete"
-        :color="mergedProps.color"
+        :color="errorBlur.length > 0 ? 'error' : 'primary'"
         :variant="mergedProps.variant"
         :size="mergedProps.size"
         :loading="loading"
@@ -108,8 +132,8 @@ const mergedProps = computed(() => getMergedProps());
         :multiple="Propiedades.multiple"
         class="w-full my-input"
         @update:model-value="emit('update:modelValue', $event)"
-        @blur="emit('blur', $event); Propiedades.events?.onBlur?.($event)"
-        @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
+        @blur="onInputBlur"
+        @change="onInputChange"
         @keyup.enter="Propiedades.events?.onKeyUp?.($event)"
       >
         <!-- Slot leading -->
@@ -130,50 +154,52 @@ const mergedProps = computed(() => getMergedProps());
       <div v-html="Propiedades.slot?.tooltip"></div>
     </UFormField>
     <!-- Si no es parte de un formulario -->
-    <UInput
-      v-else
-      :modelValue="modelValue"
-      :type="mergedProps.type"
-      :placeholder="mergedProps.placeholder"
-      :icon="mergedProps.icon"
-      :leading-icon="leadingIcon"
-      :trailing-icon="trailingIcon"
-      :id="mergedProps.id"
-      :name="mergedProps.name"
-      :minlength="mergedProps.minlength"
-      :maxlength="mergedProps.maxlength"
-      :min="mergedProps.min"
-      :max="mergedProps.max"
-      :required="required || Propiedades.required"
-      :disabled="mergedProps.disabled"
-      :autocomplete="autocomplete"
-      :color="mergedProps.color"
-      :variant="mergedProps.variant"
-      :size="mergedProps.size"
-      :loading="loading"
-      :loading-icon="loadingIcon"
-      class="w-full"
-      @update:model-value="emit('update:modelValue', $event)"
-      @blur="emit('blur', $event); Propiedades.events?.onBlur?.($event)"
-      @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
-      @keyup.enter="Propiedades.events?.onKeyUp?.($event)"
-    >
-      <!-- Slot leading -->
-      <template v-if="$slots.leading" #leading>
-        <slot name="leading" />
-      </template>
+    <div v-else>
+      <UInput
+        :modelValue="modelValue"
+        :type="mergedProps.type"
+        :placeholder="mergedProps.placeholder"
+        :icon="mergedProps.icon"
+        :leading-icon="leadingIcon"
+        :trailing-icon="trailingIcon"
+        :id="mergedProps.id"
+        :name="mergedProps.name"
+        :minlength="mergedProps.minlength"
+        :maxlength="mergedProps.maxlength"
+        :min="mergedProps.min"
+        :max="mergedProps.max"
+        :required="required || Propiedades.required"
+        :disabled="mergedProps.disabled"
+        :autocomplete="autocomplete"
+        :color="errorBlur.length > 0 ? 'error' : 'primary'"
+        :variant="mergedProps.variant"
+        :size="mergedProps.size"
+        :loading="loading"
+        :loading-icon="loadingIcon"
+        class="w-full"
+        @update:model-value="emit('update:modelValue', $event)"
+        @blur="onInputBlur"
+        @change="onInputChange"
+        @keyup.enter="Propiedades.events?.onKeyUp?.($event)"
+      >
+        <!-- Slot leading -->
+        <template v-if="$slots.leading" #leading>
+          <slot name="leading" />
+        </template>
 
-      <!-- Slot trailing -->
-      <template v-if="$slots.trailing" #trailing>
-        <slot name="trailing" />
-      </template>
+        <!-- Slot trailing -->
+        <template v-if="$slots.trailing" #trailing>
+          <slot name="trailing" />
+        </template>
 
-      <!-- Slot default -->
-      <template v-if="$slots.default" #default>
-        <slot />
-      </template>
-    </UInput>
-    <div v-html="Propiedades.slot?.tooltip"></div>
+        <!-- Slot default -->
+        <template v-if="$slots.default" #default>
+          <slot />
+        </template>
+      </UInput>
+      <p v-if="errorBlur.length > 0" class="text-red-500 text-xs mt-1">{{ errorBlur }}</p>
+      <div v-html="Propiedades.slot?.tooltip"></div>
+    </div>
   </div>
 </template>
 

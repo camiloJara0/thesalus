@@ -12,6 +12,7 @@ export const validarYEnviarRegistrarHistoria = async (datos) => {
     const notificacionesStore = useNotificacionesStore();
     const calendarioStore = useCalendarioCitas();
     const varView = useVarView();
+    const { hasPermiso } = usePermisos()
     const citasStore = useCitasStore();
     citasStore.mesCitaGuardada = datos.Analisis.Cita.fecha;
 
@@ -237,7 +238,7 @@ export const validarYEnviarRegistrarHistoria = async (datos) => {
         case 'Medicina':
             datos.Analisis.historia.fecha_historia = calendarioStore.fechaActual;
 
-            const puedePostAnalisis = varView.getPermisos.includes('Analisis_post')
+            const puedePostAnalisis = hasPermiso('Analisis_post')
 
             // Validacion si no se registran medicamentos
             if (datos.Analisis.Plan_manejo_medicamentos?.length < 1 && puedePostAnalisis) {

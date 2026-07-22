@@ -7,7 +7,6 @@ export const imprimirPDFComoDato = async (data) => {
     const api = useApiRest();
     const config = useRuntimeConfig()
     const token = decryptData(localStorage.getItem('token'))
-    console.log(data)
     try {
         const respuesta = await fetch(`${config.public.api}/${config.public.imprimirComodato}/${data.id}`, {
             method: 'GET',

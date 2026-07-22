@@ -137,7 +137,6 @@ export const enviarFormularioPutNota = async (datos, reintento = false) => {
                 //     }
                 // }
                 // await actualizarEnIndexedDB(JSON.parse(JSON.stringify(datosActualizadosLocal)));
-                console.log('datos actualizados')
                 return true
             }
 

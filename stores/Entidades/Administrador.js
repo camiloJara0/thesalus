@@ -35,7 +35,8 @@ export const useAdministradorStore = defineStore('Administrador', {
     actions: {
 
         async guardar(datos) {
-            this.validar(datos.Administrador)
+            const valido = await this.validar(datos.Administrador)
+            if (!valido) return { success: false }
             const api = useApiRest();
             const config = useRuntimeConfig()
             const token = decryptData(localStorage.getItem('token'))
@@ -51,7 +52,8 @@ export const useAdministradorStore = defineStore('Administrador', {
         },
 
         async actualizar(datos) {
-            this.validar(datos.Administrador)
+            const valido = await this.validar(datos.Administrador)
+            if (!valido) return { success: false }
             const api = useApiRest();
             const config = useRuntimeConfig()
             const token = decryptData(localStorage.getItem('token'))
