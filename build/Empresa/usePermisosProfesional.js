@@ -12,10 +12,10 @@ export function usePermisosProfesionalBuilder({
 
 builder
       .setFormularioFondo(true)
-      .nuevaSeccion('Solicitar Permisos')
+      .nuevaSeccion('Solicitar permisos')
       .setFormularioShow(show)
       .setFormularioTipo('normal')
-      .setFormularioTituloFormulario('Solicitar Permisos')
+      .setFormularioTituloFormulario('Solicitar permisos')
       .setBotones([
         { type: 'enviar', text: 'Enviar', color: 'primary', },
         { type: 'cancelar', text: 'Cancelar', color: 'neutral', accion: cerrar },

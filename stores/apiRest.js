@@ -93,15 +93,15 @@ export const useApiRest = defineStore('apiRest', {
                         errorData = { message: 'Error en la solicitud' };
                     }
 
-                    // Asegurarte de que sea string
-                    const mensajeCompleto = errorData.message || 'Error en la solicitud';
+                    let mensajeCorto = errorData.message || 'Error en la solicitud';
 
-                    // Cortar hasta el primer paréntesis
-                    const mensajeCorto = mensajeCompleto.split('(')[0].trim();
-
+                    if (errorData.errors) {
+                        const primerCampo = Object.keys(errorData.errors)[0];
+                        mensajeCorto = errorData.errors[primerCampo][0];
+                    }
 
                     // Validar si es Unauthorized (401) o Forbidden (403)
-                    if (response.status === 401 || response.status === 403) {
+                    if (response.status === 401) {
                         notificacionesStore.options.icono = 'warning';
                         notificacionesStore.options.titulo = 'Inicio de sesión caducado';
                         notificacionesStore.options.texto = 'Vuelve a ingresar';

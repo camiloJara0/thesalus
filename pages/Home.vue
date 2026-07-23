@@ -108,6 +108,10 @@ onMounted(async () => {
             return !permisos.includes(s.nombre) && !s.text.includes("Visualizar") && !s.text.includes("Ver");
         });
 
+        secciones.value = secciones.value.map((s) => {
+            return {label: s.text, value: s.value}
+        })
+
         const listCitas = await citasStore.listCitas();
 
         Citas.value = listCitas
