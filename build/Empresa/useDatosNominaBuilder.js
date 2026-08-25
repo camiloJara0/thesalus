@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useDatosNominaBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useDatosNominaBuilder({
@@ -30,14 +30,14 @@ export function useDatosNominaBuilder({
         .nuevaSeccion()
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-building text-blue-500 mr-1"></i>Configuracion de nómina electrónica',
+            text: '<i class="fa-solid fa-building text-blue-500 mr-1"></i>Configuración de nómina electrónica',
             tamaño: 'w-full col-span-2',
             forLabel: 'idNomina'
         })
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'ID Software Nómina',
+            placeholder: 'ID Software Nómina *',
             id: 'idNomina',
             name: 'idNomina',
             tamaño: 'md:col-span-1 col-span-3',
@@ -49,7 +49,7 @@ export function useDatosNominaBuilder({
             type: 'text',
             maxLength: 5,
             min: 1,
-            placeholder: 'Pin Software Nómina',
+            placeholder: 'Pin Software Nómina *',
             id: 'pinNomina',
             name: 'pinNomina',
             tamaño: 'md:col-span-1 col-span-3',
@@ -64,7 +64,7 @@ export function useDatosNominaBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Test Set ID Nómina',
+            placeholder: 'Test Set ID Nómina *',
             id: 'testNomina',
             name: 'testNomina',
             tamaño: 'md:col-span-1 col-span-3',

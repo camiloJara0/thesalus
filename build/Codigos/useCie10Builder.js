@@ -33,14 +33,14 @@ export function useCie10Builder({
         .setCamposRequeridos(['Cie10.codigo', 'Cie10.nombre'])
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Datos basicos',
+            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Datos básicos',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'codigo'
         })
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Ej: A00',
+            placeholder: 'Código *',
             id: 'codigo',
             name: 'codigo',
             tamaño: 'w-full col-span-2',
@@ -52,7 +52,7 @@ export function useCie10Builder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Ej: Cólera',
+            placeholder: 'Nombre *',
             id: 'nombre',
             name: 'nombre',
             tamaño: 'w-full col-span-2',

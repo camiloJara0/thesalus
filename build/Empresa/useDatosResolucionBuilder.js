@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useDatosResolucionBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useDatosResolucionBuilder({
@@ -30,7 +30,7 @@ export function useDatosResolucionBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Tipo de Documento',
+            placeholder: 'Tipo de Documento *',
             id: 'tipoDocumento',
             name: 'tipoDocumento',
             tamaño: 'md:col-span-1 col-span-2',
@@ -51,7 +51,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Prefijo de la resolución',
+            placeholder: 'Prefijo de la resolución *',
             id: 'prefijo',
             name: 'prefijo',
             tamaño: 'md:col-span-1 col-span-2',
@@ -60,7 +60,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Número de resolución',
+            placeholder: 'Número de resolución *',
             id: 'no_resolucion',
             name: 'no_resolucion',
             tamaño: 'md:col-span-1 col-span-2',
@@ -71,7 +71,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: "Fecha de Resolución: 'AAAA-MM-DD'",
+            placeholder: "Fecha de Resolución: 'AAAA-MM-DD' *",
             id: 'fechaResolucion',
             name: 'fechaResolucion',
             tamaño: 'md:col-span-1 col-span-2',
@@ -89,7 +89,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: "Fecha Inicial: 'AAAA-MM-DD'",
+            placeholder: "Fecha Inicial: 'AAAA-MM-DD' *",
             id: 'fechaInicial',
             name: 'fechaInicial',
             tamaño: 'md:col-span-1 col-span-2',
@@ -106,7 +106,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: "Fecha Hasta: 'AAAA-MM-DD'",
+            placeholder: "Fecha Hasta: 'AAAA-MM-DD' *",
             id: 'fechaHasta',
             name: 'fechaHasta',
             tamaño: 'md:col-span-1 col-span-2',
@@ -125,7 +125,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Número Inicial',
+            placeholder: 'Número Inicial *',
             id: 'numeroInicial',
             name: 'numeroInicial',
             tamaño: 'md:col-span-1 col-span-2',
@@ -134,7 +134,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Número Hasta',
+            placeholder: 'Número Hasta *',
             id: 'numeroHasta',
             name: 'numeroHasta',
             tamaño: 'md:col-span-1 col-span-2',
@@ -143,7 +143,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Clave Técnica',
+            placeholder: 'Clave Técnica *',
             id: 'claveTecnica',
             name: 'claveTecnica',
             tamaño: 'md:col-span-1 col-span-2',
@@ -154,7 +154,7 @@ export function useDatosResolucionBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Descripción',
+            placeholder: 'Descripción *',
             id: 'descripcion',
             name: 'descripcion',
             tamaño: 'md:col-span-1 col-span-2',

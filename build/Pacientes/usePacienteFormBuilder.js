@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/usePacienteFormBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { CUPS } from '~/data/CUPS'
 import { usePacientesStore } from "~/stores/Entidades/Paciente"
@@ -69,10 +69,10 @@ export function usePacienteBuilder({
             { text: 'Atrás', accion: cerrarModal, color: 'neutral', type: 'cerrar' },
         ])
         // 📌 Sección: Datos
-        .nuevaSeccion('Datos usuarios')
+        .nuevaSeccion('Datos del usuario')
         .addCampo({
             component: 'Label',
-            text: '<p>Datos usuario</p>',
+            text: '<p>Información del usuario</p>',
             tamaño: 'w-full md:col-span-2',
             icon: 'i-lucide-user',
             forLabel: 'documento'
@@ -80,7 +80,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'Input',
             type: 'number',
-            placeholder: 'Número de documento',
+            placeholder: 'Número de documento *',
             id: 'documento',
             name: 'documento',
             tamaño: 'w-full',
@@ -94,7 +94,7 @@ export function usePacienteBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Tipo de Documento',
+            placeholder: 'Tipo de Documento *',
             id: 'tipoDocumento',
             name: 'tipoDocumento',
             tamaño: 'w-full',
@@ -112,7 +112,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Nombres y Apellidos',
+            placeholder: 'Nombres y Apellidos *',
             id: 'nombre',
             name: 'nombre',
             tamaño: 'w-full',
@@ -124,7 +124,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'Input',
             type: 'date',
-            placeholder: 'Nacimiento',
+            placeholder: 'Fecha de nacimiento *',
             id: 'nacimiento',
             name: 'nacimiento',
             tamaño: 'w-full text-gray-500',
@@ -140,7 +140,7 @@ export function usePacienteBuilder({
         // 📌 Sección: Ubicación
         .addCampo({
             component: 'Label',
-            text: '<p>Ubicacion</p>',
+            text: '<p>Ubicación</p>',
             tamaño: 'w-full md:col-span-2',
             icon: 'i-lucide-map-pin',
             forLabel: 'departamento'
@@ -148,7 +148,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'SelectSearch',
             options: departamentosList,
-            placeholder: 'Departamento',
+            placeholder: 'Departamento *',
             id: 'departamento',
             name: 'departamento',
             tamaño: 'md:w-full w-full',
@@ -161,7 +161,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'SelectSearch',
             options: municipiosList.value,
-            placeholder: 'Municipio',
+            placeholder: 'Municipio *',
             id: 'municipio',
             name: 'municipio',
             tamaño: 'md:w-full w-full',
@@ -170,7 +170,7 @@ export function usePacienteBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Zona',
+            placeholder: 'Zona *',
             id: 'zona',
             name: 'zona',
             tamaño: 'md:w-full w-full',
@@ -183,7 +183,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Barrio',
+            placeholder: 'Barrio *',
             id: 'barrio',
             name: 'barrio',
             tamaño: 'md:w-full w-full',
@@ -194,7 +194,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Dirección',
+            placeholder: 'Dirección *',
             id: 'direccion',
             name: 'direccion',
             tamaño: 'md:w-full w-full',
@@ -207,7 +207,7 @@ export function usePacienteBuilder({
         // 📌 Sección: Contacto
         .addCampo({
             component: 'Label',
-            text: '<p>Contacto</p>',
+            text: '<p>Datos de contacto</p>',
             icon: 'i-lucide-phone',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'celular'
@@ -215,7 +215,7 @@ export function usePacienteBuilder({
         .addCampo({
             component: 'Input',
             type: 'number',
-            placeholder: 'Celular',
+            placeholder: 'Celular *',
             id: 'celular',
             name: 'celular',
             tamaño: 'md:w-full w-full',
@@ -242,14 +242,14 @@ export function usePacienteBuilder({
         .nuevaSeccion('Datos Paciente')
         .addCampo({
             component: 'Label',
-            text: '<p>Paciente</p>',
+            text: '<p>Datos del paciente</p>',
             icon: 'i-lucide-user',
             tamaño: 'w-full col-span-2',
             forLabel: 'Sexo'
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Sexo al Nacer',
+            placeholder: 'Sexo al Nacer *',
             id: 'Sexo',
             name: 'Sexo',
             tamaño: 'w-full',
@@ -261,7 +261,7 @@ export function usePacienteBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Identidad de Género',
+            placeholder: 'Identidad de Género *',
             id: 'genero',
             name: 'genero',
             tamaño: 'w-full',
@@ -278,14 +278,14 @@ export function usePacienteBuilder({
         // 📌 Sección: Datos adicionales
         .addCampo({
             component: 'Label',
-            text: '<p>Datos Adicionales</p>',
+            text: '<p>Datos adicionales</p>',
             icon: 'i-lucide-file',
             tamaño: 'w-full col-span-2',
             forLabel: 'eps'
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'EPS',
+            placeholder: 'EPS *',
             id: 'eps',
             name: 'eps',
             tamaño: ' w-full',
@@ -294,7 +294,7 @@ export function usePacienteBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Régimen',
+            placeholder: 'Régimen *',
             id: 'regimen',
             name: 'regimen',
             tamaño: ' w-full',
@@ -307,7 +307,7 @@ export function usePacienteBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Población Vulnerable',
+            placeholder: 'Población Vulnerable *',
             id: 'poblacionVulnerable',
             name: 'poblacionVulnerable',
             tamaño: 'w-full',
@@ -317,14 +317,14 @@ export function usePacienteBuilder({
                 { label: 'Discapacidad', value: 'Discapacidad' },
                 { label: 'Victimas Conflicto Armado', value: 'Victimas Conflicto Armado' },
                 { label: 'Habitantes de calle', value: 'Habitantes de calle' },
-                { label: 'Poblacion LGBTIQ+', value: 'Poblacion LGBTIQ+' },
+                { label: 'Población LGBTIQ+', value: 'Población LGBTIQ+' },
                 { label: 'Grupos étnicos', value: 'Grupos étnicos' },
                 { label: 'Personas privadas de la libertad', value: 'Personas privadas de la libertad' },
                 { label: 'Desmovilizados', value: 'Desmovilizados' },
                 { label: 'Migrantes colombianos repatriados', value: 'Migrantes colombianos repatriados' },
                 { label: 'Madres comunitarias o sustitutas', value: 'Madres comunitarias o sustitutas' },
                 { label: 'Voluntarios activos', value: 'Voluntarios activos' },
-                { label: 'Personas con enfermedades huerfanas o catastroficas', value: 'Personas con enfermedades huerfanas o catastroficas' },
+                { label: 'Personas con enfermedades huérfanas o catastróficas', value: 'Personas con enfermedades huérfanas o catastróficas' },
             ],
             vmodel: 'Paciente.vulnerabilidad',
         })
@@ -369,7 +369,7 @@ export function usePacienteBuilder({
                         name: 'dias_asignados',
                         id: 'dias_asignados',
                         typeCampo: 'Input',
-                        placeholder: 'Numero de Veces',
+                        placeholder: 'Número de veces',
                         tamaño: 'w-full',
                         label: 'Dias asignados'
                     },
@@ -393,7 +393,7 @@ export function usePacienteBuilder({
                         id: 'antecedente',
                         typeCampo: 'Input',
                         type: 'text',
-                        placeholder: 'Antecedente',
+                        placeholder: 'Descripción del antecedente',
                         UpperCase: true,
                         tamaño: 'w-full',
                         label: 'Antecedente'
@@ -402,7 +402,7 @@ export function usePacienteBuilder({
                         name: 'tipo',
                         id: 'tipoAntecedente',
                         typeCampo: 'Select',
-                        placeholder: 'Tipo Antecedente',
+                        placeholder: 'Tipo de antecedente',
                         options: [
                             {
                                 label: 'Personal',

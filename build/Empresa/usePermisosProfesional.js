@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/usePermisosProfesionalBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function usePermisosProfesionalBuilder({
@@ -25,13 +25,13 @@ builder
     .setFormulariotamaño('SM')
     .addCampo({
       component: 'Label',
-      text: '<i class="fa-solid fa-user-doctor text-purple-500 mr-1"></i>Secciones',
+      text: '<i class="fa-solid fa-user-doctor text-purple-500 mr-1"></i>Sección de Permisos',
       tamaño: 'w-full md:col-span-2',
       forLabel: 'permisos'
     })
     .addCampo({
       component: 'Select',
-      placeholder: 'Seleccione unicamente un permiso que requiera',
+      placeholder: 'Seleccione únicamente un permiso que requiera',
       id: 'permisos',
       id: 'name',
       tamaño: 'w-full md:col-span-2',

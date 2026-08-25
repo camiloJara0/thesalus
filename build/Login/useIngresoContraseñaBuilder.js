@@ -41,7 +41,7 @@ export function useIngresoContraseñaBuilder({
     })
     .addCampo({
       component: 'Input',
-      placeholder: 'Código de recuperación',
+      placeholder: 'Código de recuperación *',
       icon: 'i-lucide-key',
       type: 'text',
       id: 'codigo',
@@ -51,7 +51,7 @@ export function useIngresoContraseñaBuilder({
     })
     .addCampo({
       component: 'InputContraseña',
-      placeholder: 'Nueva contraseña',
+      placeholder: 'Nueva contraseña *',
       icon: 'i-lucide-lock',
       type: 'password',
       id: 'contraseña',

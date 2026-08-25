@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useProfesionalFormBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { reducirImagen } from '~/Core/Profesional/POSTMedico'
 import { useProfesionalStore } from '~/stores/Entidades/Profesional'
@@ -68,14 +68,14 @@ export function useProfesionalBuilder({
         .nuevaSeccion('Datos usuarios')
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Datos usuario',
+            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Datos del usuario',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'documento'
         })
         .addCampo({
             component: 'Input',
             type: 'number',
-            placeholder: 'Número de documento',
+            placeholder: 'Número de documento *',
             id: 'documento',
             name: 'documento',
             tamaño: 'w-full',
@@ -89,7 +89,7 @@ export function useProfesionalBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Tipo de Documento',
+            placeholder: 'Tipo de Documento *',
             id: 'tipoDocumento',
             name: 'tipoDocumento',
             tamaño: 'w-full',
@@ -107,7 +107,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Nombres y Apellidos',
+            placeholder: 'Nombres y Apellidos *',
             id: 'nombre',
             name: 'nombre',
             tamaño: 'w-full',
@@ -119,7 +119,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'Input',
             type: 'date',
-            placeholder: 'Nacimiento',
+            placeholder: 'Fecha de nacimiento *',
             id: 'nacimiento',
             name: 'nacimiento',
             tamaño: 'w-full text-gray-500',
@@ -135,14 +135,14 @@ export function useProfesionalBuilder({
         // 📌 Sección: Ubicación
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-location-dot text-blue-700 mr-1"></i>Ubicacion',
+            text: '<i class="fa-solid fa-location-dot text-blue-700 mr-1"></i>Ubicación',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'departamento'
         })
         .addCampo({
             component: 'SelectSearch',
             options: departamentosList,
-            placeholder: 'Departamento',
+            placeholder: 'Departamento *',
             id: 'departamento',
             name: 'departamento',
             tamaño: 'md:w-full w-full',
@@ -155,7 +155,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'SelectSearch',
             options: municipiosList.value,
-            placeholder: 'Municipio',
+            placeholder: 'Municipio *',
             id: 'municipio',
             name: 'municipio',
             tamaño: 'md:w-full w-full',
@@ -164,7 +164,7 @@ export function useProfesionalBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Zona',
+            placeholder: 'Zona *',
             id: 'zona',
             name: 'zona',
             tamaño: 'md:w-full w-full',
@@ -177,7 +177,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Barrio',
+            placeholder: 'Barrio *',
             id: 'barrio',
             name: 'barrio',
             tamaño: 'md:w-full w-full',
@@ -188,7 +188,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Dirección',
+            placeholder: 'Dirección *',
             id: 'direccion',
             name: 'direccion',
             tamaño: 'md:w-full w-full',
@@ -201,14 +201,14 @@ export function useProfesionalBuilder({
         // 📌 Sección: Contacto
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-phone text-blue-500 mr-1"></i>Contacto',
+            text: '<i class="fa-solid fa-phone text-blue-500 mr-1"></i>Datos de contacto',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'celular'
         })
         .addCampo({
             component: 'Input',
             type: 'tel',
-            placeholder: 'Celular',
+            placeholder: 'Celular *',
             id: 'celular',
             name: 'celular',
             tamaño: 'md:w-full w-full',
@@ -237,13 +237,13 @@ export function useProfesionalBuilder({
         // 📌 Sección: Médico
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Medico',
+            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Datos del profesional',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'profesion'
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Profesión',
+            placeholder: 'Profesión *',
             id: 'profesion',
             name: 'profesion',
             tamaño: 'w-full md:col-span-2',
@@ -261,7 +261,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'SelectSearch',
             tamaño: 'w-full',
-            placeholder: 'Departamento Laboral',
+            placeholder: 'Departamento Laboral *',
             id: 'listDepartamento',
             name: 'listDepartamento',
             options: departamentosList,
@@ -274,7 +274,7 @@ export function useProfesionalBuilder({
         .addCampo({
             component: 'SelectSearch',
             options: municipios_laboral.value,
-            placeholder: 'Municipio Laboral',
+            placeholder: 'Municipio Laboral *',
             id: 'municipiolaboral',
             name: 'municipiolaboral',
             tamaño: 'md:w-full w-full',
@@ -283,7 +283,7 @@ export function useProfesionalBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Zona',
+            placeholder: 'Zona *',
             id: 'zonaLaboral',
             name: 'zona_laboral',
             tamaño: 'w-full',
@@ -296,14 +296,14 @@ export function useProfesionalBuilder({
         // 📌 Sección: Usuario
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos usuario',
+            text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos de la cuenta',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'correo-secret'
         })
         builder.addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Correo Electrónico',
+            placeholder: 'Correo Electrónico *',
             id: 'correo-secret',
             name: 'correo-secret',
             tamaño: 'w-full',
@@ -313,7 +313,7 @@ export function useProfesionalBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'file',
-        placeholder: 'Firma y Sello',
+        placeholder: 'Firma y Sello (opcional)',
         id: 'sello',
         name: 'sello',
         tamaño: 'w-full cursor-pointer',

@@ -45,7 +45,7 @@ export function useLoginBuilder({
     })
     .addCampo({
       component: 'Input',
-      placeholder: 'Ingresa tu Correo',
+      placeholder: 'Correo electrónico *',
       type: 'email',
       id: 'correo-user',
       name: 'correo-user',
@@ -59,7 +59,7 @@ export function useLoginBuilder({
     })
     .addCampo({
       component: 'InputContraseña',
-      placeholder: 'Ingresa tu Contraseña',
+      placeholder: 'Contraseña *',
       id: 'password',
       name: 'contraseña',
       tamaño: 'lg:w-2/3 w-full justify-self-center col-span-2',

@@ -33,7 +33,7 @@ export function usePlantillaBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Nombre de la plantilla',
+        placeholder: 'Nombre de la plantilla *',
         id: 'nombre',
         name: 'nombre',
         tamaño: 'w-full',
@@ -42,7 +42,7 @@ export function usePlantillaBuilder({
 
     builder.addCampo({
         component: 'Select',
-        placeholder: 'Estado',
+        placeholder: 'Estado *',
         id: 'estado',
         name: 'estado',
         tamaño: 'w-full',
@@ -64,7 +64,7 @@ export function usePlantillaBuilder({
 
 
     if (esModoEditar) {
-        builder.nuevaSeccion('Campos Asignados', 'Ordena, requiere o elimina campos de esta plantilla')
+        builder.nuevaSeccion('Campos de la Plantilla', 'Ordena, marca como requerido o elimina campos asignados')
 
         builder.addCampo({
             component: 'Label',
@@ -93,7 +93,7 @@ export function usePlantillaBuilder({
         } else {
             builder.addCampo({
                 component: 'Label',
-                text: '<p class="text-gray-400 italic">No hay campos asignados aún</p>',
+                text: '<p class="text-gray-400 italic">No hay campos asignados a esta plantilla. Agregue campos desde la lista disponible.</p>',
                 tamaño: 'w-full',
             })
         }

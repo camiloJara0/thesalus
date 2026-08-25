@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useCitasFormBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { useCitasStore } from '~/stores/Formularios/citas/Cita'
 import { decryptData } from '~/composables/Formulario/crypto';
@@ -160,13 +160,13 @@ export function useFormularioCitaBuilder({
     .nuevaSeccion('Agregar Cita a tu Agenda')
     .addCampo({
       component: 'Label',
-      text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Paciente',
+      text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Nombre del Paciente *',
       tamaño: 'w-full col-span-2',
       forLabel: 'nombreP',
     })
     .addCampo({
       component: 'SelectSearch',
-      placeholder: 'Nombre del paciente',
+      placeholder: 'Nombre del paciente *',
       id: 'nombreP',
       name: 'nombreP',
       tamaño: 'w-full col-span-2',
@@ -176,13 +176,13 @@ export function useFormularioCitaBuilder({
     })
     .addCampo({
       component: 'Label',
-      text: '<i class="fa-solid fa-stethoscope text-blue-500 mr-1"></i>Detalles de la cita',
+      text: '<i class="fa-solid fa-stethoscope text-blue-500 mr-1"></i>Profesional de Salud *',
       tamaño: 'w-full col-span-2',
       forLabel: 'nombreM',
     })
     .addCampo({
       component: 'SelectSearch',
-      placeholder: 'Nombre del profesional',
+      placeholder: 'Nombre del profesional *',
       id: 'nombreM',
       name: 'nombreM',
       tamaño: 'w-full col-span-2',
@@ -193,7 +193,7 @@ export function useFormularioCitaBuilder({
     })
     .addCampo({
       component: 'Select',
-      placeholder: 'Motivo',
+      placeholder: 'Motivo *',
       id: 'motivo',
       name: 'motivo',
       tamaño: 'w-full md:col-span-1 col-span-2',
@@ -216,7 +216,7 @@ export function useFormularioCitaBuilder({
     })
     .addCampo({
       component: 'Select',
-      placeholder: 'Servicio',
+      placeholder: 'Servicio *',
       id: 'servicio',
       name: 'servicio',
       tamaño: 'w-full md:col-span-1 col-span-2',
@@ -272,14 +272,14 @@ export function useFormularioCitaBuilder({
     builder
       .addCampo({
         component: 'Label',
-        text: '<i class="fa-solid fa-calendar text-blue-500 mr-1"></i>Rango de fecha cumplimiento',
+        text: '<i class="fa-solid fa-calendar text-blue-500 mr-1"></i>Rango de Fechas de Cumplimiento',
         tamaño: 'w-full col-span-2',
         forLabel: 'fechaInicial',
       })
       .addCampo({
         component: 'Input',
         type: 'date',
-        label: 'Fecha Desde',
+        label: 'Fecha Desde *',
         id: 'fechaInicial',
         name: 'fechaInicial',
         tamaño: 'w-full md:col-span-1 col-span-2',
@@ -294,7 +294,7 @@ export function useFormularioCitaBuilder({
       .addCampo({
         component: 'Input',
         type: 'date',
-        label: 'Fecha Hasta',
+        label: 'Fecha Hasta *',
         id: 'fechaFinal',
         name: 'fechaFinal',
         tamaño: 'w-full md:col-span-1 col-span-2',
@@ -311,7 +311,7 @@ export function useFormularioCitaBuilder({
         .addCampo({
           component: 'Input',
           type: 'number',
-          label: 'No. Citas',
+          label: 'No. Citas *',
           placeholder: 'Cantidad de Citas',
           id: 'cantidadCitas',
           name: 'cantidadCitas',
@@ -333,13 +333,13 @@ export function useFormularioCitaBuilder({
     builder
       .addCampo({
         component: 'Label',
-        text: '<i class="fa-solid fa-calendar text-blue-500 mr-1"></i>Fecha y Hora',
+        text: '<i class="fa-solid fa-calendar text-blue-500 mr-1"></i>Fecha y Hora de la Cita *',
         tamaño: 'w-full col-span-2',
         forLabel: 'fecha',
       })
       .addCampo({
         component: 'Input',
-        placeholder: 'Seleccione la fecha',
+        placeholder: 'Seleccione la fecha *',
         type: 'date',
         id: 'fecha',
         name: 'fecha',
@@ -354,7 +354,7 @@ export function useFormularioCitaBuilder({
       })
       .addCampo({
         component: 'Input',
-        placeholder: 'Seleccione la hora para la cita',
+        placeholder: 'Seleccione la hora para la cita *',
         type: 'time',
         id: 'hora',
         name: 'hora',
@@ -372,15 +372,15 @@ export function useFormularioCitaBuilder({
     builder
       .addCampo({
         component: 'Label',
-        text: '<i class="fa-solid fa-gear text-blue-600 mr-1"></i>Agregar Varias Citas',
+        text: '<i class="fa-solid fa-gear text-blue-600 mr-1"></i>Configuración de Múltiples Citas',
         tamaño: 'w-full col-span-2',
         forLabel: 'fechaInicial',
       })
       .addCampo({
         component: 'Input',
         type: 'number',
-        label: 'Dias de separacion',
-        placeholder: 'Intervalo de Agendamiento (dias)',
+        label: 'Días de Separación *',
+        placeholder: 'Intervalo de Agendamiento (días)',
         id: 'intervaloCitas',
         name: 'intervaloCitas',
         tamaño: 'w-full md:col-span-1 col-span-2',
@@ -389,7 +389,7 @@ export function useFormularioCitaBuilder({
       .addCampo({
         component: 'Input',
         type: 'number',
-        label: 'No. Citas',
+        label: 'No. Citas *',
         placeholder: 'Cantidad de Citas',
         id: 'cantidadCitas',
         name: 'cantidadCitas',
@@ -402,7 +402,7 @@ export function useFormularioCitaBuilder({
       .addCampo({
         component: 'Input',
         type: 'text',
-        label: 'Motivo de edición',
+        label: 'Motivo de Edición *',
         placeholder: 'Describa brevemente el motivo de la edicion de cita.',
         id: 'motivoEdicion',
         name: 'motivoEdicion',

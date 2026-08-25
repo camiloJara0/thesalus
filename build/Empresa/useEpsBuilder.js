@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useEpsBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useEpsBuilder({
@@ -29,15 +29,15 @@ export function useEpsBuilder({
         .setEliminarFormulario(eliminar)
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Agregar Nueva EPS',
+            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Formulario de EPS',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'eps'
         })
         .addCampo({
             component: 'Input',
             type: 'text',
-            label: 'Nombre EPS',
-            placeholder: 'Coomeva',
+            label: 'Nombre EPS *',
+            placeholder: 'Ej: Coomeva, Sanitas, etc.',
             id: 'eps',
             name: 'eps',
             tamaño: 'w-full col-span-2',
@@ -49,7 +49,7 @@ export function useEpsBuilder({
             component: 'Input',
             type: 'text',
             maxLength: 3,
-            label: 'Codigo',
+            label: 'Código *',
             placeholder: 'Ej: 001',
             id: 'codigo',
             name: 'codigo',
@@ -61,8 +61,8 @@ export function useEpsBuilder({
             component: 'Input',
             type: 'text',
             maxLength: 3,
-            label: 'Nit',
-            placeholder: 'Ej: 123456789',
+            label: 'NIT *',
+            placeholder: 'Ej: 123456789-0',
             id: 'nit',
             name: 'nit',
             vmodel: 'EPS.nit',

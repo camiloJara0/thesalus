@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useVerPlantillas.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia'
 
@@ -52,7 +52,7 @@ export function useVerPlantillas({
     if (varView.tipoConsulta?.plantilla === 'Terapia') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos del paciente')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -77,7 +77,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.historia.No_document_paciente',
                 id: 'documento',
                 name: 'documento',
-                placeholder: 'Numero de documento',
+                placeholder: 'Número de documento',
                 tamaño: 'w-full',
                 label: 'Número de documento',
                 disabled: true
@@ -92,8 +92,8 @@ export function useVerPlantillas({
                 placeholder: 'Tipo de documento',
                 tamaño: 'w-full md:col-span-2',
                 options: [
-                    { label: 'Cedula de ciudadania', value: 'cedula' },
-                    { label: 'Cedula Extranjera', value: 'extranjera' },
+                    { label: 'Cédula de ciudadanía', value: 'cedula' },
+                    { label: 'Cédula Extranjera', value: 'extranjera' },
                     { label: 'Tarjeta de Identidad', value: 'Tarjeta de identidad' }
                 ],
                 label: 'Tipo de documento',
@@ -153,7 +153,7 @@ export function useVerPlantillas({
 
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Diagnosticos (CIE-10)',
+                labelGroup: 'Diagnósticos (CIE-10)',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { descripcion: '', codigo: '', id_paciente: id_paciente } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.Diagnosticos',
@@ -164,7 +164,7 @@ export function useVerPlantillas({
                         name: 'descripcion',
                         id: 'descripcion',
                         typeCampo: 'SelectSearchOld',
-                        placeholder: 'Diagnostico',
+                        placeholder: 'Diagnóstico*',
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
                         opciones: [{ value: 'description' }, { text: 'Codigo', value: 'code' }],
@@ -178,7 +178,7 @@ export function useVerPlantillas({
                         upperCase: true,
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
-                        opciones: [{ value: 'code' }, { text: 'Descripcion: ', value: 'description' }],
+                        opciones: [{ value: 'code' }, { text: 'Descripción: ', value: 'description' }],
                         seleccionarItem: seleccionarCIE_10,
                     },
                 ],
@@ -187,7 +187,7 @@ export function useVerPlantillas({
 
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Analisis.Diagnosticos Relacionados (CIF)',
+                labelGroup: 'Análisis - Diagnósticos Relacionados (CIF)',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { descripcion: '', codigo: '', id_paciente: id_paciente } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'DiagnosticosCIF',
@@ -198,7 +198,7 @@ export function useVerPlantillas({
                         name: 'descripcion',
                         id: 'descripcion',
                         typeCampo: 'SelectSearchOld',
-                        placeholder: 'Diagnostico Relacionado',
+                        placeholder: 'Diagnóstico Relacionado*',
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIF,
                         opciones: [{ value: 'nombre' }, { text: 'Codigo', value: 'codigo' }],
@@ -264,7 +264,7 @@ export function useVerPlantillas({
     } else if (varView.tipoConsulta?.plantilla === 'Evolucion') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos del paciente')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -289,7 +289,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.historia.No_document_paciente',
                 id: 'documento',
                 name: 'documento',
-                placeholder: 'Numero de documento',
+                placeholder: 'Número de documento',
                 tamaño: 'w-full',
                 label: 'Número de documento',
                 disabled: true
@@ -304,8 +304,8 @@ export function useVerPlantillas({
                 placeholder: 'Tipo de documento',
                 tamaño: 'w-full',
                 options: [
-                    { label: 'Cedula de ciudadania', value: 'cedula' },
-                    { label: 'Cedula Extranjera', value: 'extranjera' },
+                    { label: 'Cédula de ciudadanía', value: 'cedula' },
+                    { label: 'Cédula Extranjera', value: 'extranjera' },
                     { label: 'Tarjeta de Identidad', value: 'Tarjeta de identidad' }
                 ],
                 label: 'Tipo de documento',
@@ -343,12 +343,12 @@ export function useVerPlantillas({
                     { label: 'Padre', value: 'Padre' },
                     { label: 'Madre', value: 'Madre' },
                     { label: 'Hijo', value: 'Hijo' },
-                    { label: 'Conyuge', value: 'Conyuge' },
+                    { label: 'Cónyuge', value: 'Conyuge' },
                     { label: 'Hermano/a', value: 'Hermano/a' }
                 ]
             })
 
-            .nuevaSeccion('Examen Fisico')
+            .nuevaSeccion('Examen Físico')
             .addCampo({
                 component: 'Label',
                 forLabel: 'ta',
@@ -505,7 +505,7 @@ export function useVerPlantillas({
             // --- Diagnosticos ---
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Diagnosticos',
+                labelGroup: 'Diagnósticos',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { descripcion: '', codigo: '', id_paciente: id_paciente } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.Diagnosticos',
@@ -516,7 +516,7 @@ export function useVerPlantillas({
                         name: 'descripcion',
                         id: 'descripcion',
                         typeCampo: 'SelectSearchOld',
-                        placeholder: 'Diagnostico',
+                        placeholder: 'Diagnóstico*',
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
                         opciones: [{ value: 'description' }, { text: 'Codigo', value: 'code' }],
@@ -530,7 +530,7 @@ export function useVerPlantillas({
                         upperCase: true,
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
-                        opciones: [{ value: 'code' }, { text: 'Descripcion: ', value: 'description' }],
+                        opciones: [{ value: 'code' }, { text: 'Descripción: ', value: 'description' }],
                         seleccionarItem: seleccionarCIE_10,
                     },
                 ],
@@ -597,14 +597,14 @@ export function useVerPlantillas({
                         name: 'dosis',
                         id: 'dosis',
                         typeCampo: 'Input',
-                        placeholder: 'Dosis - Via de Administracion',
+                        placeholder: 'Dosis - Vía de administración*',
                         tamaño: 'w-full',
                     },
                     {
                         name: 'observacion',
                         id: 'observacion',
                         typeCampo: 'Input',
-                        placeholder: 'Registrar Observacion...',
+                        placeholder: 'Registrar Observación...',
                         tamaño: 'w-full lg:col-span-2',
                     }
                 ],
@@ -614,7 +614,7 @@ export function useVerPlantillas({
     } else if (varView.tipoConsulta?.plantilla === 'Trabajo Social') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos del paciente')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -638,7 +638,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.historia.No_document_paciente',
                 id: 'documento',
                 name: 'documento',
-                placeholder: 'Numero de documento',
+                placeholder: 'Número de documento',
                 tamaño: 'w-full',
                 label: 'Número de documento',
                 disabled: true
@@ -653,8 +653,8 @@ export function useVerPlantillas({
                 placeholder: 'Tipo de documento',
                 tamaño: 'w-full',
                 options: [
-                    { label: 'Cedula de ciudadania', value: 'cedula' },
-                    { label: 'Cedula Extranjera', value: 'extranjera' },
+                    { label: 'Cédula de ciudadanía', value: 'cedula' },
+                    { label: 'Cédula Extranjera', value: 'extranjera' },
                     { label: 'Tarjeta de Identidad', value: 'Tarjeta de identidad' }
                 ],
                 label: 'Tipo de documento',
@@ -692,7 +692,7 @@ export function useVerPlantillas({
                     { label: 'Padre', value: 'Padre' },
                     { label: 'Madre', value: 'Madre' },
                     { label: 'Hijo', value: 'Hijo' },
-                    { label: 'Conyuge', value: 'Conyuge' },
+                    { label: 'Cónyuge', value: 'Conyuge' },
                     { label: 'Hermano/a', value: 'Hermano/a' }
                 ]
             })
@@ -701,7 +701,7 @@ export function useVerPlantillas({
             // --- Diagnosticos ---
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Diagnosticos',
+                labelGroup: 'Diagnósticos',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { descripcion: '', codigo: '', id_paciente: id_paciente } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.Diagnosticos',
@@ -712,7 +712,7 @@ export function useVerPlantillas({
                         name: 'descripcion',
                         id: 'descripcion',
                         typeCampo: 'SelectSearchOld',
-                        placeholder: 'Diagnostico',
+                        placeholder: 'Diagnóstico*',
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
                         opciones: [{ value: 'description' }, { text: 'Codigo', value: 'code' }],
@@ -726,7 +726,7 @@ export function useVerPlantillas({
                         upperCase: true,
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
-                        opciones: [{ value: 'code' }, { text: 'Descripcion: ', value: 'description' }],
+                        opciones: [{ value: 'code' }, { text: 'Descripción: ', value: 'description' }],
                         seleccionarItem: seleccionarCIE_10,
                     },
                 ],
@@ -753,7 +753,7 @@ export function useVerPlantillas({
             .addCampo({
                 component: 'Label',
                 forLabel: 'rehabilitacion',
-                text: '<i class="fa-solid fa-notes-medical text-blue-500 mr-1"></i>Analisis y Tratamiento',
+                text: '<i class="fa-solid fa-notes-medical text-blue-500 mr-1"></i>Análisis y Tratamiento',
                 tamaño: 'w-full col-span-2',
             })
 
@@ -779,7 +779,7 @@ export function useVerPlantillas({
                 type: 'text',
                 id: 'observacion',
                 name: 'observacion',
-                placeholder: 'Observación',
+                placeholder: 'Observación*',
                 tamaño: 'w-full md:col-span-1 col-span-2',
                 minlength: 5
             })
@@ -790,7 +790,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.analisis',
                 id: 'analisis',
                 name: 'analisis',
-                placeholder: 'Análisis',
+                placeholder: 'Análisis*',
                 tamaño: 'w-full col-span-2',
                 minlength: 10
             })
@@ -853,14 +853,14 @@ export function useVerPlantillas({
                         name: 'dosis',
                         id: 'dosis',
                         typeCampo: 'Input',
-                        placeholder: 'Dosis - Via de Administracion',
+                        placeholder: 'Dosis - Vía de administración*',
                         tamaño: 'w-full',
                     },
                     {
                         name: 'observacion',
                         id: 'observacion',
                         typeCampo: 'Input',
-                        placeholder: 'Registrar Observacion...',
+                        placeholder: 'Registrar Observación...',
                         tamaño: 'w-full lg:col-span-2',
                     }
                 ],
@@ -872,7 +872,7 @@ export function useVerPlantillas({
     } else if (varView.tipoConsulta?.plantilla === 'Nota') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos del paciente')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -897,7 +897,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.historia.No_document_paciente',
                 id: 'documento',
                 name: 'documento',
-                placeholder: 'Numero de documento',
+                placeholder: 'Número de documento',
                 tamaño: 'w-full',
                 label: 'Número de documento',
                 disabled: true
@@ -912,8 +912,8 @@ export function useVerPlantillas({
                 placeholder: 'Tipo de documento',
                 tamaño: 'w-full',
                 options: [
-                    { label: 'Cedula de ciudadania', value: 'cedula' },
-                    { label: 'Cedula Extranjera', value: 'extranjera' },
+                    { label: 'Cédula de ciudadanía', value: 'cedula' },
+                    { label: 'Cédula Extranjera', value: 'extranjera' },
                     { label: 'Tarjeta de Identidad', value: 'Tarjeta de identidad' }
                 ],
                 label: 'Tipo de documento',
@@ -924,7 +924,7 @@ export function useVerPlantillas({
             // --- Label: Sesión ---
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Fecha y Ubicacion',
+                text: '<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Fecha y Ubicación',
                 forLabel: 'departamento',
                 tamaño: 'md:col-span-2 w-full'
             })
@@ -961,7 +961,7 @@ export function useVerPlantillas({
 
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Diagnosticos',
+                labelGroup: 'Diagnósticos',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { descripcion: '', codigo: '', id_paciente: id_paciente } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.Diagnosticos',
@@ -972,7 +972,7 @@ export function useVerPlantillas({
                         name: 'descripcion',
                         id: 'descripcion',
                         typeCampo: 'SelectSearchOld',
-                        placeholder: 'Diagnostico',
+                        placeholder: 'Diagnóstico*',
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
                         opciones: [{ value: 'description' }, { text: 'Codigo', value: 'code' }],
@@ -986,7 +986,7 @@ export function useVerPlantillas({
                         upperCase: true,
                         tamaño: 'w-full md:col-span-1 col-span-2',
                         options: CIE10,
-                        opciones: [{ value: 'code' }, { text: 'Descripcion: ', value: 'description' }],
+                        opciones: [{ value: 'code' }, { text: 'Descripción: ', value: 'description' }],
                         seleccionarItem: seleccionarCIE_10,
                     },
                 ],
@@ -995,7 +995,7 @@ export function useVerPlantillas({
             .addCampo({
                 component: 'Label',
                 icon: 'fa-solid fa-comment text-blue-500',
-                text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Diagnosticos',
+                text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Diagnósticos',
                 forLabel: 'departamento',
                 tamaño: 'md:col-span-2 w-full'
             })
@@ -1014,7 +1014,7 @@ export function useVerPlantillas({
             })
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermeria',
+                text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermería',
                 forLabel: 'tipo',
                 tamaño: 'md:col-span-2 w-full'
             })
@@ -1128,7 +1128,7 @@ export function useVerPlantillas({
             })
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Intervencion',
+                labelGroup: 'Intervención',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'intervencion' } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.Nota.intervencion',
@@ -1155,7 +1155,7 @@ export function useVerPlantillas({
             })
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Evaluacion',
+                labelGroup: 'Evaluación',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'evaluacion' } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.Nota.evaluacion',
@@ -1183,7 +1183,7 @@ export function useVerPlantillas({
     } else if (varView.tipoConsulta?.plantilla === 'Medicina') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos del paciente')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -1208,7 +1208,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.historia.No_document_paciente',
                 id: 'documento',
                 name: 'documento',
-                placeholder: 'Numero de documento',
+                placeholder: 'Número de documento',
                 tamaño: 'w-full',
                 label: 'Número de documento',
                 disabled: true
@@ -1223,8 +1223,8 @@ export function useVerPlantillas({
                 placeholder: 'Tipo de documento',
                 tamaño: 'w-full',
                 options: [
-                    { label: 'Cedula de ciudadania', value: 'cedula' },
-                    { label: 'Cedula Extranjera', value: 'extranjera' },
+                    { label: 'Cédula de ciudadanía', value: 'cedula' },
+                    { label: 'Cédula Extranjera', value: 'extranjera' },
                     { label: 'Tarjeta de Identidad', value: 'Tarjeta de identidad' }
                 ],
                 label: 'Tipo de documento',
@@ -1262,7 +1262,7 @@ export function useVerPlantillas({
                     { label: 'Padre', value: 'Padre' },
                     { label: 'Madre', value: 'Madre' },
                     { label: 'Hijo', value: 'Hijo' },
-                    { label: 'Conyuge', value: 'Conyuge' },
+                    { label: 'Cónyuge', value: 'Conyuge' },
                     { label: 'Hermano/a', value: 'Hermano/a' }
                 ]
             })
@@ -1295,7 +1295,7 @@ export function useVerPlantillas({
                 vmodel: 'Analisis.Enfermedad.valor',
                 id: 'enfermedad',
                 name: 'enfermedad',
-                placeholder: 'Describa la evolucion de la enfermedad actual, sintomas, duracion, factores, desencadenantes...',
+                placeholder: 'Describa la evolución de la enfermedad actual, síntomas, duración, factores, desencadenantes...',
                 tamaño: 'w-full col-span-2',
                 minlength: 10,
             })
@@ -1340,14 +1340,14 @@ export function useVerPlantillas({
                     type: 'text',
                     id: 'observacion',
                     name: 'observacion',
-                    placeholder: 'Observación',
+                    placeholder: 'Observación*',
                     tamaño: 'w-full col-span-2',
                     minlength: 5
                 })
         }
 
         builder
-            .nuevaSeccion('Examen Fisico')
+            .nuevaSeccion('Examen Físico')
             .addCampo({
                 component: 'Label',
                 forLabel: 'ta',
@@ -1485,12 +1485,12 @@ export function useVerPlantillas({
 
         if (puedePostAnalisis.value) {
             builder
-                .nuevaSeccion('Analisis')
+                .nuevaSeccion('Análisis')
                 // 📌 Sección: Diagnósticos
 
                 .addCampo({
                     component: 'GroupCampos',
-                    labelGroup: 'Diagnosticos',
+                    labelGroup: 'Diagnósticos',
                     buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { descripcion: '', codigo: '', id_paciente: id_paciente } }],
                     tamaño: 'w-full col-span-2',
                     vmodel: 'Analisis.Diagnosticos',
@@ -1501,7 +1501,7 @@ export function useVerPlantillas({
                             name: 'descripcion',
                             id: 'descripcion',
                             typeCampo: 'SelectSearchOld',
-                            placeholder: 'Diagnostico',
+                            placeholder: 'Diagnóstico*',
                             tamaño: 'w-full md:col-span-1 col-span-2',
                             options: CIE10,
                             opciones: [{ value: 'description' }, { text: 'Codigo', value: 'code' }],
@@ -1515,7 +1515,7 @@ export function useVerPlantillas({
                             upperCase: true,
                             tamaño: 'w-full md:col-span-1 col-span-2',
                             options: CIE10,
-                            opciones: [{ value: 'code' }, { text: 'Descripcion:', value: 'description' }],
+                            opciones: [{ value: 'code' }, { text: 'Descripción:', value: 'description' }],
                             seleccionarItem: seleccionarCIE_10,
                         },
                     ],
@@ -1544,7 +1544,7 @@ export function useVerPlantillas({
                     type: 'text',
                     id: 'observacion',
                     name: 'observacion',
-                    placeholder: 'Observación',
+                    placeholder: 'Observación*',
                     tamaño: 'w-full md:col-span-1 col-span-2',
                     minlength: 5
                 })
@@ -1563,7 +1563,7 @@ export function useVerPlantillas({
                     vmodel: 'Analisis.analisis',
                     id: 'analisis',
                     name: 'analisis',
-                    placeholder: 'Análisis',
+                    placeholder: 'Análisis*',
                     tamaño: 'w-full col-span-2',
                     minlength: 10
                 })
@@ -1616,14 +1616,14 @@ export function useVerPlantillas({
                             name: 'dias_asignados',
                             id: 'dias_asignados',
                             typeCampo: 'Input',
-                            placeholder: 'Numero de Veces',
+                            placeholder: 'Número de veces*',
                             tamaño: 'w-full',
                         },
                         {
                             name: 'observacion',
                             id: 'observacion',
                             typeCampo: 'Input',
-                            placeholder: 'Registrar Observacion...',
+                            placeholder: 'Registrar Observación...',
                             tamaño: 'w-full col-span-2',
                         }
 
@@ -1659,7 +1659,7 @@ export function useVerPlantillas({
                             name: 'dosis',
                             id: 'dosis',
                             typeCampo: 'Input',
-                            placeholder: 'Dosis - Via de Administracion',
+                            placeholder: 'Dosis - Vía de administración*',
                             tamaño: 'w-full',
                         },
                         {
@@ -1674,7 +1674,7 @@ export function useVerPlantillas({
                             name: 'observacion',
                             id: 'observacion',
                             typeCampo: 'Input',
-                            placeholder: 'Registrar Observacion...',
+                            placeholder: 'Registrar Observación...',
                             tamaño: 'w-full lg:col-span-2',
                         }
                     ],

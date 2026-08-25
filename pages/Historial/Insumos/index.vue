@@ -17,6 +17,7 @@ import { storeToRefs } from "pinia";
 import { useMovimientoBuilder } from "~/build/Historial/useMovimientoBuilder";
 import { usePlanesBuilder } from "~/build/Historial/usePlanesBuilder";
 import Restringido from "~/components/organism/NoEnviados/Restringido.vue";
+import { useTipoEquiposBuilder } from "~/build/Historial/useTipoEquipoBuilder";
 
 const varView = useVarView()
 const notificaciones = useNotificacionesStore()
@@ -34,6 +35,7 @@ const optionsEquiposSeriales = ref([])
 const tiposEquipos = ref([])
 const insumos = ref([])
 const medicamentos = ref([])
+const showTipoEquipos = ref(false)
 
 const { hasPermiso } = usePermisos()
 const puedeVer = hasPermiso('Insumos_view')
@@ -47,6 +49,7 @@ const { showItem, Pacientes } = storeToRefs(pacientesStore)
 
 // 📊 COLUMNS PARA TABLA DE INSUMOS
 const columns = [
+    { accessorKey: "id", header: "ID" },
     { accessorKey: "nombre", header: "Nombre", ordenar: true },
     {
         accessorKey: "es_prestable",
@@ -144,6 +147,12 @@ async function llamaInsumos() {
 async function llamaTipoEquipos() {
     const tiposEquiposData = await apiRest.getData('', 'tipoEquipos')
     tiposEquipos.value = tiposEquiposData.map(tipo => ({ label: tipo.nombre, value: tipo.id }))
+
+    tiposEquipos.value.unshift({
+        label: 'Agregar Tipo Equipo',
+        icon: 'i-lucide-plus',
+        onSelect: () => {showTipoEquipos.value = true}
+    })
 }
 
 // 📋 FUNCIONES DE FORMULARIOS
@@ -163,9 +172,10 @@ const {
 
 // 👁️ WATCHERS
 useMultiAutoRefresh([
-    { showRef: showNuevoInsumo, fetchFn: () => llamadatos(true), refresh, cambioEnApi: varView.cambioEnApi },
-    { showRef: showModificarInsumo, fetchFn: () => llamadatos(true), refresh, cambioEnApi: varView.cambioEnApi },
-    { showRef: showMovimiento, fetchFn: () => llamadatosMovimiento(true), refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showNuevoInsumo, fetchFn: async () => {await llamadatos(true)}, refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showTipoEquipos, fetchFn: async () => {await llamaTipoEquipos()}, refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showModificarInsumo, fetchFn: async () => {await llamadatos(true)}, refresh, cambioEnApi: varView.cambioEnApi },
+    { showRef: showMovimiento, fetchFn: async () => {await llamadatosMovimiento(true)}, refresh, cambioEnApi: varView.cambioEnApi },
     { showRef: showItem, fetchFn: async () => { await llamadatosMovimiento(true); await insumoStore.traerPrestaciones(true, true) }, refresh, cambioEnApi: varView.cambioEnApi },
 ])
 
@@ -264,6 +274,17 @@ const propiedadesItemHistoria = computed(() => {
     })
 })
 
+const propiedadesTipoEquipos = computed(() => {
+    return useTipoEquiposBuilder({
+        storeId: 'AgregarTipoEquipo',
+        storePinia: 'TipoEquipos',
+        show: showTipoEquipos,
+        cerrarModal: () => {
+            showTipoEquipos.value = false
+        }
+    })
+})
+
 // Tabs integrados
 const tabsIntegrados = [
     {
@@ -294,7 +315,7 @@ const propiedadesTabla = computed(() => {
         columns: columns,
         filtros: [
             { columna: 'categoria', placeholder: 'Tipo' },
-            { columna: 'ubicacion', placeholder: 'Ubicacion' },
+            { columna: 'ubicacion', placeholder: 'Ubicación' },
         ],
         excel: true,
         card: {
@@ -313,7 +334,7 @@ const propiedadesTablaMovimiento = computed(() => {
         excel: true,
         filtros: [
             { columna: 'tipoMovimiento', placeholder: 'Tipo' },
-            { columna: 'insumo.categoria', placeholder: 'Categoria' },
+            { columna: 'insumo.categoria', placeholder: 'Categoría' },
         ],
         llamadatos: llamadatosMovimiento,
         data: Movimientos,
@@ -329,7 +350,8 @@ const propiedadesTablaMovimiento = computed(() => {
 </script>
 
 <template>
-    <Form v-if="puedePost" :Propiedades="propiedadesFormularioInsumo"></Form>
+    <Form :Propiedades="propiedadesFormularioInsumo"></Form>
+    <Form :Propiedades="propiedadesTipoEquipos"></Form>
     <Form v-if="puedePut" :Propiedades="propiedadesFormularioVerInsumo"></Form>
     <Form v-if="puedePost" :Propiedades="propiedadesFormularioMovimiento"></Form>
     <Form v-if="puedePut" :Propiedades="propiedadesFormularioVerMovimiento"></Form>

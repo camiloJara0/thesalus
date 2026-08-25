@@ -33,7 +33,7 @@ export function useVadecumBuilder({
         .setCamposRequeridos(['Vadecum.producto'])
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Datos basicos',
+            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Datos básicos',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'muetramedica'
         })
@@ -50,7 +50,7 @@ export function useVadecumBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Nombre del producto',
+            placeholder: 'Nombre del producto *',
             id: 'producto',
             name: 'producto',
             tamaño: 'w-full',
@@ -167,7 +167,7 @@ export function useVadecumBuilder({
         })
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Datos farmaceuticos',
+            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Datos farmacéuticos',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'muetramedica'
         })
@@ -260,7 +260,7 @@ export function useVadecumBuilder({
         })
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Informacion adicional',
+            text: '<i class="fa-solid fa-hospital text-purple-500 mr-1"></i>Información adicional',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'muetramedica'
         })

@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useDatosSoftwareBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useDatosSofwareBuilder({
@@ -30,14 +30,14 @@ export function useDatosSofwareBuilder({
         .nuevaSeccion('Datos del Software')
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-building text-blue-500 mr-1"></i>Datos de Software',
+            text: '<i class="fa-solid fa-building text-blue-500 mr-1"></i>Configuración del Software',
             tamaño: 'w-full col-span-2',
             forLabel: 'idSoftware'
         })
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'ID asignado por la DIAN',
+            placeholder: 'ID asignado por la DIAN *',
             id: 'idSoftware',
             name: 'idSoftware',
             tamaño: 'md:col-span-1 col-span-3',
@@ -49,7 +49,7 @@ export function useDatosSofwareBuilder({
             type: 'text',
             maxLength: 5,
             min: 1,
-            placeholder: 'Digite el pin del Software',
+            placeholder: 'Digite el pin del Software *',
             id: 'pinSoftware',
             name: 'pinSoftware',
             tamaño: 'md:col-span-1 col-span-3',
@@ -64,7 +64,7 @@ export function useDatosSofwareBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Introduzca el codigo del set de pruebas para habilitacion',
+            placeholder: 'Introduzca el código del set de pruebas para habilitación *',
             id: 'testSoftware',
             name: 'testSoftware',
             tamaño: 'md:col-span-1 col-span-3',

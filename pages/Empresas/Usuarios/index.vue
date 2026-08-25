@@ -74,7 +74,7 @@ async function eliminarUsuario() {
     const Usuario = UsersStore.Formulario
     notificaciones.options.icono = 'warning';
     notificaciones.options.titulo = 'Deseas Eliminar Usuario?';
-    notificaciones.options.html = `Se descativara el administrador ${Usuario.InformacionUser.name}.`;
+    notificaciones.options.html = `Se desactivará el administrador ${Usuario.InformacionUser.name}.`;
     notificaciones.options.confirmtext = 'Si, Eliminar'
     notificaciones.options.canceltext = 'Atras'
     const respuestaAlert = await notificaciones.alertRespuesta()

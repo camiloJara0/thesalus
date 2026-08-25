@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useNotasBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useNotasBuilder({
@@ -23,11 +23,11 @@ export function useNotasBuilder({
 
     builder
         // 📌 Sección: Diagnósticos
-        .nuevaSeccion('Nota Medica')
+        .nuevaSeccion('Nota Médica')
 
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Paciente',
+            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Nombre del paciente',
             forLabel: 'nombre',
             tamaño: 'md:col-span-2 w-full'
         })
@@ -38,7 +38,7 @@ export function useNotasBuilder({
             id: 'nombre',
             name: 'nombre',
             list: 'nombreList',
-            placeholder: 'Nombre del paciente',
+            placeholder: 'Nombre del paciente *',
             tamaño: 'w-full',
             evento: '@input=filtrarPacientes'
         })
@@ -48,13 +48,13 @@ export function useNotasBuilder({
             type: 'number',
             id: 'documento',
             name: 'documento',
-            placeholder: 'Número de documento',
+            placeholder: 'Número de documento *',
             tamaño: 'w-full',
         })
 
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Fecha y Ubicacion',
+            text: '<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Fecha y Ubicación',
             forLabel: 'departamento',
             tamaño: 'md:col-span-2 w-full'
         })
@@ -64,7 +64,7 @@ export function useNotasBuilder({
             type: 'date',
             id: 'fecha_nota',
             name: 'fecha_nota',
-            placeholder: 'Fecha',
+            placeholder: 'Fecha *',
             tamaño: 'w-full',
             slot: '<input v-model="Nota.fecha_nota" type="date" class="w-5">'
         })
@@ -74,7 +74,7 @@ export function useNotasBuilder({
             type: 'time',
             id: 'hora_nota',
             name: 'hora_nota',
-            placeholder: 'Hora (00:00)',
+            placeholder: 'Hora (HH:MM) *',
             tamaño: 'w-full',
             slot: '<input v-model="Nota.hora_nota" type="time" class="w-5">'
         })
@@ -84,14 +84,14 @@ export function useNotasBuilder({
             type: 'text',
             id: 'direccion',
             name: 'direccion',
-            placeholder: 'Dirección',
+            placeholder: 'Dirección de atención',
             tamaño: 'w-full',
             disabled: 'props.verNota'
         })
 
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Diagnosticos',
+            text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Diagnósticos',
             forLabel: 'tipo',
             tamaño: 'md:col-span-2 w-full'
         })
@@ -100,7 +100,7 @@ export function useNotasBuilder({
             vmodel: 'Nota.tipoAnalisis',
             id: 'rehabilitacion',
             name: 'rehabilitacion',
-            placeholder: 'Tipo de Análisis',
+            placeholder: 'Tipo de Análisis *',
             tamaño: 'w-full md:col-span-2',
             options: [
                 { text: 'Estado clínico sin cambios', value: 'Estado clinico sin cambios' },
@@ -110,20 +110,21 @@ export function useNotasBuilder({
         })
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermeria',
+            icon: 'fa-solid fa-note-sticky text-blue-500',
+            text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermería',
             forLabel: 'tipo',
             tamaño: 'md:col-span-2 w-full'
         })
         .addCampo({
             component: 'Label',
             icon: 'fa-solid fa-comment text-blue-500',
-            text: 'Nota',
+            text: 'Detalle de la Nota',
             forLabel: 'departamento',
             tamaño: 'md:col-span-2 w-full'
         })
         .addCampo({
             component: 'GroupCampos',
-            labelGroup: 'Subjetivo',
+            labelGroup: 'Subjetivo (SOAP)',
             buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'subjetivo' } }],
             tamaño: 'w-full col-span-2',
             vmodel: 'Nota.subjetivo',
@@ -135,7 +136,7 @@ export function useNotasBuilder({
                     id: 'hora',
                     typeCampo: 'Input',
                     type: 'time',
-                    placeholder: 'Hora del registro',
+                    placeholder: 'Hora del registro (HH:MM)',
                     tamaño: 'w-full mt-1',
                     label: 'Hora del registro'
                 },
@@ -145,14 +146,14 @@ export function useNotasBuilder({
                     typeCampo: 'Textarea',
                     placeholder: 'Registre lo manifestado por el paciente o familiar (dolor, molestias, percepción)',
                     tamaño: 'w-full',
-                    label: 'Descripcion'
+                    label: 'Descripción'
                 },
             ],
             containerCampos: 'flex flex-col gap-1'
         })
         .addCampo({
             component: 'GroupCampos',
-            labelGroup: 'Objetivos',
+            labelGroup: 'Objetivos de enfermería',
             buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'objetivo' } }],
             tamaño: 'w-full col-span-2',
             vmodel: 'Nota.objetivo',
@@ -164,7 +165,7 @@ export function useNotasBuilder({
                     id: 'hora',
                     typeCampo: 'Input',
                     type: 'time',
-                    placeholder: 'Hora del registro',
+                    placeholder: 'Hora del registro (HH:MM)',
                     tamaño: 'w-full',
                     label: 'Hora del registro'
                 },
@@ -174,14 +175,14 @@ export function useNotasBuilder({
                     typeCampo: 'Textarea',
                     placeholder: 'Registre el objetivo del cuidado de enfermería para el paciente',
                     tamaño: 'w-full',
-                    label: 'Descripcion'
+                    label: 'Descripción'
                 },
             ],
             containerCampos: 'flex flex-col gap-1'
         })
         .addCampo({
             component: 'GroupCampos',
-            labelGroup: 'Actividades',
+            labelGroup: 'Actividades realizadas',
             buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'actividades' } }],
             tamaño: 'w-full col-span-2',
             vmodel: 'Nota.actividades',
@@ -193,7 +194,7 @@ export function useNotasBuilder({
                     id: 'hora',
                     typeCampo: 'Input',
                     type: 'time',
-                    placeholder: 'Hora del registro',
+                    placeholder: 'Hora del registro (HH:MM)',
                     tamaño: 'w-full',
                     label: 'Hora del registro'
                 },
@@ -203,14 +204,14 @@ export function useNotasBuilder({
                     typeCampo: 'Textarea',
                     placeholder: 'Detalle las actividades de enfermería realizadas durante el turno',
                     tamaño: 'w-full',
-                    label: 'Descripcion'
+                    label: 'Descripción'
                 },
             ],
             containerCampos: 'flex flex-col gap-1'
         })
         .addCampo({
             component: 'GroupCampos',
-            labelGroup: 'Plan',
+            labelGroup: 'Plan de cuidados',
             buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'plan' } }],
             tamaño: 'w-full col-span-2',
             vmodel: 'Nota.plan',
@@ -222,7 +223,7 @@ export function useNotasBuilder({
                     id: 'hora',
                     typeCampo: 'Input',
                     type: 'time',
-                    placeholder: 'Hora del registro',
+                    placeholder: 'Hora del registro (HH:MM)',
                     tamaño: 'w-full',
                     label: 'Hora del registro'
                 },
@@ -232,14 +233,14 @@ export function useNotasBuilder({
                     typeCampo: 'Textarea',
                     placeholder: 'Indique el plan de cuidado a seguir según la valoración del paciente',
                     tamaño: 'w-full',
-                    label: 'Descripcion'
+                    label: 'Descripción'
                 },
             ],
             containerCampos: 'flex flex-col gap-1'
         })
         .addCampo({
             component: 'GroupCampos',
-            labelGroup: 'Intervencion',
+            labelGroup: 'Intervención',
             buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'intervencion' } }],
             tamaño: 'w-full col-span-2',
             vmodel: 'Nota.intervencion',
@@ -251,7 +252,7 @@ export function useNotasBuilder({
                     id: 'hora',
                     typeCampo: 'Input',
                     type: 'time',
-                    placeholder: 'Hora del registro',
+                    placeholder: 'Hora del registro (HH:MM)',
                     tamaño: 'w-full',
                     label: 'Hora del registro'
                 },
@@ -261,14 +262,14 @@ export function useNotasBuilder({
                     typeCampo: 'Textarea',
                     placeholder: 'Describa la intervención realizada (procedimiento, cuidado o acción aplicada)',
                     tamaño: 'w-full',
-                    label: 'Descripcion'
+                    label: 'Descripción'
                 },
             ],
             containerCampos: 'flex flex-col gap-1'
         })
         .addCampo({
             component: 'GroupCampos',
-            labelGroup: 'Evaluacion',
+            labelGroup: 'Evaluación',
             buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'evaluacion' } }],
             tamaño: 'w-full col-span-2',
             vmodel: 'Nota.evaluacion',
@@ -280,7 +281,7 @@ export function useNotasBuilder({
                     id: 'hora',
                     typeCampo: 'Input',
                     type: 'time',
-                    placeholder: 'Hora del registro',
+                    placeholder: 'Hora del registro (HH:MM)',
                     tamaño: 'w-full',
                     label: 'Hora del registro'
                 },
@@ -290,7 +291,7 @@ export function useNotasBuilder({
                     typeCampo: 'Textarea',
                     placeholder: 'Registre la valoración del paciente (signos, síntomas, estado general)',
                     tamaño: 'w-full',
-                    label: 'Descripcion'
+                    label: 'Descripción'
                 },
             ],
             containerCampos: 'flex flex-col gap-1'

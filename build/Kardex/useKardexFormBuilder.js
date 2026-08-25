@@ -40,7 +40,7 @@ export function useKardexFormBuilder({
     } else {
         builder.addCampo({
             component: 'Label',
-            text: '<p>No hay campos configurados para esta plantilla</p>',
+            text: '<p class="text-gray-500">No hay campos configurados para esta plantilla. Asigne campos desde el administrador de plantillas.</p>',
             tamaño: 'w-full',
             icon: 'i-lucide-alert-circle',
         })

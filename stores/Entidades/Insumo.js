@@ -161,7 +161,7 @@ export const useInsumoStore = defineStore('Insumo', {
             if (datos.categoria === 'Medicamento') {
                 camposObligatorios.push('unidad', 'activo', 'lote', 'vencimiento')
             } else if (datos.categoria === 'Equipos médicos') {
-                camposObligatorios.push('serial',)
+                camposObligatorios.push('serial', 'marca', 'modelo')
             } else {
                 camposObligatorios.push('unidad', 'especificaciones', 'lote', 'vencimiento', 'ubicacion')
             }

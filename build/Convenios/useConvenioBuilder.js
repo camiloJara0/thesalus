@@ -33,7 +33,7 @@ export function useConvenioBuilder({
         .addCampo({
             vmodel: 'Convenio.nombre',
             component: 'Input',
-            label: 'Nombre del Convenio',
+            label: 'Nombre del Convenio *',
             placeholder: 'Ej: Aseguradora XYZ',
             required: true,
             maxlength: 255,
@@ -42,8 +42,8 @@ export function useConvenioBuilder({
         .addCampo({
             component: 'Input',
             type: 'file',
-            label: 'Logo URL',
-            placeholder: 'URL del logo',
+            label: 'Logo URL (opcional)',
+            placeholder: 'URL del logo (opcional)',
             required: false,
             tamaño: 'w-full col-span-2',
             events: {

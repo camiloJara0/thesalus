@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useVerHistoriaBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { CUPS } from '~/data/CUPS'
 import { useHistoriasStore } from '~/stores/Formularios/historias/Historia'
@@ -147,7 +147,7 @@ export function useVerHistoriaBuilder({
             })
             .addCampo({
                 component: 'Input',
-                label: 'Codigo',
+                label: 'Código',
                 vmodel: 'Analisis.Plan_manejo_procedimientos.codigo',
                 type: 'text',
                 id: 'presetacion',
@@ -157,7 +157,7 @@ export function useVerHistoriaBuilder({
             })
             .addCampo({
                 component: 'Input',
-                label: 'Dias asignados',
+                label: 'Días asignados',
                 vmodel: 'Analisis.Plan_manejo_procedimientos.dias_asignados',
                 id: 'rehabilitacion',
                 name: 'rehabilitacion',
@@ -190,11 +190,11 @@ export function useVerHistoriaBuilder({
                 forLabel: 'observacion',
                 size: 'text-sm',
                 tamaño: 'w-full md:col-span-2',
-                text: '<i class="fa-solid fa-clock text-red-300 mr-1"></i>Observacion'
+                text: '<i class="fa-solid fa-clock text-red-300 mr-1"></i>Observación'
             })
             .addCampo({
                 component: 'Input',
-                label: 'Observacion',
+                label: 'Observación',
                 vmodel: 'Analisis.observacion',
                 id: 'observacion',
                 name: 'observacion',
@@ -241,7 +241,7 @@ export function useVerHistoriaBuilder({
                 .addCampo({
                     component: 'Label',
                     forLabel: 'motivo',
-                    text: '<i class="fa-solid fa-heart-pulse text-blue-500 mr-1"></i>Signos Vitales',
+                    text: '<i class="fa-solid fa-heart-pulse text-blue-500 mr-1"></i>Signos vitales',
                     tamaño: 'w-full col-span-2'
                 })
 
@@ -332,7 +332,7 @@ export function useVerHistoriaBuilder({
                     type: 'number',
                     id: 'peso',
                     name: 'peso',
-                    placeholder: 'Peso (KG)',
+                    placeholder: 'Peso (kg) *',
                     tamaño: 'w-full col-span-1'
                 })
 
@@ -343,7 +343,7 @@ export function useVerHistoriaBuilder({
                     type: 'number',
                     id: 'altura',
                     name: 'altura',
-                    placeholder: 'Altura (CM)',
+                    placeholder: 'Altura (cm) *',
                     tamaño: 'w-full col-span-1'
                 })
         }
@@ -509,7 +509,7 @@ export function useVerHistoriaBuilder({
             .nuevaSeccion('Nota')
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Fecha y Ubicacion',
+                text: '<i class="fa-solid fa-location-dot text-blue-500 mr-1"></i>Fecha y Ubicación',
                 forLabel: 'departamento',
                 tamaño: 'md:col-span-2 w-full'
             })
@@ -546,7 +546,7 @@ export function useVerHistoriaBuilder({
 
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Diagnosticos',
+                text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Diagnósticos',
                 forLabel: 'tipo',
                 tamaño: 'md:col-span-2 w-full'
             })
@@ -565,7 +565,7 @@ export function useVerHistoriaBuilder({
             })
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermeria',
+                text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermería',
                 forLabel: 'tipo',
                 tamaño: 'md:col-span-2 w-full'
             })
@@ -590,7 +590,7 @@ export function useVerHistoriaBuilder({
                         id: 'hora',
                         typeCampo: 'Input',
                         type: 'time',
-                        placeholder: 'Hora del registro',
+                        placeholder: 'Hora del registro (HH:MM)',
                         tamaño: 'w-full mt-1',
                         label: 'Hora del registro'
                     },
@@ -600,7 +600,7 @@ export function useVerHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Registre lo manifestado por el paciente o familiar (dolor, molestias, percepción)',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripción'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
@@ -619,7 +619,7 @@ export function useVerHistoriaBuilder({
                         id: 'hora',
                         typeCampo: 'Input',
                         type: 'time',
-                        placeholder: 'Hora del registro',
+                        placeholder: 'Hora del registro (HH:MM)',
                         tamaño: 'w-full',
                         label: 'Hora del registro'
                     },
@@ -629,7 +629,7 @@ export function useVerHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Registre el objetivo del cuidado de enfermería para el paciente',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripción'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
@@ -648,7 +648,7 @@ export function useVerHistoriaBuilder({
                         id: 'hora',
                         typeCampo: 'Input',
                         type: 'time',
-                        placeholder: 'Hora del registro',
+                        placeholder: 'Hora del registro (HH:MM)',
                         tamaño: 'w-full',
                         label: 'Hora del registro'
                     },
@@ -658,7 +658,7 @@ export function useVerHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Detalle las actividades de enfermería realizadas durante el turno',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripción'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
@@ -677,7 +677,7 @@ export function useVerHistoriaBuilder({
                         id: 'hora',
                         typeCampo: 'Input',
                         type: 'time',
-                        placeholder: 'Hora del registro',
+                        placeholder: 'Hora del registro (HH:MM)',
                         tamaño: 'w-full',
                         label: 'Hora del registro'
                     },
@@ -687,14 +687,14 @@ export function useVerHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Indique el plan de cuidado a seguir según la valoración del paciente',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripción'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
             })
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Intervencion',
+                labelGroup: 'Intervención',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'intervencion' } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.nota.intervencion',
@@ -706,7 +706,7 @@ export function useVerHistoriaBuilder({
                         id: 'hora',
                         typeCampo: 'Input',
                         type: 'time',
-                        placeholder: 'Hora del registro',
+                        placeholder: 'Hora del registro (HH:MM)',
                         tamaño: 'w-full',
                         label: 'Hora del registro'
                     },
@@ -716,14 +716,14 @@ export function useVerHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Describa la intervención realizada (procedimiento, cuidado o acción aplicada)',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripción'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
             })
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Evaluacion',
+                labelGroup: 'Evaluación',
                 buttons: [{ icon: 'fa-solid fa-plus', label: 'Agregar', color: 'bg-blue-500', addItem: { hora: '', descripcion: '', tipo: 'evaluacion' } }],
                 tamaño: 'w-full col-span-2',
                 vmodel: 'Analisis.nota.evaluacion',
@@ -735,7 +735,7 @@ export function useVerHistoriaBuilder({
                         id: 'hora',
                         typeCampo: 'Input',
                         type: 'time',
-                        placeholder: 'Hora del registro',
+                        placeholder: 'Hora del registro (HH:MM)',
                         tamaño: 'w-full',
                         label: 'Hora del registro'
                     },
@@ -745,7 +745,7 @@ export function useVerHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Registre la valoración del paciente (signos, síntomas, estado general)',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripción'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
@@ -753,7 +753,7 @@ export function useVerHistoriaBuilder({
     }
     else if (formularioItem.value === 'Historial_cambios_sonda') {
         builder
-            .nuevaSeccion('Historial cambios sonda')
+            .nuevaSeccion('Historial de cambios de sonda')
             .addCampo({
                 component: 'Label',
                 forLabel: 'fecha_cambio',
@@ -766,7 +766,7 @@ export function useVerHistoriaBuilder({
                 vmodel: 'Historial_cambios_sonda.fecha_cambio',
                 id: 'fecha_cambio',
                 name: 'fecha_cambio',
-                placeholder: 'Describa la fecha de cambio...',
+                placeholder: 'Ingrese la fecha del cambio...',
                 tamaño: 'w-full md:col-span-2'
             })
             .addCampo({
@@ -779,7 +779,7 @@ export function useVerHistoriaBuilder({
     }
     else {
         builder
-            .nuevaSeccion('No se encontro el Item')
+            .nuevaSeccion('No se encontró el ítem')
     }
 
 

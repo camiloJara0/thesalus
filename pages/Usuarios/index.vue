@@ -312,7 +312,7 @@ const propiedadesTabla = computed(() => {
                                     <i class="fa-solid fa-triangle-exclamation text-white"></i>
                                     Datos No Enviados 
                                 </div>
-                                <span class="text-xs text-gray-100 dark:text-gray-400">Dirigite hacia la sección de "No Enviados" para sincronizar informacion.</span>
+                                <span class="text-xs text-gray-100 dark:text-gray-400">Dirígete hacia la sección de "No Enviados" para sincronizar información.</span>
                             </div>
                             <div class="flex gap-2">
                                 <UBadge color="neutral" variant="soft">

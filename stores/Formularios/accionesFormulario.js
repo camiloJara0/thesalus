@@ -43,6 +43,7 @@ import { useKardexStore } from '../Entidades/Kardex';
 
 
 
+
 // Importa accion de cada formulario desde el core
 export const accionesFormularios = {
     Ingresar: async (data) => {
@@ -168,6 +169,11 @@ export const accionesFormularios = {
     ActualizarInsumo: async (data) => {
         const insumoStore = useInsumoStore()
         const respuesta = await insumoStore.actualizar(data)
+        return respuesta
+    },
+    AgregarTipoEquipo: async (data) => {
+        const tipoEquipoStore = await import('~/stores/Entidades/TipoEquipo').then(m => m.useTipoEquipoStore())
+        const respuesta = await tipoEquipoStore.guardar(data)
         return respuesta
     },
     NuevoMovimiento: async (data) => {

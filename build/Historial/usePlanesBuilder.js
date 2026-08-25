@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/usePlanesBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { CUPS } from '~/data/CUPS'
 import { usePacientesStore } from '~/stores/Entidades/Paciente';
@@ -52,7 +52,7 @@ export function usePlanesBuilder({
             .addCampo({
                 component: 'Label',
                 forLabel: 'medicamento',
-                text: '<i class="fa-solid fa-prescription-bottle-medical text-blue-500 mr-1"></i>Item de Inventario',
+                text: '<i class="fa-solid fa-prescription-bottle-medical text-blue-500 mr-1"></i>Ítem de Inventario',
                 tamaño: 'col-span-2 w-full'
             })
             if(showPacientes){
@@ -61,8 +61,8 @@ export function usePlanesBuilder({
                     component: 'SelectSearch',
                     name: 'paciente',
                     id: 'paciente',
-                    label: 'Selecciona el paciente al que se le asigna',
-                    placeholder: 'paciente',
+                    label: 'Paciente asignado *',
+                    placeholder: 'Buscar paciente',
                     tamaño: 'w-full md:col-span-2',
                     options: pacientes,
                     vmodel: 'id_paciente',
@@ -77,8 +77,8 @@ export function usePlanesBuilder({
                     component: 'SelectSearch',
                     name: 'profesional',
                     id: 'profesional',
-                    label: 'Selecciona el profesional que autoriza',
-                    placeholder: 'Profesional',
+                    label: 'Profesional que autoriza',
+                    placeholder: 'Buscar profesional',
                     tamaño: 'w-full md:col-span-2',
                     options: profesionales,
                     vmodel: 'id_profesional',
@@ -97,21 +97,21 @@ export function usePlanesBuilder({
                         name: 'id_insumo',
                         id: 'Medicamento',
                         typeCampo: 'SelectSearch',
-                        placeholder: 'Insumo',
+                        placeholder: 'Buscar insumo',
                         tamaño: 'w-full md:col-span-2',
                         upperCase: true,
                         options: medicamentos,
                         events: {
                             onChange: seleccionarInventario
                         },
-                        label: 'Producto'
+                        label: 'Nombre del producto'
                     },
                     {
                         name: 'cantidad',
                         id: 'cantidad',
                         typeCampo: 'Input',
                         type: 'number',
-                        placeholder: 'Cantidad',
+                        placeholder: 'Cantidad *',
                         tamaño: 'w-full',
                         label: 'Cantidad'
                     },
@@ -119,16 +119,16 @@ export function usePlanesBuilder({
                         name: 'observacion',
                         id: 'observacion',
                         typeCampo: 'Input',
-                        placeholder: 'Registrar Observacion / Autorizacion',
+                        placeholder: 'Registrar Observación / Autorización',
                         tamaño: 'w-ful md:col-span-2l',
-                        label: 'Observacion'
+                        label: 'Observación'
                     },
                 ],
                 containerCampos: 'grid grid-cols-2 gap-2'
             })
             .addCampo({
                 component: 'GroupCampos',
-                labelGroup: 'Insumos o Equipos Medicos Prestables (opcional)',
+                labelGroup: 'Insumos o Equipos Médicos Prestables (opcional)',
                 buttons: [{ icon: 'fa-solid fa-capsules', label: 'Agregar', color: 'bg-blue-500', addItem: { id_insumo: '', cantidad: '', observacion: '', fecha_desde: '', fecha_hasta: '' } },],
                 tamaño: 'w-full md:col-span-2',
                 vmodel: 'Plan_manejo_insumos',
@@ -138,21 +138,21 @@ export function usePlanesBuilder({
                         name: 'id_insumo',
                         id: 'Medicamento',
                         typeCampo: 'SelectSearch',
-                        placeholder: 'Insumo',
+                        placeholder: 'Buscar insumo',
                         tamaño: 'w-full col-span-2',
                         upperCase: true,
                         options: insumos,
                         events: {
                             onChange: seleccionarInventario
                         },
-                        label: 'Producto'
+                        label: 'Nombre del producto'
                     },
                     {
                         name: 'cantidad',
                         id: 'cantidad',
                         typeCampo: 'Input',
                         type: 'number',
-                        placeholder: 'Cantidad',
+                        placeholder: 'Cantidad *',
                         tamaño: 'w-full',
                         label: 'Cantidad'
                     },
@@ -160,9 +160,9 @@ export function usePlanesBuilder({
                         name: 'observacion',
                         id: 'observacion',
                         typeCampo: 'Input',
-                        placeholder: 'Registrar Observacion / Autorizacion',
+                        placeholder: 'Registrar Observación / Autorización',
                         tamaño: 'w-full',
-                        label: 'Observacion'
+                        label: 'Observación'
                     },
                     {
                         name: 'fecha_desde',
@@ -193,14 +193,14 @@ export function usePlanesBuilder({
             .addCampo({
                 component: 'Label',
                 forLabel: 'rehabilitacion',
-                text: '<i class="fa-solid fa-kit-medical text-blue-500 mr-1"></i>Tratamiento',
+                text: '<i class="fa-solid fa-kit-medical text-blue-500 mr-1"></i>Nombre del tratamiento',
                 tamaño: 'col-span-2 w-full'
             })
             .addCampo({
                 component: 'SelectSearch',
                 name: 'procedimiento',
                 id: 'descripcionProcedimiento',
-                placeholder: 'Procedimiento',
+                placeholder: 'Procedimiento *',
                 tamaño: 'w-full md:col-span-2',
                 UpperCase: true,
                 options: CUPS,
@@ -213,7 +213,7 @@ export function usePlanesBuilder({
             })
             .addCampo({
                 component: 'Input',
-                label: 'Codigo',
+                label: 'Código',
                 vmodel: 'Plan_manejo_procedimientos.codigo',
                 type: 'text',
                 id: 'presetacion',
@@ -223,7 +223,7 @@ export function usePlanesBuilder({
             })
             .addCampo({
                 component: 'Input',
-                label: 'Dias asignados',
+                label: 'Días asignados',
                 vmodel: 'Plan_manejo_procedimientos.dias_asignados',
                 id: 'rehabilitacion',
                 name: 'rehabilitacion',
@@ -233,7 +233,7 @@ export function usePlanesBuilder({
     }
     else {
         builder
-            .nuevaSeccion('No se encontro el Item')
+            .nuevaSeccion('No se encontró el ítem')
     }
 
     return builder.build()

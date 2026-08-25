@@ -36,7 +36,7 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Nombre del campo',
+        placeholder: 'Nombre del campo *',
         id: 'nombreCampo',
         name: 'nombreCampo',
         tamaño: 'w-full',
@@ -46,7 +46,7 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Titulo del campo',
+        placeholder: 'Título del campo *',
         id: 'slugCampo',
         name: 'slugCampo',
         tamaño: 'w-full',
@@ -55,7 +55,7 @@ export function useCampoBuilder({
 
     builder.addCampo({
         component: 'Select',
-        placeholder: 'Tipo de campo',
+        placeholder: 'Tipo de campo *',
         id: 'tipoCampo',
         name: 'tipoCampo',
         tamaño: 'w-full',
@@ -73,7 +73,7 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Texto de descripcion del campo',
+        placeholder: 'Texto de descripción del campo',
         id: 'placeholderCampo',
         name: 'placeholderCampo',
         tamaño: 'w-full',
@@ -83,7 +83,7 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Valor por defecto',
+        placeholder: 'Valor por defecto (opcional)',
         id: 'placeholderCampo',
         name: 'placeholderCampo',
         tamaño: 'w-full',
@@ -93,7 +93,7 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'number',
-        placeholder: 'Orden de aparición',
+        placeholder: 'Orden de aparición *',
         id: 'ordenCampo',
         name: 'ordenCampo',
         tamaño: 'w-full',
@@ -103,7 +103,7 @@ export function useCampoBuilder({
 
     builder.addCampo({
         component: 'Textarea',
-        placeholder: 'Opciones (una por línea, solo para tipo Select)',
+        placeholder: 'Opciones (una por línea, solo aplica para tipo Select)',
         id: 'opcionesCampo',
         name: 'opcionesCampo',
         tamaño: 'w-full col-span-2',

@@ -90,7 +90,7 @@ export function useMovimientoBuilderMejorado({
             component: 'Input',
             type: 'text',
             label: 'Nombre del Producto',
-            placeholder: 'Nombre del producto',
+            placeholder: 'Nombre del producto...',
             id: 'nombre',
             name: 'nombre',
             tamaño: 'w-full md:col-span-1 col-span-2',
@@ -102,7 +102,7 @@ export function useMovimientoBuilderMejorado({
             component: 'Input',
             type: 'text',
             label: 'Categoría',
-            placeholder: 'Categoría',
+            placeholder: 'Categoría...',
             id: 'categoria',
             name: 'categoria',
             tamaño: 'w-full md:col-span-1 col-span-2',
@@ -116,7 +116,7 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Ingrediente Activo',
+                label: 'Ingrediente Activo del Producto',
                 id: 'activoL',
                 name: 'activoL',
                 tamaño: 'w-full col-span-2',
@@ -126,7 +126,7 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Lote',
+                label: 'Número de Lote',
                 id: 'lote',
                 name: 'lote',
                 tamaño: 'w-full md:col-span-1 col-span-2',
@@ -136,7 +136,7 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Vencimiento',
+                label: 'Fecha de Vencimiento',
                 id: 'vencimiento',
                 name: 'vencimiento',
                 tamaño: 'w-full md:col-span-1 col-span-2',
@@ -150,7 +150,7 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Ubicación',
+                label: 'Ubicación Actual',
                 id: 'ubicacion',
                 name: 'ubicacion',
                 tamaño: 'w-full col-span-2',
@@ -164,7 +164,7 @@ export function useMovimientoBuilderMejorado({
         .nuevaSeccion('Tipo de Movimiento')
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-shuffle text-[var(--color-info)] mr-2"></i>Selecciona el tipo de movimiento',
+            text: '<i class="fa-solid fa-shuffle text-[var(--color-info)] mr-2"></i>Tipo de Movimiento a Registrar',
             tamaño: 'w-full col-span-2',
             forLabel: 'tipoMovimiento'
         })
@@ -220,7 +220,7 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'number',
-                label: 'Cantidad',
+                label: 'Cantidad *',
                 placeholder: '0',
                 id: 'cantidadMovimiento',
                 name: 'cantidadMovimiento',
@@ -235,8 +235,8 @@ export function useMovimientoBuilderMejorado({
         builder
             .addCampo({
                 component: 'SelectSearch',
-                label: 'Selecciona el Préstamo a Devolver',
-                placeholder: 'Buscar por paciente o fecha...',
+                label: 'Préstamo a Devolver',
+                placeholder: 'Busca por nombre del paciente o fecha del préstamo...',
                 id: 'id_movimiento',
                 name: 'id_movimiento',
                 tamaño: 'w-full col-span-2',
@@ -251,8 +251,8 @@ export function useMovimientoBuilderMejorado({
         builder
             .addCampo({
                 component: 'SelectSearch',
-                label: 'Serial del Equipo',
-                placeholder: 'Buscar por serial...',
+                label: 'Serial del Equipo *',
+                placeholder: 'Ingresa o busca el serial del equipo...',
                 id: 'id_serial',
                 name: 'id_serial',
                 tamaño: 'w-full col-span-2',
@@ -262,8 +262,8 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Descripción del Problema',
-                placeholder: 'Describe el problema o falla del equipo',
+                label: 'Descripción del Problema *',
+                placeholder: 'Describe detalladamente el problema o falla presentada...',
                 id: 'descripcionReparacion',
                 name: 'descripcionReparacion',
                 tamaño: 'w-full col-span-2',
@@ -276,8 +276,8 @@ export function useMovimientoBuilderMejorado({
         builder
             .addCampo({
                 component: 'SelectSearch',
-                label: 'Paciente Receptor',
-                placeholder: 'Buscar paciente...',
+                label: 'Paciente Receptor *',
+                placeholder: 'Busca por nombre o número de documento...',
                 id: 'id_paciente',
                 name: 'id_paciente',
                 tamaño: 'w-full col-span-2',
@@ -291,7 +291,7 @@ export function useMovimientoBuilderMejorado({
             .addCampo({
                 component: 'Input',
                 type: 'date',
-                label: 'Fecha de Devolución Esperada',
+                label: 'Fecha de Devolución Esperada *',
                 id: 'fecha_devolucion',
                 name: 'fecha_devolucion',
                 tamaño: 'w-full col-span-2',
@@ -310,8 +310,8 @@ export function useMovimientoBuilderMejorado({
         })
         .addCampo({
             component: 'SelectSearch',
-            label: 'Profesional Responsable',
-            placeholder: 'Buscar profesional...',
+            label: 'Profesional Responsable *',
+            placeholder: 'Busca por nombre del profesional...',
             id: 'id_medico',
             name: 'id_medico',
             tamaño: 'w-full col-span-2',
@@ -326,7 +326,7 @@ export function useMovimientoBuilderMejorado({
         .addCampo({
             component: 'Input',
             type: 'date',
-            label: 'Fecha del Movimiento',
+            label: 'Fecha del Movimiento *',
             id: 'fechaMovimiento',
             name: 'fechaMovimiento',
             tamaño: 'w-full col-span-2',
@@ -344,8 +344,8 @@ export function useMovimientoBuilderMejorado({
         })
         .addCampo({
             component: 'Textarea',
-            label: 'Observaciones',
-            placeholder: 'Agrega notas sobre este movimiento (opcional)',
+            label: 'Observaciones (opcional)',
+            placeholder: 'Agrega notas, comentarios u observaciones sobre este movimiento...',
             id: 'observaciones',
             name: 'observaciones',
             tamaño: 'w-full col-span-2',

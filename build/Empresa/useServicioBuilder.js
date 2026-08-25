@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useServicioBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useServicioBuilder({
@@ -43,14 +43,14 @@ export function useServicioBuilder({
     .setEliminarFormulario(puedeDelete ? eliminar : false)
     .addCampo({
       component: 'Label',
-      text: '<i class="fa-solid fa-user-doctor text-purple-500 mr-1"></i>Servicio',
+      text: '<i class="fa-solid fa-user-doctor text-purple-500 mr-1"></i>Formulario de Servicio',
       tamaño: 'w-full md:col-span-2',
       forLabel: 'Servicio'
     })
     .addCampo({
       component: 'Input',
       type: 'text',
-      placeholder: 'Nombre Servicio',
+      placeholder: 'Nombre del Servicio *',
       id: 'Servicio',
       name: 'Servicio',
       minlength: 5,
@@ -60,7 +60,7 @@ export function useServicioBuilder({
     })
     .addCampo({
       component: 'Select',
-      placeholder: 'Seleccione la plantilla',
+      placeholder: 'Seleccione la plantilla *',
       id: 'plantilla',
       name: 'plantilla',
       tamaño: 'w-full md:col-span-2',

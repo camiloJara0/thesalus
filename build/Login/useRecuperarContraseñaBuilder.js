@@ -26,7 +26,7 @@ export function useRecuperarContraseñaBuilder({
     ])
   } else {
     builder.setBotones([
-      { text: 'Enviar Codigo', color: 'secondary', type: 'enviarCodigo', accion: enviarCodigo },
+      { text: 'Enviar código', color: 'secondary', type: 'enviarCodigo', accion: enviarCodigo },
       { text: 'Cancelar', color: 'neutral', type: 'cerrar', accion: cerrar },
     ])
   }
@@ -44,7 +44,7 @@ export function useRecuperarContraseñaBuilder({
             <div class="flex flex-col justify-center items-center gap-2 pt-4 pb-8 text-center">
                 <h3 class="dark:text-white text-black text-3xl font-bold tracking-wide">Thesalus</h3>
                 <p class="text-gray-600 dark:text-gray-300 max-w-md">
-                  Introduce tu direccion de correo electronico para restablecer la contraseña.
+                  Introduce tu dirección de correo electrónico para restablecer la contraseña.
                 </p>
             </div>
         `,
@@ -52,7 +52,7 @@ export function useRecuperarContraseñaBuilder({
     })
     .addCampo({
       component: 'Input',
-      placeholder: 'Correo Electronico',
+      placeholder: 'Correo electrónico *',
       icon: 'i-lucide-mail',
       type: 'email',
       id: 'correo-user',
@@ -81,7 +81,7 @@ export function useRecuperarContraseñaBuilder({
     })
     .addCampo({
       component: 'Input',
-      placeholder: 'Codigo de Recuperacion',
+      placeholder: 'Código de recuperación *',
       icon: 'i-lucide-key',
       type: 'text',
       id: 'codigo',
@@ -91,7 +91,7 @@ export function useRecuperarContraseñaBuilder({
     })
     .addCampo({
       component: 'InputContraseña',
-      placeholder: 'Cambiar contraseña',
+      placeholder: 'Nueva contraseña *',
       icon: 'i-lucide-lock',
       type: 'password',
       id: 'contraseña',

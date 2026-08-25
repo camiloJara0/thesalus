@@ -53,10 +53,10 @@ export function useAdministradorBuilder({
             { text: 'Atrás', accion: cerrarModal, color: 'neutral', type: 'cerrar' },
         ])
         // 📌 Sección: Datos
-        .nuevaSeccion('Datos usuarios')
+        .nuevaSeccion('Datos del Usuario')
         .addCampo({
             component: 'Label',
-            text: '<p>Datos usuario</p>',
+            text: '<p>Datos del usuario</p>',
             tamaño: 'w-full md:col-span-2',
             icon: 'i-lucide-user',
             forLabel: 'documento'
@@ -64,7 +64,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'Input',
             type: 'number',
-            placeholder: 'Número de documento',
+            placeholder: 'Número de documento *',
             id: 'documento',
             name: 'documento',
             tamaño: 'w-full',
@@ -78,7 +78,7 @@ export function useAdministradorBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Tipo de Documento',
+            placeholder: 'Tipo de documento *',
             id: 'tipoDocumento',
             name: 'tipoDocumento',
             tamaño: 'w-full',
@@ -96,7 +96,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Nombres y Apellidos',
+            placeholder: 'Nombres y apellidos *',
             id: 'nombre',
             name: 'nombre',
             tamaño: 'w-full',
@@ -108,7 +108,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'Input',
             type: 'date',
-            placeholder: 'Nacimiento',
+            placeholder: 'Fecha de nacimiento *',
             id: 'nacimiento',
             name: 'nacimiento',
             tamaño: 'w-full text-gray-500',
@@ -124,7 +124,7 @@ export function useAdministradorBuilder({
         // 📌 Sección: Ubicación
         .addCampo({
             component: 'Label',
-            text: '<p>Ubicacion</p>',
+            text: '<p>Ubicación</p>',
             tamaño: 'w-full md:col-span-2',
             icon: 'i-lucide-map-pin',
             forLabel: 'departamento'
@@ -132,7 +132,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'SelectSearch',
             options: departamentosList,
-            placeholder: 'Departamento',
+            placeholder: 'Departamento *',
             id: 'departamento',
             name: 'departamento',
             tamaño: 'md:w-full w-full',
@@ -145,7 +145,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'SelectSearch',
             options: municipiosList.value,
-            placeholder: 'Municipio',
+            placeholder: 'Municipio *',
             id: 'municipio',
             name: 'municipio',
             tamaño: 'md:w-full w-full',
@@ -154,7 +154,7 @@ export function useAdministradorBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Zona',
+            placeholder: 'Zona *',
             id: 'zona',
             name: 'zona',
             tamaño: 'md:w-full w-full',
@@ -167,7 +167,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Barrio',
+            placeholder: 'Barrio *',
             id: 'barrio',
             name: 'barrio',
             tamaño: 'md:w-full w-full',
@@ -178,7 +178,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Dirección',
+            placeholder: 'Dirección *',
             id: 'direccion',
             name: 'direccion',
             tamaño: 'md:w-full w-full',
@@ -199,7 +199,7 @@ export function useAdministradorBuilder({
         .addCampo({
             component: 'Input',
             type: 'tel',
-            placeholder: 'Celular',
+            placeholder: 'Celular *',
             id: 'celular',
             name: 'celular',
             tamaño: 'md:w-full w-full',
@@ -226,14 +226,14 @@ export function useAdministradorBuilder({
             // 📌 Sección: Usuario
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos usuario',
+                text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos de acceso',
                 tamaño: 'w-full md:col-span-2',
                 forLabel: 'correo-secret'
             })
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                placeholder: 'Correo Electrónico',
+                placeholder: 'Correo electrónico *',
                 id: 'correo-secret',
                 name: 'correo-secret',
                 tamaño: 'w-full',
@@ -246,7 +246,7 @@ export function useAdministradorBuilder({
                 .addCampo({
                     component: 'Input',
                     type: 'password',
-                    placeholder: 'Crea una contraseña',
+                    placeholder: 'Crear contraseña *',
                     id: 'contraseña-usuario',
                     name: 'contraseña-usuario',
                     minLength: '5',

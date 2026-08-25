@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useMovimientoBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { decryptData } from '~/composables/Formulario/crypto';
 import { useInsumoStore } from '~/stores/Entidades/Insumo';
@@ -58,7 +58,7 @@ export function useMovimientoBuilder({
         .nuevaSeccion(insumoStore.Formulario.Insumos.activo)
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-id-card text-blue-500 mr-1"></i>Medicamento',
+            text: '<i class="fa-solid fa-id-card text-blue-500 mr-1"></i>Producto / Medicamento',
             tamaño: 'w-full col-span-2',
             forLabel: 'nombre'
         })
@@ -67,8 +67,8 @@ export function useMovimientoBuilder({
             .addCampo({
                 component: 'SelectSearch',
                 type: 'text',
-                label: 'Nombre del producto',
-                placeholder: 'Nombre del producto',
+                label: 'Nombre del producto *',
+                placeholder: 'Buscar o seleccionar producto...',
                 id: 'nombre',
                 name: 'nombre',
                 tamaño: 'md:col-span-2 col-span-2',
@@ -82,8 +82,8 @@ export function useMovimientoBuilder({
             .addCampo({
                 component: 'SelectSearch',
                 type: 'text',
-                label: 'Nombre del producto',
-                placeholder: 'Nombre del producto',
+                label: 'Nombre del producto *',
+                placeholder: 'Nombre del producto...',
                 id: 'nombre',
                 name: 'nombre',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -101,8 +101,8 @@ export function useMovimientoBuilder({
                     { value: 'Equipos médicos', label: 'Equipos médicos' },
                     { value: 'Otro', label: 'Otro' },
                 ],
-                label: 'Categoria',
-                placeholder: 'Categoria',
+                label: 'Categoría',
+                placeholder: 'Categoría...',
                 id: 'categoria',
                 name: 'categoria',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -113,15 +113,15 @@ export function useMovimientoBuilder({
         builder
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-capsules text-blue-500 mr-1"></i>Movimiento de Inventario',
+            text: '<i class="fa-solid fa-capsules text-blue-500 mr-1"></i>Información del Movimiento',
             tamaño: 'w-full col-span-2',
             forLabel: 'activo'
         })
         .addCampo({
             component: 'Input',
             type: 'text',
-            label: 'Cantidad del movimiento',
-            placeholder: '20',
+            label: 'Cantidad del movimiento *',
+            placeholder: 'Ej: 20',
             id: 'cantidadMovimiento',
             name: 'cantidadMovimiento',
             tamaño: 'md:col-span-1 col-span-3',
@@ -135,8 +135,8 @@ export function useMovimientoBuilder({
                 { label: 'Egreso', value: 'Egreso' },
                 { label: 'Devuelto', value: 'Devuelto'}
             ],
-            label: 'Tipo',
-            placeholder: 'Seleccione tipo de movimiento',
+            label: 'Tipo de movimiento *',
+            placeholder: 'Selecciona el tipo de movimiento...',
             id: 'tipoMovimiento',
             name: 'tipoMovimiento',
             tamaño: 'md:col-span-1 col-span-3',
@@ -151,8 +151,8 @@ export function useMovimientoBuilder({
             .addCampo({
                 component: 'SelectSearch',
                 options: optionsInsumos.value,
-                label: 'Insumos Prestados (id)',
-                placeholder: 'Seleccione el paciente al que se le presto el insumo',
+                label: 'Insumo Prestado a Devolver *',
+                placeholder: 'Selecciona el paciente al que se le prestó el insumo',
                 id: 'tipoMovimiento',
                 name: 'tipoMovimiento',
                 tamaño: 'w-full md:col-span-1 col-span-2',
@@ -163,14 +163,14 @@ export function useMovimientoBuilder({
         builder
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Encargado del Movimiento',
+            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Profesional Responsable',
             tamaño: 'w-full col-span-2',
             forLabel: 'nombreM'
         })
         .addCampo({
             component: 'SelectSearch',
-            placeholder: 'Juan Pérez',
-            label: 'Nombre del profesional',
+            placeholder: 'Buscar profesional...',
+            label: 'Nombre del profesional *',
             id: 'nombreM',
             name: 'nombreM',
             tamaño: 'w-full md:col-span-1 col-span-2',
@@ -181,7 +181,7 @@ export function useMovimientoBuilder({
         .addCampo({
             component: 'Input',
             type: 'date',
-            label: 'Fecha de Movimiento',
+            label: 'Fecha de Movimiento *',
             id: 'movimiento',
             name: 'movimiento',
             tamaño: 'md:col-span-1 col-span-2 md:mt-[-15px]',

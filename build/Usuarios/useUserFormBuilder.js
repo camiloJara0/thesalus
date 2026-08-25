@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useUserFormBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { CUPS } from '~/data/CUPS'
 import { usePacientesStore } from "~/stores/Entidades/Paciente"
@@ -77,14 +77,14 @@ export function useUserBuilder({
         .nuevaSeccion('Datos usuarios')
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Datos usuario',
+            text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Información del usuario',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'documento'
         })
         .addCampo({
             component: 'Input',
             type: 'number',
-            placeholder: 'Número de documento',
+            placeholder: 'Número de documento *',
             id: 'documento',
             name: 'documento',
             tamaño: 'w-full',
@@ -98,7 +98,7 @@ export function useUserBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Tipo de Documento',
+            placeholder: 'Tipo de Documento *',
             id: 'tipoDocumento',
             name: 'tipoDocumento',
             tamaño: 'w-full',
@@ -116,7 +116,7 @@ export function useUserBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Nombres y Apellidos',
+            placeholder: 'Nombres y Apellidos *',
             id: 'nombre',
             name: 'nombre',
             tamaño: 'w-full',
@@ -128,7 +128,7 @@ export function useUserBuilder({
         .addCampo({
             component: 'Input',
             type: 'date',
-            placeholder: 'Nacimiento',
+            placeholder: 'Fecha de nacimiento *',
             id: 'nacimiento',
             name: 'nacimiento',
             tamaño: 'w-full text-gray-500',
@@ -144,7 +144,7 @@ export function useUserBuilder({
         // 📌 Sección: Ubicación
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-location-dot text-blue-700 mr-1"></i>Ubicacion',
+            text: '<i class="fa-solid fa-location-dot text-blue-700 mr-1"></i>Ubicación',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'departamento'
         })
@@ -153,7 +153,7 @@ export function useUserBuilder({
             options: departamentos,
             opciones: [{ value: "nombre" }, { text: 'Nombre:', value: 'nombre' }],
             seleccionarItem: seleccionarDepartamento,
-            placeholder: 'Departamento',
+            placeholder: 'Departamento *',
             id: 'departamento',
             name: 'departamento',
             tamaño: 'md:w-full w-full',
@@ -170,7 +170,7 @@ export function useUserBuilder({
             options: municipios,
             opciones: [{ value: "NOMBRE" }, { text: 'Codigo:', value: 'CODIGO_MUNICIPIO' }],
             seleccionarItem: seleccionarMunicipio,
-            placeholder: 'Municipio',
+            placeholder: 'Municipio *',
             id: 'municipio',
             name: 'municipio',
             tamaño: 'md:w-full w-full',
@@ -179,7 +179,7 @@ export function useUserBuilder({
         })
         .addCampo({
             component: 'Select',
-            placeholder: 'Zona',
+            placeholder: 'Zona *',
             id: 'zona',
             name: 'zona',
             tamaño: 'md:w-full w-full',
@@ -192,7 +192,7 @@ export function useUserBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Barrio',
+            placeholder: 'Barrio *',
             id: 'barrio',
             name: 'barrio',
             tamaño: 'md:w-full w-full',
@@ -203,7 +203,7 @@ export function useUserBuilder({
         .addCampo({
             component: 'Input',
             type: 'text',
-            placeholder: 'Dirección',
+            placeholder: 'Dirección *',
             id: 'direccion',
             name: 'direccion',
             tamaño: 'md:w-full w-full',
@@ -216,14 +216,14 @@ export function useUserBuilder({
         // 📌 Sección: Contacto
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-phone text-blue-500 mr-1"></i>Contacto',
+            text: '<i class="fa-solid fa-phone text-blue-500 mr-1"></i>Datos de contacto',
             tamaño: 'w-full md:col-span-2',
             forLabel: 'celular'
         })
         .addCampo({
             component: 'Input',
             type: 'tel',
-            placeholder: 'Celular',
+            placeholder: 'Celular *',
             id: 'celular',
             name: 'celular',
             tamaño: 'md:w-full w-full',
@@ -250,14 +250,14 @@ export function useUserBuilder({
             // 📌 Sección: Usuario
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos usuario',
+                text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos de la cuenta',
                 tamaño: 'w-full md:col-span-2',
                 forLabel: 'correo-secret'
             })
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                placeholder: 'Correo Electrónico',
+                placeholder: 'Correo Electrónico *',
                 id: 'correo-secret',
                 name: 'correo-secret',
                 tamaño: 'w-full',
@@ -270,7 +270,7 @@ export function useUserBuilder({
                 .addCampo({
                     component: 'Input',
                     type: 'password',
-                    placeholder: 'Crea una contraseña',
+                    placeholder: 'Crea una contraseña *',
                     id: 'contraseña-usuario',
                     name: 'contraseña-usuario',
                     minLength: '5',
@@ -292,13 +292,13 @@ export function useUserBuilder({
             .nuevaSeccion('Datos Paciente')
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Paciente',
+                text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Datos del paciente',
                 tamaño: 'w-full col-span-2',
                 forLabel: 'Sexo'
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'Sexo al Nacer',
+                placeholder: 'Sexo al Nacer *',
                 id: 'Sexo',
                 name: 'Sexo',
                 tamaño: 'w-full md:col-span-1 col-span-2',
@@ -310,7 +310,7 @@ export function useUserBuilder({
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'Identidad de Género',
+                placeholder: 'Identidad de Género *',
                 id: 'genero',
                 name: 'genero',
                 tamaño: 'w-full md:col-span-1 col-span-2',
@@ -327,13 +327,13 @@ export function useUserBuilder({
             // 📌 Sección: Datos adicionales
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Datos Adicionales',
+                text: '<i class="fa-solid fa-file text-blue-500 mr-1"></i>Información adicional',
                 tamaño: 'w-full col-span-2',
                 forLabel: 'eps'
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'EPS',
+                placeholder: 'EPS *',
                 id: 'eps',
                 name: 'eps',
                 tamaño: ' w-full md:col-span-1 col-span-2',
@@ -342,7 +342,7 @@ export function useUserBuilder({
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'Régimen',
+                placeholder: 'Régimen *',
                 id: 'regimen',
                 name: 'regimen',
                 tamaño: ' w-full md:col-span-1 col-span-2',
@@ -355,7 +355,7 @@ export function useUserBuilder({
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'Población Vulnerable',
+                placeholder: 'Población Vulnerable *',
                 id: 'poblacionVulnerable',
                 name: 'poblacionVulnerable',
                 tamaño: 'w-full',
@@ -365,14 +365,14 @@ export function useUserBuilder({
                     { text: 'Discapacidad', value: 'Discapacidad' },
                     { text: 'Victimas Conflicto Armado', value: 'Victimas Conflicto Armado' },
                     { text: 'Habitantes de calle', value: 'Habitantes de calle' },
-                    { text: 'Poblacion LGBTIQ+', value: 'Poblacion LGBTIQ+' },
+                    { text: 'Población LGBTIQ+', value: 'Población LGBTIQ+' },
                     { text: 'Grupos étnicos', value: 'Grupos étnicos' },
                     { text: 'Personas privadas de la libertad', value: 'Personas privadas de la libertad' },
                     { text: 'Desmovilizados', value: 'Desmovilizados' },
                     { text: 'Migrantes colombianos repatriados', value: 'Migrantes colombianos repatriados' },
                     { text: 'Madres comunitarias o sustitutas', value: 'Madres comunitarias o sustitutas' },
                     { text: 'Voluntarios activos', value: 'Voluntarios activos' },
-                    { text: 'Personas con enfermedades huerfanas o catastroficas', value: 'Personas con enfermedades huerfanas o catastroficas' },
+                    { text: 'Personas con enfermedades huérfanas o catastróficas', value: 'Personas con enfermedades huérfanas o catastróficas' },
                 ],
                 vmodel: 'Paciente.vulnerabilidad',
             })
@@ -416,7 +416,7 @@ export function useUserBuilder({
                             name: 'dias_asignados',
                             id: 'dias_asignados',
                             typeCampo: 'Input',
-                            placeholder: 'Numero de Veces',
+                            placeholder: 'Número de veces',
                             tamaño: 'w-full',
                         },
                     ],
@@ -425,7 +425,7 @@ export function useUserBuilder({
                 // 📌 Sección: Antecedentes
                 .addCampo({
                     component: 'GroupCampos',
-                    labelGroup: 'Antecedentes',
+                    labelGroup: 'Antecedentes (opcional)',
                     buttons: [
                         { icon: 'fa-solid fa-plus', color: 'bg-blue-500', label: 'Personal', addItem: { descripcion: '', tipo: '' } },
                         { icon: 'fa-solid fa-plus', color: 'bg-blue-700', label: 'Familiar', addItem: { descripcion: '', tipo: 'Familiar' } },
@@ -475,13 +475,13 @@ export function useUserBuilder({
             // 📌 Sección: Médico
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Medico',
+                text: '<i class="fa-solid fa-user text-blue-500 mr-1"></i>Datos del profesional',
                 tamaño: 'w-full md:col-span-2',
                 forLabel: 'profesion'
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'Profesión',
+                placeholder: 'Profesión *',
                 id: 'profesion',
                 name: 'profesion',
                 tamaño: 'w-full md:col-span-2',
@@ -499,7 +499,7 @@ export function useUserBuilder({
             .addCampo({
                 component: 'SelectSearch',
                 tamaño: 'w-full',
-                placeholder: 'Departamento Laboral',
+                placeholder: 'Departamento Laboral *',
                 id: 'listDepartamento',
                 name: 'listDepartamento',
                 options: departamentos,
@@ -513,7 +513,7 @@ export function useUserBuilder({
                 options: municipios_laboral,
                 opciones: [{ value: "NOMBRE" }, { text: 'Codigo:', value: 'CODIGO_MUNICIPIO' }],
                 seleccionarItem: seleccionarMunicipio,
-                placeholder: 'Municipio Laboral',
+                placeholder: 'Municipio Laboral *',
                 id: 'municipiolaboral',
                 name: 'municipiolaboral',
                 tamaño: 'md:w-full w-full',
@@ -522,7 +522,7 @@ export function useUserBuilder({
             })
             .addCampo({
                 component: 'Select',
-                placeholder: 'Zona',
+                placeholder: 'Zona *',
                 id: 'zonaLaboral',
                 name: 'zona_laboral',
                 tamaño: 'w-full',
@@ -535,7 +535,7 @@ export function useUserBuilder({
             // 📌 Sección: Usuario
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos usuario',
+                text: '<i class="fa-solid fa-user-secret text-sky-600 mr-1"></i>Datos de la cuenta',
                 tamaño: 'w-full md:col-span-2',
                 forLabel: 'correo-secret'
             })
@@ -543,7 +543,7 @@ export function useUserBuilder({
             builder.addCampo({
                 component: 'Input',
                 type: 'text',
-                placeholder: 'Correo Electrónico',
+                placeholder: 'Correo Electrónico *',
                 id: 'correo-secret',
                 name: 'correo-secret',
                 tamaño: 'w-full',
@@ -554,7 +554,7 @@ export function useUserBuilder({
             builder.addCampo({
                 component: 'Input',
                 type: 'text',
-                placeholder: 'Correo Electrónico',
+                placeholder: 'Correo Electrónico *',
                 id: 'correo-secret',
                 name: 'correo-secret',
                 tamaño: 'w-full',
@@ -565,7 +565,7 @@ export function useUserBuilder({
         builder.addCampo({
             component: 'Input',
             type: 'file',
-            placeholder: 'Firma y Sello',
+            placeholder: 'Firma y Sello (opcional)',
             id: 'sello',
             name: 'sello',
             tamaño: 'w-full cursor-pointer',

@@ -108,6 +108,11 @@ export async function cargarStore(storeName) {
       tablaStore = useInsumoStore();
       break;
     }
+    case 'TipoEquipos': {
+      const { useTipoEquipoStore } = await import('~/stores/Entidades/TipoEquipo');
+      tablaStore = useTipoEquipoStore();
+      break;
+    }
     case 'Convenio': {
       const { useConvenioStore } = await import('~/stores/Entidades/Convenio');
       tablaStore = useConvenioStore();

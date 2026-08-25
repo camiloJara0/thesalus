@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useInsumosBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 import { useInsumoStore } from '~/stores/Entidades/Insumo';
 
@@ -40,14 +40,14 @@ export function useInsumosBuilder({
         .nuevaSeccion('Inventario')
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-id-card text-blue-500 mr-1"></i>Informacion Basica',
+            text: '<i class="i-lucide-user-round text-blue-500 mr-1"></i>Información Básica',
             tamaño: 'w-full col-span-2',
             forLabel: 'nombre'
         })
         .addCampo({
             component: 'Input',
             type: 'text',
-            label: 'Nombre del producto/ Modelo/ Marca',
+            label: 'Nombre del producto / Modelo / Marca *',
             placeholder: 'Paracetamol en Tableta x500mg Ethics',
             id: 'nombre',
             name: 'nombre',
@@ -63,8 +63,8 @@ export function useInsumosBuilder({
                 { label: 'Equipos médicos', value: 'Equipos médicos' },
                 { label: 'Otro', value: 'Otro' },
             ],
-            label: 'Categoria',
-            placeholder: 'Categoria',
+            label: 'Categoría *',
+            placeholder: 'Seleccione una categoría',
             id: 'categoria',
             name: 'categoria',
             tamaño: 'md:col-span-1 col-span-3',
@@ -72,15 +72,15 @@ export function useInsumosBuilder({
         })
         .addCampo({
             component: 'Label',
-            text: '<i class="fa-solid fa-boxes-stacked text-blue-500 mr-1"></i>Informacion de Stock',
+            text: '<i class="i-lucide-boxes-stacked text-blue-500 mr-1"></i>Información de Stock',
             tamaño: 'w-full col-span-2',
             forLabel: 'unidad'
         })
         .addCampo({
             component: 'Input',
             type: 'number',
-            label: 'Cantidad Actual',
-            placeholder: '0',
+            label: 'Cantidad actual *',
+            placeholder: 'Ejemplo: 150',
             id: 'stock',
             name: 'stock',
             tamaño: 'md:col-span-1 col-span-3',
@@ -96,8 +96,8 @@ export function useInsumosBuilder({
                     { label: 'Frasco', value: 'Frasco' },
                     { label: 'Otro', value: 'Otro' },
                 ],
-                label: 'Unidad de medida',
-                placeholder: 'Unidad',
+                label: 'Unidad de medida *',
+                placeholder: 'Seleccione una unidad',
                 id: 'unidad',
                 name: 'unidad',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -108,15 +108,33 @@ export function useInsumosBuilder({
         builder
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-capsules text-blue-500 mr-1"></i>Informacion Farmacologica',
-                tamaño: 'w-full col-span-2',
-                forLabel: 'activoL'
+                forLabel: 'activoL',
+                tamaño: 'w-full col-span-2 mt-3',
+                text: `
+                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+                            <div class="px-5 py-4 bg-linear-to-r from-blue-500/10 to-blue-500/5 border-b border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                        <i class="fa-solid fa-capsules text-blue-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-white">
+                                            Información Farmacológica
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Complete los datos farmacológicos del medicamento.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
             })
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Ingrediente Activo',
-                placeholder: 'Principio activo',
+                label: 'Ingrediente activo *',
+                placeholder: 'Ejemplo: Paracetamol 500mg',
                 id: 'activoL',
                 name: 'activoL',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -125,8 +143,8 @@ export function useInsumosBuilder({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Lote de Fabricacion',
-                placeholder: 'Lote',
+                label: 'Lote de fabricación *',
+                placeholder: 'Ejemplo: LOTE-2024-001',
                 id: 'lote',
                 name: 'lote',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -136,8 +154,8 @@ export function useInsumosBuilder({
             .addCampo({
                 component: 'Input',
                 type: 'date',
-                label: 'Fecha de Vencimiento',
-                placeholder: 'AAAA-MM-DD',
+                label: 'Fecha de vencimiento *',
+                placeholder: 'Seleccione fecha',
                 id: 'vencimiento',
                 name: 'vencimiento',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -148,15 +166,33 @@ export function useInsumosBuilder({
         builder
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-capsules text-blue-500 mr-1"></i>Informacion Adicional',
-                tamaño: 'w-full col-span-2',
-                forLabel: 'especificaciones'
+                forLabel: 'especificaciones',
+                tamaño: 'w-full col-span-2 mt-3',
+                text: `
+                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+                            <div class="px-5 py-4 bg-linear-to-r from-green-500/10 to-green-500/5 border-b border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                        <i class="fa-solid fa-syringe text-green-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-white">
+                                            Información Adicional
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Complete las especificaciones del insumo médico.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
             })
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Especificaciones',
-                placeholder: 'Especificaciones del insumo',
+                label: 'Especificaciones *',
+                placeholder: 'Ejemplo: Gasa estéril 10x10cm',
                 id: 'especificaciones',
                 name: 'especificaciones',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -165,8 +201,8 @@ export function useInsumosBuilder({
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Lote de Fabricacion',
-                placeholder: 'Lote',
+                label: 'Lote de fabricación *',
+                placeholder: 'Ejemplo: LOTE-2024-001',
                 id: 'lote',
                 name: 'lote',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -176,8 +212,8 @@ export function useInsumosBuilder({
             .addCampo({
                 component: 'Input',
                 type: 'date',
-                label: 'Fecha de Vencimiento',
-                placeholder: 'AAAA-MM-DD',
+                label: 'Fecha de vencimiento *',
+                placeholder: 'Seleccione fecha',
                 id: 'vencimiento',
                 name: 'vencimiento',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -189,71 +225,87 @@ export function useInsumosBuilder({
     if (insumoStore.Formulario.Insumos.categoria === 'Equipos médicos') {
         builder
             .addCampo({
-                component: 'Checkbox',
-                placeholder: 'Nuevo Tipo Equipos',
-                label: 'Nuevo tipo equipo',
-                vmodel: 'Insumos.nuevo_tipo',
-                tamaño: 'md:col-span-1 col-span-3 pt-5',
+                component: 'Label',
+                forLabel: 'nombre_tipo',
+                tamaño: 'w-full col-span-2 mt-3',
+                text: `
+                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+                            <div class="px-5 py-4 bg-linear-to-r from-purple-500/10 to-purple-500/5 border-b border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                        <i class="fa-solid fa-microscope text-purple-600 text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-white">
+                                            Información del Equipo
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Complete los datos de identificación del equipo médico.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
             })
-        if (insumoStore.Formulario.Insumos.nuevo_tipo) {
-            builder
-                .addCampo({
-                    component: 'Input',
-                    type: 'text',
-                    label: 'Nombre de tipo',
-                    placeholder: 'Monitor',
-                    id: 'nombre_tipo',
-                    name: 'nombre_tipo',
-                    tamaño: 'md:col-span-1 col-span-3',
-                    minlength: 3,
-                    vmodel: 'Tipo_equipo.nombre'
-                })
-                .addCampo({
-                    component: 'Input',
-                    type: 'text',
-                    label: 'Descripcion Tipo de equipo',
-                    placeholder: 'Equipo medico encargado de',
-                    id: 'descripcion_tipo',
-                    name: 'descripcion_tipo',
-                    tamaño: 'md:col-span-1 col-span-3',
-                    minlength: 3,
-                    vmodel: 'Tipo_equipo.descripcion'
-                })
-        } else {
-
-            builder
-                .addCampo({
-                    component: 'Select',
-                    options: tiposEquipos,
-                    label: 'Tipo de equipo',
-                    placeholder: 'Lote',
-                    id: 'lote',
-                    name: 'lote',
-                    tamaño: 'md:col-span-1 col-span-3',
-                    minlength: 3,
-                    vmodel: 'Insumos.tipo_equipo_id'
-                })
-        }
-        builder
+            .addCampo({
+                component: 'Select',
+                options: tiposEquipos,
+                label: 'Tipo de equipo *',
+                placeholder: 'Seleccione tipo de equipo',
+                id: 'lote',
+                name: 'lote',
+                tamaño: 'md:col-span-1 col-span-3',
+                minlength: 3,
+                vmodel: 'Insumos.tipo_equipo_id'
+            })
             .addCampo({
                 component: 'Input',
                 type: 'text',
-                label: 'Serial',
-                placeholder: 'ABC123',
+                label: 'Serial *',
+                placeholder: 'Ejemplo: SN-2024-ABC123',
                 id: 'vencimiento',
                 name: 'vencimiento',
                 tamaño: 'md:col-span-1 col-span-3',
                 vmodel: 'Insumos.serial',
             })
+            .addCampo({
+                component: 'Input',
+                type: 'text',
+                label: 'Marca *',
+                placeholder: 'Ejemplo: Olympus',
+                id: 'marca',
+                name: 'marca',
+                tamaño: 'md:col-span-1 col-span-3',
+                vmodel: 'Insumos.marca',
+            })
+            .addCampo({
+                component: 'Input',
+                type: 'text',
+                label: 'Modelo *',
+                placeholder: 'Ejemplo: EVIS X1',
+                id: 'modelo',
+                name: 'modelo',
+                tamaño: 'md:col-span-1 col-span-3',
+                vmodel: 'Insumos.modelo',
+            })
+            .addCampo({
+                component: 'Input',
+                type: 'text',
+                label: 'Registro sanitario (opcional)',
+                placeholder: 'Ejemplo: INVIMA 2024-001',
+                id: 'vencimiento',
+                name: 'vencimiento',
+                tamaño: 'md:col-span-1 col-span-3',
+                vmodel: 'Insumos.registro_sanitario',
+            })
     }
     builder
-
-
         .addCampo({
             component: 'Input',
             type: 'text',
-            label: 'Ubicacion',
-            placeholder: 'Estante 1',
+            label: 'Ubicación',
+            placeholder: 'Ejemplo: Estante 1 - Nivel 2',
             id: 'ubicacion',
             name: 'ubicacion',
             tamaño: 'md:col-span-1 col-span-3',
@@ -264,8 +316,8 @@ export function useInsumosBuilder({
             .addCampo({
                 component: 'Select',
                 type: 'text',
-                label: '¿Es prestable?',
-                placeholder: 'Seleccione el tipo de insumo',
+                label: '¿Es prestable? *',
+                placeholder: 'Seleccione si es prestable',
                 id: 'tipo',
                 name: 'tipo',
                 tamaño: 'md:col-span-1 col-span-3',
@@ -352,7 +404,7 @@ export function useInsumosBuilder({
             .nuevaSeccion('Movimientos de Inventario')
             .addCampo({
                 component: 'Label',
-                text: '<i class="fa-solid fa-boxes-stacked text-blue-500 mr-1"></i>Informacion de Stock',
+                text: '<i class="i-lucide-boxes-stacked text-blue-500 mr-1"></i>Información de Stock',
                 tamaño: 'w-full col-span-2',
                 forLabel: 'unidad'
             })

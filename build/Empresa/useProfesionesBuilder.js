@@ -1,4 +1,4 @@
-// builders/useFormularioCitaBuilder.js
+// builders/useProfesionesBuilder.js
 import { FormularioBuilder } from '~/build/Constructores/FormBuilder'
 
 export function useProfesionesBuilder({
@@ -47,14 +47,14 @@ export function useProfesionesBuilder({
     .setEliminarFormulario(puedeDelete ? eliminar : false)
     .addCampo({
       component: 'Label',
-      text: '<i class="fa-solid fa-user-doctor text-purple-500 mr-1"></i>Profesiones',
+      text: '<i class="fa-solid fa-user-doctor text-purple-500 mr-1"></i>Formulario de Profesiones',
       tamaño: 'w-full md:col-span-2',
       forLabel: 'Profesion'
     })
     .addCampo({
       component: 'Input',
       type: 'text',
-      placeholder: 'Nombre Profesion',
+      placeholder: 'Nombre de la profesión *',
       id: 'Profesion',
       name: 'Profesion',
       minlength: 5,
@@ -65,7 +65,7 @@ export function useProfesionesBuilder({
     .addCampo({
       component: 'Input',
       type: 'text',
-      placeholder: 'Codigo',
+      placeholder: 'Código *',
       id: 'ProfesionCodigo',
       name: 'ProfesionCodigo',
       minlength: 2,
@@ -75,19 +75,19 @@ export function useProfesionesBuilder({
     })
       .addCampo({
         component: 'Checkbox',
-        placeholder: 'Permitir mostrar todos los Pacientes?',
+        placeholder: '¿Permitir mostrar todos los pacientes?',
         tamaño: 'w-full',
         vmodel: 'Profesion.ListaPacientes',
       })
       .addCampo({
         component: 'Checkbox',
-        placeholder: 'Permitir realizar diagnosticos?',
+        placeholder: '¿Permitir realizar diagnósticos?',
         tamaño: 'w-full',
         vmodel: 'Profesion.Diagnosticos_view',
       })
     .addCampo({
       component: 'Permisos',
-      placeholder: 'Seleccione los permisos en cada Seccion',
+      placeholder: 'Seleccione los permisos en cada sección',
       id: 'permisos',
       name: 'permisos',
       tamaño: 'w-full md:col-span-2',

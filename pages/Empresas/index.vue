@@ -180,7 +180,7 @@ const propiedadesTabla = computed(() => {
 })
 
 const columnsCie10 = [
-    { accessorKey: "codigo", header: "Codigo" },
+    { accessorKey: "codigo", header: "Código" },
     { accessorKey: "nombre", header: "Nombre", ordenar: true },
     {
         id: 'actions',
@@ -234,7 +234,7 @@ function getRowItemsCie10(row) {
 }
 
 const columnsVadecums = [
-    { accessorKey: "codigo", header: "Codigo" },
+    { accessorKey: "codigo", header: "Código" },
     { accessorKey: "nombre", header: "Nombre", ordenar: true },
     {
         id: 'actions',

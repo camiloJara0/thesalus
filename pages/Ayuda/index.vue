@@ -219,7 +219,7 @@ function resaltarTexto(texto, termino) {
                     <div class="text-center md:text-left flex-1">
                         <h3 class="font-bold text-lg mb-1">Necesitas mas ayuda?</h3>
                         <p class="text-white/80 text-sm">
-                            Contacta al administrador del sistema para soporte tecnico personalizado.
+                            Contacta al administrador del sistema para soporte técnico personalizado.
                         </p>
                     </div>
                     <button
