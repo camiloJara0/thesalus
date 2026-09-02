@@ -6,6 +6,7 @@ import ModalAdminPlantilla from './ModalAdminPlantilla.vue'
 import { usePaginacion } from '~/composables/Tabla/usePaginacion.js'
 import { useKardexStore } from '~/stores/Entidades/Kardex'
 import { storeHistorialCambioSonda } from '~/Core/Pacientes/KardexAPI.js'
+import { useOrdenamiento } from "~/composables/Tabla/useDatosOrdenadosTabla";
 
 const apiRest = useApiRest()
 const varView = useVarView()
@@ -16,6 +17,33 @@ const puedeVer = hasPermiso('Kardex_view')
 const puedeGet = hasPermiso('Kardex_get')
 const puedePost = hasPermiso('Kardex_put')
 const esAdmin = varView.getRol === 'Admin'
+const mostrarFiltros = ref(false)
+const columnasFijas = [
+    {
+        accessorKey: 'No_document',
+        header: 'Documento',
+        ordenar: true,
+        pinned: true,
+        size: 120,
+        meta: { class: 'sticky-col col-1' }
+    },
+    {
+        accessorKey: 'name',
+        header: 'Nombre',
+        ordenar: true,
+        pinned: true,
+        size: 200,
+        meta: { class: 'sticky-col col-2' }
+    },
+    {
+        accessorKey: 'Eps',
+        header: 'EPS',
+        ordenar: true,
+        pinned: true,
+        size: 200,
+        meta: { class: 'sticky-col col-3' }
+    }
+]
 
 const {
     options,
@@ -32,13 +60,24 @@ const showAdminPlantilla = ref(false)
 const cargandoTabla = ref(false)
 
 const {
+  busqueda,
+  filtros,
+  filtrosConOpciones,
+  sortedItems,
+  datosOrdenados,
+  columnaOrden,
+  menorAMayor,
+  borrarFiltros
+} = useOrdenamiento(historias, [{columna: 'Eps', placeholder: 'EPS'}], [], columnasFijas);
+
+const {
     paginaActual,
     itemsPorPagina,
     totalPaginas,
     ultimaPagina,
     cambiarItemsPorPagina,
     datosPaginados,
-} = usePaginacion(historias)
+} = usePaginacion(datosOrdenados)
 
 const plantillasOptions = computed(() =>
     kardexStore.plantillas
@@ -77,6 +116,7 @@ async function cargarPacientes() {
         id: k.paciente_id,
         _kardexValores: kardexStore.getRegistros(k.id_paciente)
     }))
+    console.log(historias.value)
     copiaKardex = JSON.parse(JSON.stringify(historias.value))
 
 }
@@ -115,32 +155,7 @@ function filaFueCambiada(id) {
     return filasCambiadas.value.has(id)
 }
 
-const columnasFijas = [
-    {
-        accessorKey: 'No_document',
-        header: 'Documento',
-        ordenar: true,
-        pinned: true,
-        size: 120,
-        meta: { class: 'sticky-col col-1' }
-    },
-    {
-        accessorKey: 'name',
-        header: 'Nombre',
-        ordenar: true,
-        pinned: true,
-        size: 200,
-        meta: { class: 'sticky-col col-2' }
-    },
-    {
-        accessorKey: 'Eps',
-        header: 'EPS',
-        ordenar: true,
-        pinned: true,
-        size: 200,
-        meta: { class: 'sticky-col col-3' }
-    },
-]
+
 
 const columnasKardex = computed(() => {
     return camposPlantilla.value?.map(campo => ({
@@ -278,18 +293,59 @@ const columnPinning = ref({
                         placeholder="Seleccionar plantilla"
                         class="w-52"
                     />
+                    <UButton icon="i-lucide-filter" color="neutral" variant="outline" @click="mostrarFiltros = !mostrarFiltros">
+                        <p class="hidden md:block">Filtrar</p>
+                    </UButton>
                     <ModalAdminPlantilla
                         v-if="esAdmin"
                         @guardado="onPlantillaGuardada"
                     >
                     </ModalAdminPlantilla>
-                    <download-excel :data="historias" name="kardex" type="xlsx">
+                    <download-excel :data="datosOrdenados" name="kardex" type="xlsx">
+                        <ButtonRounded tooltip="Max 20 filas" color="w-fit">
                         <UButton icon="i-lucide-file-chart-column" color="primary" variant="ghost">
                             Descargar
                         </UButton>
+                        </ButtonRounded>
                     </download-excel>
                 </div>
             </div>
+      <div v-if="mostrarFiltros" class="w-full">
+        <div class="w-full py-4">
+          <USeparator></USeparator>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-filter text-gray-400"></i>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
+              Filtros de la tabla
+              <span v-if="busqueda !== '' || Object.values(filtros).some(v => v !== '') || columnaOrden"
+                class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                Filtros activos
+              </span>
+            </p>
+          </div>
+
+          <div class="flex gap-2">
+            <ButtonRounded v-if="busqueda !== '' || Object.values(filtros).some(v => v !== '') || columnaOrden"
+              color="dark:text-gray-200 dark:bg-red-600 text-gray-700 bg-red-400" tooltip="Limpiar filtros"
+              tooltipPosition="top" @click="borrarFiltros">
+              <i class="fa-solid fa-xmark"></i>
+            </ButtonRounded>
+          </div>
+        </div>
+
+                <div class="flex flex-wrap items-end justify-between gap-3"">
+                    <UInput v-model="busqueda" placeholder="Buscar dato en la Tabla..." icon="lucide-search"
+                    variant="outline" size="lg" class="md:w-90 w-full" />
+
+                <div class="md:flex flex-wrap justify-end gap-3 w-full md:w-fit grid grid-cols-2">
+                    <USelect v-for="(filtro, key) in filtrosConOpciones.slice(0, 3)" :key="key"
+                        v-model="filtros[filtro.columna]" :placeholder="filtro.placeholder"
+                        :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos,]" class="md:w-45 w-full" @change="async() => {filtro.accion?.(filtros)}" />
+                </div>
+            </div>
+      </div>
         </template>
 
         <div v-if="historias.length > 0 && columns.length > 0" class="space-y-4">
@@ -311,19 +367,19 @@ const columnPinning = ref({
             </p>
         </div>
 
-        <div v-if="historias.length > 0" class="flex justify-between mt-3">
+        <div v-if="datosOrdenados.length > 0" class="flex justify-between mt-3">
             <UPagination
                 v-model:page="paginaActual"
                 active-color="primary"
                 active-variant="subtle"
                 :sibling-count="1"
-                :total="historias.length"
+                :total="datosOrdenados.length"
                 :items-per-page="itemsPorPagina"
             />
             <p class="text-sm text-gray-500 md:flex gap-1 hidden items-center">
                 Mostrando
                 <span class="text-gray-500">{{ ultimaPagina - itemsPorPagina + 1 }} al {{ ultimaPagina }}</span>
-                <span class="text-gray-500">de {{ historias.length }}</span>
+                <span class="text-gray-500">de {{ datosOrdenados.length }}</span>
                 <select name="numRegistros"
                     class="ml-3 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                     @change="cambiarItemsPorPagina($event.target.value)">

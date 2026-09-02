@@ -300,11 +300,10 @@ function onCampoGuardado() {
                     <div class="flex items-center justify-between mb-3">
                         <h4 class="font-semibold text-sm text-gray-700 dark:text-gray-300">Campos Asignados</h4>
                         <UButton
-                            icon="i-lucide-plus"
                             size="xs"
                             color="primary"
-                            variant="ghost"
-                            label="Asignar campo"
+                            variant="link"
+                            label="Asigna campos"
                         />
                     </div>
 
