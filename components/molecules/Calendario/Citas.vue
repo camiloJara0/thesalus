@@ -5,6 +5,8 @@ import { nombresMeses } from '~/data/Fechas.js'
 import { storeToRefs } from 'pinia';
 import Card from './Card.vue';
 import { useCitasStore } from '~/stores/Formularios/citas/Cita.js';
+import { useOrdenamiento } from "~/composables/Tabla/useDatosOrdenadosTabla";
+import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
 
 const props = defineProps({
     citas: {
@@ -20,6 +22,7 @@ const props = defineProps({
 const varView = useVarView();
 const citasStore = useCitasStore()
 const calendarioCitasStore = useCalendarioCitas();
+const showFiltros = ref(false)
 
 const { Citas } = storeToRefs(citasStore)
 
@@ -30,9 +33,38 @@ const {
     meses,
 } = storeToRefs(calendarioCitasStore);
 
+const columnas = [
+    { columna: 'servicio.name', placeholder: 'Servicio',},
+    { columna: 'estado', placeholder: 'Estado' },
+    { columna: 'profesional.info_usuario.name', placeholder: 'Profesional',},
+    { columna: 'paciente.info_usuario.name', placeholder: 'Paciente',},
+    { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes' },
+    { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', },
+]
+
+const columnasPendientes = [
+    { columna: 'servicio.name', placeholder: 'Servicio' },
+    { columna: 'profesional.info_usuario.name', placeholder: 'Profesional' },
+    { columna: 'paciente.info_usuario.name', placeholder: 'Paciente' },
+]
+
+const columns = [
+    { accessorKey: 'id', header: 'id', ordenar: true },
+    { accessorKey: 'fecha', header: 'Fecha', ordenar: true },
+    { accessorKey: 'paciente.info_usuario.name', header: 'Paciente', ordenar: true },
+    { accessorKey: 'profesional.info_usuario.name', header: 'Profesional' },
+    { accessorKey: 'motivo', header: 'Motivo' },
+    { accessorKey: 'servicio.name', header: 'Servicio' },
+    {
+        accessorKey: 'estado',
+        header: 'Estado',
+    }
+]
+
 // Citas filtradas segun dia seleccionado
 const citasFiltradas = computed(() => {
-    return Citas.value?.filter(cita => {
+    const citas = JSON.parse(JSON.stringify(Citas.value))
+    return citas?.filter(cita => {
         if (!cita.fecha || cita.estado === 'cancelada') return false;
 
         const fechaInicio = new Date(cita.fecha);
@@ -51,7 +83,6 @@ const citasFiltradas = computed(() => {
     });
 });
 
-
 // Pendientes
 const pendientes = computed(() => {
     return Citas.value?.filter(cita => {
@@ -68,6 +99,36 @@ const mes = computed(() => {
     return nombresMeses[mes - 1]
 });
 
+// Ordenamiento para citas del dia
+const {
+    busqueda,
+    filtros,
+    filtrosConOpciones,
+    sortedItems,
+    datosOrdenados,
+    columnaOrden,
+    menorAMayor,
+    borrarFiltros
+} = useOrdenamiento(citasFiltradas || ref([]), columnas, [], columns);
+
+// Ordenamiento para pendientes
+const {
+    busqueda: busquedaPendientes,
+    filtros: filtrosPendientes,
+    filtrosConOpciones: filtrosConOpcionesPendientes,
+    datosOrdenados: datosPendientes,
+    columnaOrden: columnaOrdenPendientes,
+    borrarFiltros: borrarFiltrosPendientes
+} = useOrdenamiento(pendientes || ref([]), columnasPendientes, [], columns);
+
+const hayFiltrosActivos = computed(() =>
+    busqueda.value !== '' || Object.values(filtros.value).some(v => v !== '') || columnaOrden.value
+);
+
+const hayFiltrosActivosPendientes = computed(() =>
+    busquedaPendientes.value !== '' || Object.values(filtrosPendientes.value).some(v => v !== '') || columnaOrdenPendientes.value
+);
+
 </script>
 
 <template>
@@ -80,6 +141,8 @@ const mes = computed(() => {
             <p class="text-xl font-semibold">
                 {{ calendarioCitasStore.diaSemana }}, {{ dias }} {{ mes }}
             </p>
+
+            <UButton icon="i-lucide-filter" :color="showFiltros? 'primary': 'neutral'" variant="soft" @click="showFiltros = !showFiltros">Filtrar</UButton>
         </div>
 
         <UTabs v-if="fecha === fechaActual" class="px-4" :items="[
@@ -94,15 +157,32 @@ const mes = computed(() => {
                 icon: 'i-lucide-clock'
             }
         ]">
+
             <template #actuales>
-                <div class="grid gap-2"
+                <div v-if="showFiltros" class="w-full pt-3 pb-1 flex justify-between md:flex-row flex-col">
+                    <!-- Buscador y acciones -->
+                    <div class="flex items-center gap-2">
+                        <UInput v-model="busqueda" placeholder="Buscar por paciente, servicio..." icon="lucide-search"
+                            variant="outline" size="sm" class="flex-1" />
+                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos" @click="borrarFiltros" />
+                    </div>
+
+                    <!-- Filtros por columna -->
+                    <div class="flex flex-wrap gap-2">
+                        <USelect v-for="(filtro, key) in filtrosConOpciones.slice(0, 3)" :key="key"
+                            v-model="filtros[filtro.columna]" :placeholder="filtro.placeholder"
+                            :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]"
+                            size="sm" class="w-full sm:w-auto sm:min-w-35" />
+                    </div>
+                </div>
+
+                <div class="grid gap-2 mt-2"
                     :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
                     <!-- Card Citas -->
 
                     <template v-if="!unref(props.Propiedades.citas)">
                         <div v-for="i in 2" :key="i" :class="Propiedades.tamaño"
                             class="w-full p-4 shadow-md bg-white dark:bg-gray-700 flex flex-col gap-4 animate-pulse">
-                            <!-- HEADER -->
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600"></div>
                                 <div class="flex flex-col gap-2">
@@ -110,12 +190,10 @@ const mes = computed(() => {
                                     <div class="w-20 h-3 bg-gray-200 dark:bg-gray-500 rounded"></div>
                                 </div>
                             </div>
-                            <!-- BODY -->
                             <div class="space-y-2">
                                 <div class="w-full h-3 bg-gray-300 dark:bg-gray-600 rounded"></div>
                                 <div class="w-3/4 h-3 bg-gray-200 dark:bg-gray-500 rounded"></div>
                             </div>
-                            <!-- FOOTER -->
                             <div class="flex gap-2 pt-2">
                                 <div class="w-16 h-6 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                                 <div class="w-16 h-6 bg-gray-200 dark:bg-gray-500 rounded-full"></div>
@@ -123,16 +201,35 @@ const mes = computed(() => {
                         </div>
                     </template>
 
-                    <Card v-for="cita in citasFiltradas" :cita="cita" :Propiedades="props.Propiedades"></Card>
-
+                    <Card v-for="cita in datosOrdenados" :cita="cita" :Propiedades="props.Propiedades"></Card>
                 </div>
             </template>
 
             <template #pendientes>
+                <!-- Buscador y acciones pendientes -->
+                <div v-if="showFiltros" class="w-full pt-3 pb-1 flex justify-between md:flex-row flex-col">
+                    <div class="flex items-center gap-2">
+                        <UInput v-model="busquedaPendientes" placeholder="Buscar pendiente..." icon="lucide-search"
+                            variant="outline" size="sm" class="flex-1" />
+                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos" @click="borrarFiltros" />
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <USelect v-for="(filtro, key) in filtrosConOpcionesPendientes" :key="key"
+                            v-model="filtrosPendientes[filtro.columna]" :placeholder="filtro.placeholder"
+                            :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]"
+                            size="sm" class="w-full sm:w-auto sm:min-w-35" />
+                    </div>
+                </div>
+
                 <!-- Citas Pendientes -->
-                <div class="grid gap-2"
+                <div class="grid gap-2 mt-2"
                     :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
-                    <Card v-for="cita in pendientes.reverse()" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                    <Card v-for="cita in datosPendientes" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                </div>
+
+                <div v-if="!datosPendientes?.length" class="w-full py-8 flex justify-center">
+                    <p class="text-sm text-gray-400 dark:text-gray-500">No hay citas pendientes.</p>
                 </div>
             </template>
 
@@ -140,10 +237,10 @@ const mes = computed(() => {
 
         <div v-else class="grid gap-2 p-4"
             :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
-            <Card v-for="cita in citasFiltradas" :cita="cita" :Propiedades="props.Propiedades"></Card>
+            <Card v-for="cita in datosOrdenados" :cita="cita" :Propiedades="props.Propiedades"></Card>
         </div>
 
-        <div v-if="citasFiltradas?.length < 1" class="w-full py-8 flex justify-center">
+        <div v-if="datosOrdenados?.length < 1 && fecha === fechaActual" class="w-full py-8 flex justify-center">
             <h2 class="text-lg text-gray-500">No hay citas programadas.</h2>
         </div>
 

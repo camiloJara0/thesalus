@@ -88,8 +88,9 @@ const columns = props.Propiedades.columns.map(col => {
 watch(
     () => props.Propiedades.data,
     (nuevosDatos) => {
+        console.log(nuevosDatos)
         if (!nuevosDatos?.length) return
-
+console.log('casa')
         if (isFiltrando.value) {
             data.value = [...nuevosDatos]
         } else {

@@ -11,7 +11,7 @@ import { storeToRefs } from 'pinia'
 import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue'
 import { useCitaActions } from '~/composables/Entidades/Cita'
 import { useMultiAutoRefresh } from '~/composables/useAutoRefresh'
-import { traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
+import { traerCitasFiltradas, traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue'
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue'
 
@@ -35,6 +35,7 @@ const {
 } = storeToRefs(calendarioCitasStore);
 
 const { Citas } = storeToRefs(citasStore)
+const citasScroll = ref([])
 
 const {
     cancelarCita,
@@ -289,20 +290,36 @@ function getRowItems(row) {
     return acciones
 }
 
+function cargarcitasFiltradas (data) {
+    console.log('data: ', data)
+    citasScroll.value = JSON.parse(JSON.stringify(data))
+    console.log(citasScroll.value)
+}
+
 const propiedadesTabla = computed(() => {
     return {
         titulo: 'Calendario de tu Agenda',
         llamadatos: llamadatos,
-        data: Citas,
+        data: citasScroll.value,
         agregar: puedePost ? agregarCita : null,
-        cargarData: traerCitasPaginadas,
+        cargarData: async (id, por_pagina) => {return await traerCitasPaginadas(id, por_pagina)},
         columns: columns,
         filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
-            { columna: 'estado', placeholder: 'Estado', accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
-            { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: async(filtros) => { await citasStore.citasFiltradas(filtros)} },
-            { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años?.map(a => ({ text: String(a), value: a })), accion: async(filtros) => { await citasStore.citasFiltradas(filtros) } },
+            { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion: 
+                async(filtros) => { 
+                    const data = await traerCitasFiltradas(filtros); 
+                    cargarcitasFiltradas(data) 
+                }
+            },
+            { columna: 'estado', placeholder: 'Estado', options: [{label: 'Realizada', value: 'Realizada'}, {label: 'Cancelada', value: 'cancelada'}, {label: 'Inactiva', value: 'inactiva'}], accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
+            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
+            { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: 
+                async(filtros) => { 
+                    const data = await traerCitasFiltradas(filtros); 
+                    cargarcitasFiltradas(data)
+                } 
+            },
+            { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años?.map(a => ({ text: String(a), value: a })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
         ],
         buttons: [
             { icon: 'lucide-table', accion: showFila, texto: 'En lista', color: 'primary', variant: 'subtle' },

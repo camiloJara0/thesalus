@@ -154,7 +154,7 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
                 const colDef = columnas.find(c => c.tipo === 'mes' || c.tipo === 'año');
                 const columnaReal = colDef?.columnaReal || 'fecha';
                 const fechaValue = getNestedValue(item, columnaReal);
-                const fecha = new Date(fechaValue + "T00:00:00");
+                const fecha = new Date(fechaValue);
                 const mes = fecha.getMonth() + 1;
                 const año = fecha.getFullYear();
 
