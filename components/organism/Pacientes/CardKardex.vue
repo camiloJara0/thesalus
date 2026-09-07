@@ -114,9 +114,8 @@ async function cargarPacientes() {
     historias.value = kardex.map(k => ({
         ...k,
         id: k.paciente_id,
-        _kardexValores: kardexStore.getRegistros(k.id_paciente)
+        _kardexValores: kardexStore.getRegistros(k.paciente_id)
     }))
-    console.log(historias.value)
     copiaKardex = JSON.parse(JSON.stringify(historias.value))
 
 }
@@ -200,9 +199,9 @@ async function guardarCambios() {
 }
 
 async function guardar(fila) {
-    const pacienteId = fila.id_paciente
+    const pacienteId = fila.paciente_id
     const valoresNuevos = kardexStore.getRegistros(pacienteId)
-    const valoresViejos = copiaKardex.find(paciente => paciente.id === pacienteId)._kardexValores
+    const valoresViejos = copiaKardex.find(paciente => paciente.id === pacienteId)?._kardexValores
 
     if (plantillaActivaTieneSonida()) {
         const cambioSonda = valoresNuevos[9] !== valoresViejos[9]
@@ -229,7 +228,7 @@ async function guardar(fila) {
             }
 
             const data = {
-                id_paciente: fila.id_paciente,
+                id_paciente: fila.paciente_id,
                 ultimoCambio: valoresNuevos[9],
                 tipo_sonda: 'Sonda',
                 observacion: respuesta.valor
