@@ -59,9 +59,9 @@ export const useProfesionalStore = defineStore('Profesional', {
 
         async actualizar(datos) {
             const validacion = await this.validar(datos)
-            // if(validacion) {
-            //     return await editarProfesional(datos.Profesional);
-            // }
+            if(validacion) {
+                return await editarProfesional(datos.Profesional);
+            }
         },
 
         async eliminar(datos) {
