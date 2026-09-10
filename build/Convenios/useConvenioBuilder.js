@@ -51,7 +51,6 @@ export function useConvenioBuilder({
                     const file = event.target.files[0];
                     if (file) {
                         const imagenReducida = await reducirImagen(file);
-                        console.log(imagenReducida)
                         store.Formulario.Convenio.logo = imagenReducida;
                     }
                 }

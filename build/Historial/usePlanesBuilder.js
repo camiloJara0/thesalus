@@ -30,7 +30,6 @@ export function usePlanesBuilder({
         const id = event
         const pacienteStore = usePacientesStore()
         pacienteStore.PacienteSeleccionado = id
-        console.log(pacienteStore.PacienteSeleccionado)
     }
     
     builder

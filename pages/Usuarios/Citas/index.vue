@@ -291,9 +291,7 @@ function getRowItems(row) {
 }
 
 function cargarcitasFiltradas (data) {
-    console.log('data: ', data)
     citasScroll.value = JSON.parse(JSON.stringify(data))
-    console.log(citasScroll.value)
 }
 
 const propiedadesTabla = computed(() => {

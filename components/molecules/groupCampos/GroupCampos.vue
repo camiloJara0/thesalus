@@ -84,7 +84,6 @@ const editItem = (index) => {
 
 // Eliminar
 const removeItem = (index) => {
-    console.log(index)
     // Si es el único item, limpiar valores en lugar de eliminar
     if (items.value.length === 1) {
         const emptyItem = { ...props.Propiedades.addItem };

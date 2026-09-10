@@ -63,7 +63,6 @@ const enviarFormulario = async (datos) => {
             const respuesta = await api.functionCall(options)
 
             if (respuesta.success) {
-                console.log('Contraseña cambiada')
                 return true
             }
         return true

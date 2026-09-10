@@ -91,14 +91,12 @@ export function useHistoriaBuilder({
             medicamentos.value = []
             return
         }
-        console.log(term)
         const res = await fetch(`/api/medicamentos?q=${encodeURIComponent(term)}`)
         if (!res.ok) {
             console.error('Error al cargar medicamentos', res.status)
             return
         }
         try {
-            console.log(res)
             medicamentos.value = await res.json()
         } catch (e) {
             console.error('Respuesta no es JSON', e)
