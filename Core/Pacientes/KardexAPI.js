@@ -116,6 +116,10 @@ export async function crearCampo(data) {
     const config = useRuntimeConfig();
     const token = getToken();
 
+    if(data.formulaCampos) {
+        data.formulaCampos.map(p => {data.opciones += `${p}\n`})
+    }
+
     const respuesta = await api.functionCall({
         metodo: 'POST',
         url: config.public.kardexCampos,
@@ -130,6 +134,11 @@ export async function actualizarCampo(id, data) {
     const config = useRuntimeConfig();
     const token = getToken();
     const url = `${config.public.kardexCampos}/${id}`;
+
+    if(data.formulaCampos) {
+        data.formulaCampos.map(p => {data.opciones += `${p}\n`})
+    }
+
     const respuesta = await api.functionCall({
         metodo: 'PUT',
         url,
@@ -155,6 +164,20 @@ export async function agregarCampoPlantilla(plantillaId, data) {
     const url = `${config.public.kardexPlantillas}/${plantillaId}/campo`;
     const respuesta = await api.functionCall({
         metodo: 'POST',
+        url,
+        token,
+        body: data
+    });
+    return respuesta?.success ? true : false;
+}
+
+export async function editarCampoPlantilla(plantillaId, data) {
+    const api = useApiRest();
+    const config = useRuntimeConfig();
+    const token = getToken();
+    const url = `${config.public.kardexPlantillas}/${plantillaId}/campo`;
+    const respuesta = await api.functionCall({
+        metodo: 'PUT',
         url,
         token,
         body: data

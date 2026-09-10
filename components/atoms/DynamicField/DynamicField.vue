@@ -1,7 +1,9 @@
 <script setup>
+import { computed, watch } from 'vue'
 import Input from '~/components/atoms/Inputs/Input.vue'
 import Select from '~/components/atoms/Selects/Select.vue'
 import Textarea from '~/components/atoms/Textareas/Textarea.vue'
+import { useCalculoKardex } from '~/composables/Kardex/useCalculoKardex'
 
 const props = defineProps({
     campo: {
@@ -18,6 +20,10 @@ const props = defineProps({
     variant: {
         type: String,
         default: 'ghost'
+    },
+    registros: {
+        type: Object,
+        default: null
     }
 })
 
@@ -27,6 +33,18 @@ const SI_NO_OPTIONS = [
     { label: 'SI', value: "1" },
     { label: 'NO', value: "0" }
 ]
+
+const esFormula = ['suma', 'resta', 'multiplicacion', 'division'].includes(props.campo.tipo)
+
+const { resultado } = esFormula
+    ? useCalculoKardex(props.campo, computed(() => props.registros))
+    : { resultado: computed(() => '') }
+
+watch(resultado, (val) => {
+    if (esFormula && val !== '' && val !== props.modelValue) {
+        emit('update:modelValue', val)
+    }
+})
 
 const componenteRender = computed(() => {
     switch (props.campo.tipo) {
@@ -47,8 +65,16 @@ const componenteRender = computed(() => {
 const propsComponente = computed(() => {
     const base = {
         variant: props.variant,
-        disabled: props.disabled,
+        disabled: props.disabled || esFormula,
         placeholder: props.campo.placeholder || props.campo.nombre
+    }
+
+    if (esFormula) {
+        return {
+            ...base,
+            type: 'number',
+            placeholder: resultado.value !== '' ? String(resultado.value) : '0'
+        }
     }
 
     switch (props.campo.tipo) {
@@ -61,7 +87,7 @@ const propsComponente = computed(() => {
         case 'select':
             return {
                 ...base,
-                items: (props.campo?.opciones || []).split('\n').map(o =>
+                items: (props.campo?.opciones || '').split('\n').map(o =>
                     typeof o === 'string' ? { label: o, value: o } : o
                 )
             }
@@ -82,7 +108,7 @@ const propsComponente = computed(() => {
     <component
         :is="componenteRender"
         v-bind="propsComponente"
-        :modelValue="modelValue"
+        :modelValue="esFormula ? resultado : modelValue"
         @update:modelValue="emit('update:modelValue', $event)"
     />
 </template>

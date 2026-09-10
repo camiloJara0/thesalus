@@ -13,7 +13,7 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
     const indiceBusquedaGlobal = ref([]);
     const cacheOrdenes = {};
 
-    columnas.forEach(col => {
+    unref(columnas).forEach(col => {
         filtros.value[col.columna] = col.value ?? '';  // si existe col.value lo asigna
     });
 
@@ -42,7 +42,7 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
             }
 
             // Indexar también las propiedades anidadas definidas en columnas
-            for (const col of columnas) {
+            for (const col of unref(columnas)) {
                 const columnaReal = col.columnaReal || col.columna;
                 if (columnaReal.includes('.')) {
                     const valor = getNestedValue(item, columnaReal);
@@ -120,7 +120,7 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
                 columnaOrden.value = '';
                 menorAMayor.value = true;
                 Object.keys(cacheOrdenes).forEach(k => delete cacheOrdenes[k]);
-                const colDef = columnas.find(c => c.columna === columna);
+                const colDef = unref(columnas).find(c => c.columna === columna);
                 const columnaReal = colDef?.columnaReal || columna;
 
                 if (colDef?.tipo === 'mes') {
@@ -151,7 +151,7 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
         // Aplicar filtro combinado de fecha
         if (filtroFecha.mes || filtroFecha.año) {
             resultado = resultado.filter(item => {
-                const colDef = columnas.find(c => c.tipo === 'mes' || c.tipo === 'año');
+                const colDef = unref(columnas).find(c => c.tipo === 'mes' || c.tipo === 'año');
                 const columnaReal = colDef?.columnaReal || 'fecha';
                 const fechaValue = getNestedValue(item, columnaReal);
                 const fecha = new Date(fechaValue);
@@ -198,7 +198,7 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
 
     // Generar opciones por datos no repetidos de columna a filtrar
     const filtrosConOpciones = computed(() => {
-        return columnas.map(col => {
+        return unref(columnas).map(col => {
             const columnaReal = col.columnaReal || col.columna;
 
             if (col.tipo === 'mes') {
@@ -262,6 +262,6 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
         datosOrdenados,
         columnaOrden,
         menorAMayor,
-        borrarFiltros
+        borrarFiltros,
     };
 }

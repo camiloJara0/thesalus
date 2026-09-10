@@ -6,7 +6,8 @@ export function useCampoBuilder({
     campo = null,
     onGuardar,
     onCerrar,
-    show
+    show,
+    campos
 }) {
     const builder = new FormularioBuilder()
     const store = useKardexStore()
@@ -36,7 +37,8 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Nombre del campo *',
+        label: 'Nombre del campo *',
+        placeholder: 'nombre_paciente',
         id: 'nombreCampo',
         name: 'nombreCampo',
         tamaño: 'w-full',
@@ -46,7 +48,8 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Título del campo *',
+        label: 'Título del campo *',
+        placeholder: 'Nombre',
         id: 'slugCampo',
         name: 'slugCampo',
         tamaño: 'w-full',
@@ -55,6 +58,7 @@ export function useCampoBuilder({
 
     builder.addCampo({
         component: 'Select',
+        label: 'Tipo de campo *',
         placeholder: 'Tipo de campo *',
         id: 'tipoCampo',
         name: 'tipoCampo',
@@ -66,6 +70,10 @@ export function useCampoBuilder({
             { label: 'Sí / No', value: 'boolean' },
             { label: 'Fecha', value: 'date' },
             { label: 'Texto largo (Textarea)', value: 'textarea' },
+            { label: 'Suma', value: 'suma' },
+            { label: 'Resta', value: 'resta' },
+            { label: 'Multiplicación', value: 'multiplicacion' },
+            { label: 'División', value: 'division' },
         ],
         vmodel: 'Campo.tipo',
     })
@@ -73,7 +81,8 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Texto de descripción del campo',
+        label: 'Texto de descripción del campo',
+        placeholder: 'Juan Perez',
         id: 'placeholderCampo',
         name: 'placeholderCampo',
         tamaño: 'w-full',
@@ -83,7 +92,8 @@ export function useCampoBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Valor por defecto (opcional)',
+        label: 'Valor por defecto (opcional)',
+        placeholder: '(opcional)',
         id: 'placeholderCampo',
         name: 'placeholderCampo',
         tamaño: 'w-full',
@@ -91,19 +101,33 @@ export function useCampoBuilder({
     })
 
     builder.addCampo({
-        component: 'Input',
-        type: 'number',
-        placeholder: 'Orden de aparición *',
-        id: 'ordenCampo',
-        name: 'ordenCampo',
+        component: 'SelectMultiple',
+        label: 'Campos aplicados a formula (opcional)',
+        placeholder: 'Celda X',
+        id: 'formulaCampos',
+        name: 'formulaCampos',
         tamaño: 'w-full',
-        min: '0',
-        vmodel: 'Campo.orden',
+        options: campos,
+        vmodel: 'Campo.formulaCampos',
+        labelKey: 'nombre',
+        valueKey: 'id',
     })
+
+    // builder.addCampo({
+    //     component: 'Input',
+    //     type: 'number',
+    //     placeholder: 'Orden de aparición *',
+    //     id: 'ordenCampo',
+    //     name: 'ordenCampo',
+    //     tamaño: 'w-full',
+    //     min: '0',
+    //     vmodel: 'Campo.orden',
+    // })
 
     builder.addCampo({
         component: 'Textarea',
-        placeholder: 'Opciones (una por línea, solo aplica para tipo Select)',
+        label: 'Opciones (una por línea, solo aplica para tipo Select)',
+        placeholder: 'Uno \nDos \nTres',
         id: 'opcionesCampo',
         name: 'opcionesCampo',
         tamaño: 'w-full col-span-2',

@@ -38,15 +38,81 @@ onMounted(async() => {
 })
 
 watch(plantillaSeleccionada.value, async (val) => {
-    console.log('no sirve')
     if (val) {
-        console.log('hola')
         vista.value = 'lista'
         plantillaSeleccionada.value = null
         await kardexStore.cargarPlantillas()
         await kardexStore.cargarCamposDisponibles()
     }
 })
+
+let dragIndex = null
+const ordenLocal = ref([])
+const ordenModificado = ref(false)
+const guardandoOrden = ref(false)
+
+function syncOrdenLocal() {
+   ordenLocal.value = kardexStore.camposPlantilla
+        .slice()
+        .sort((a, b) => (a.pivot?.orden ?? 0) - (b.pivot?.orden ?? 0))
+        .map(c => ({ ...c }))
+    ordenModificado.value = false
+}
+
+watch(() => kardexStore.camposPlantilla, () => {
+    if (vista.value === 'editar') syncOrdenLocal()
+}, { deep: true })
+
+function onDragStart(index) {
+    dragIndex = index
+}
+
+function onDragOver(e, index) {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === index) return
+    const arr = [...ordenLocal.value]
+    const moved = arr.splice(dragIndex, 1)[0]
+    if (moved !== undefined) {
+        arr.splice(index, 0, moved)
+        ordenLocal.value = arr
+        dragIndex = index
+        ordenModificado.value = true
+    }
+}
+
+function onDragEnd() {
+    dragIndex = null
+}
+
+function onDragEnter(e, index) {
+    e.preventDefault()
+}
+
+async function guardarOrden() {
+    if (!plantillaSeleccionada.value || !ordenModificado.value) return
+    guardandoOrden.value = true
+    try {
+        const camposConOrden = ordenLocal.value.map((campo, i) => ({
+            id: campo.id,
+            orden: i + 1,
+            requerido: campo.pivot?.requerido ?? 0,
+        }))
+        await kardexStore.guardarOrdenCampos(plantillaSeleccionada.value.id, camposConOrden)
+        ordenModificado.value = false
+        notificaciones.options.icono = 'success'
+        notificaciones.options.texto = 'Orden guardado correctamente'
+        notificaciones.options.tiempo = 2000
+        notificaciones.mensaje()
+        syncOrdenLocal()
+    } catch (e) {
+        notificaciones.options.icono = 'error'
+        notificaciones.options.texto = 'Error al guardar el orden'
+        notificaciones.options.tiempo = 3000
+        notificaciones.mensaje()
+    } finally {
+        guardandoOrden.value = false
+    }
+}
 
 const propiedadesCrearPlantilla = computed(() =>
     usePlantillaBuilder({
@@ -79,6 +145,7 @@ async function editarPlantilla(plantilla) {
     await kardexStore.cargarCamposDisponibles()
     plantillaSeleccionada.value = { ...plantilla }
     vista.value = 'editar'
+    syncOrdenLocal()
 }
 
 function editar() {
@@ -140,6 +207,7 @@ async function asignarCampo(campo) {
         orden: kardexStore.camposPlantilla.length + 1,
         requerido: 0,
     })
+    syncOrdenLocal()
     notificaciones.options.icono = 'success'
     notificaciones.options.background = '#22c55e'
     notificaciones.options.texto = `Campo "${campo.nombre}" asignado`
@@ -150,6 +218,7 @@ async function asignarCampo(campo) {
 async function removerCampo(campo) {
     if (!plantillaSeleccionada.value) return
     await kardexStore.eliminarCampoPlantilla(plantillaSeleccionada.value.id, campo.id)
+    syncOrdenLocal()
     notificaciones.options.icono = 'info'
     notificaciones.options.texto = `Campo "${campo.nombre}" removido`
     notificaciones.options.tiempo = 1500
@@ -165,6 +234,11 @@ function abrirCrearCampo() {
 function abrirEditarCampo(campo) {
     campoEditando.value = campo
     kardexStore.Formulario.Campo = JSON.parse(JSON.stringify(campo))
+    if(campo.tipo == 'suma' || campo.tipo == 'resta' || campo.tipo == 'multiplicacion' || campo.tipo == 'division'){
+        // kardexStore.Formulario.Campo.formulaCampos = kardexStore.Formulario.Campo.opciones?.split('\n')
+        // console.log(kardexStore.Formulario.Campo.formulaCampos)
+        kardexStore.Formulario.Campo.opciones = ''
+    }
     campoModo.value = 'editar'
     kardexStore.showCampo = true
 }
@@ -299,12 +373,26 @@ function onCampoGuardado() {
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4 px-2">
                     <div class="flex items-center justify-between mb-3">
                         <h4 class="font-semibold text-sm text-gray-700 dark:text-gray-300">Campos Asignados</h4>
-                        <UButton
-                            size="xs"
-                            color="primary"
-                            variant="link"
-                            label="Asigna campos"
-                        />
+                        <div class="flex items-center gap-2">
+                            <Transition name="slide-up">
+                                <UButton
+                                    v-if="ordenModificado"
+                                    size="xs"
+                                    color="success"
+                                    variant="soft"
+                                    label="Guardar orden"
+                                    :loading="guardandoOrden"
+                                    icon="i-lucide-check"
+                                    @click="guardarOrden"
+                                />
+                            </Transition>
+                            <UButton
+                                size="xs"
+                                color="primary"
+                                variant="link"
+                                label="Asigna campos"
+                            />
+                        </div>
                     </div>
 
                     <!-- Selector de campo para asignar -->
@@ -332,36 +420,44 @@ function onCampoGuardado() {
                     </div>
 
                     <!-- Lista de campos asignados -->
-                    <div v-if="kardexStore.camposPlantilla.length > 0" class="space-y-2">
-                        <div
-                            v-for="(campo, index) in kardexStore.camposPlantilla"
-                            :key="campo.id"
-                            class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2"
-                        >
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded font-mono">
-                                    #{{ index + 1 }}
-                                </span>
-                                <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ campo.nombre }}</span>
-                                <span class="text-xs text-gray-400">{{ campo.tipo }}</span>
-                                <UBadge v-if="campo.requerido" color="error" variant="soft" size="xs">Req</UBadge>
+                    <div v-if="ordenLocal.length > 0" class="space-y-2">
+                        <TransitionGroup name="list" tag="div" class="space-y-2">
+                            <div
+                                v-for="(campo, index) in ordenLocal"
+                                :key="campo.id"
+                                draggable="true"
+                                @dragstart="onDragStart(index)"
+                                @dragover="onDragOver($event, index)"
+                                @dragenter="onDragEnter($event, index)"
+                                @dragend="onDragEnd"
+                                class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-grip-vertical text-gray-400 dark:text-gray-500 text-xs cursor-grab"></i>
+                                    <span class="text-xs bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded font-mono">
+                                        #{{ index + 1 }}
+                                    </span>
+                                    <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ campo.nombre }}</span>
+                                    <span class="text-xs text-gray-400">{{ campo.tipo }}</span>
+                                    <UBadge v-if="campo.requerido" color="error" variant="soft" size="xs">Req</UBadge>
+                                </div>
+                                <div class="flex gap-1">
+                                    <UButton
+                                        icon="i-lucide-pencil"
+                                        variant="ghost"
+                                        size="xs"
+                                        @click="abrirEditarCampo(campo)"
+                                    />
+                                    <UButton
+                                        icon="i-lucide-x"
+                                        variant="ghost"
+                                        color="error"
+                                        size="xs"
+                                        @click="removerCampo(campo)"
+                                    />
+                                </div>
                             </div>
-                            <div class="flex gap-1">
-                                <UButton
-                                    icon="i-lucide-pencil"
-                                    variant="ghost"
-                                    size="xs"
-                                    @click="abrirEditarCampo(campo)"
-                                />
-                                <UButton
-                                    icon="i-lucide-x"
-                                    variant="ghost"
-                                    color="error"
-                                    size="xs"
-                                    @click="removerCampo(campo)"
-                                />
-                            </div>
-                        </div>
+                        </TransitionGroup>
                     </div>
                     <div v-else class="text-center py-6">
                         <p class="text-sm text-gray-400">Esta plantilla no tiene campos asignados</p>
@@ -378,3 +474,28 @@ function onCampoGuardado() {
     </USlideover>
 
 </template>
+
+<style scoped>
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.3s ease;
+}
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+.list-move {
+    transition: transform 0.3s ease;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+    transition: all 0.2s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+    opacity: 0;
+    transform: translateY(5px);
+}
+</style>

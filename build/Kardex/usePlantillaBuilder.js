@@ -33,7 +33,8 @@ export function usePlantillaBuilder({
     builder.addCampo({
         component: 'Input',
         type: 'text',
-        placeholder: 'Nombre de la plantilla *',
+        label: 'Nombre de la plantilla *',
+        placeholder: 'Kardex UCI',
         id: 'nombre',
         name: 'nombre',
         tamaño: 'w-full',
@@ -42,6 +43,7 @@ export function usePlantillaBuilder({
 
     builder.addCampo({
         component: 'Select',
+        label: 'Estado *',
         placeholder: 'Estado *',
         id: 'estado',
         name: 'estado',
@@ -55,7 +57,8 @@ export function usePlantillaBuilder({
 
     builder.addCampo({
         component: 'Textarea',
-        placeholder: 'Descripción (opcional)',
+        label: 'Descripción (opcional)',
+        placeholder: 'Kardex para pacientes de la unidad de cuidados intensivos',
         id: 'descripcion',
         name: 'descripcion',
         tamaño: 'w-full col-span-2',

@@ -20,12 +20,19 @@ const isOpen = computed({
     set: (val) => emit('update:modelValue', val)
 })
 
+const camposNumericos = computed(() => {
+    return kardexStore.camposDisponibles.filter(k => {
+            return k.tipo == 'number'
+        })
+})
+
 const propiedadesCampo = computed(() =>
     useCampoBuilder({
         modo: props.modo,
         campo: props.campo,
         onCerrar: () => { kardexStore.showCampo = false },
-        show: kardexStore.showCampo
+        show: kardexStore.showCampo,
+        campos: camposNumericos.value
     })
 )
 
@@ -72,21 +79,5 @@ async function onFormGuardado(data) {
 </script>
 
 <template>
-    <!-- <UModal v-model="isOpen" :ui="{ width: 'w-[480px]' }">
-        <template #header>
-            <div class="flex items-center justify-between w-full">
-                <h3 class="font-bold text-lg text-gray-900 dark:text-white">
-                    {{ modo === 'editar' ? 'Editar Campo' : 'Nuevo Campo' }}
-                </h3>
-                <UButton icon="i-lucide-x" variant="ghost" @click="isOpen = false" />
-            </div>
-        </template>
-
-        <template #default>
-            <div class="p-2">
-            </div>
-        </template>
-    </UModal> -->
-
     <Form :Propiedades="propiedadesCampo" @submit="onFormGuardado" />
 </template>

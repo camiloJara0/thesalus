@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { traerCeldasPintadas } from "~/Core/CeldasPintadas/GetCeldasPintadas";
 import {
     fetchPlantillas,
     fetchCamposPlantilla,
@@ -190,5 +191,21 @@ export const useKardexStore = defineStore('Kardex', {
             if (exito) await this.seleccionarPlantilla(plantillaId);
             return exito;
         },
+
+        async guardarOrdenCampos(plantillaId, camposOrdenados) {
+            for (const campo of camposOrdenados) {
+                await agregarCampoPlantilla(plantillaId, {
+                    id_campo: campo.id,
+                    orden: campo.orden,
+                    requerido: campo.requerido ?? 0,
+                });
+            }
+            await this.seleccionarPlantilla(plantillaId);
+            return true;
+        },
+
+        async traerCeldaColors() {
+            return await traerCeldasPintadas()
+        }
     },
 });
