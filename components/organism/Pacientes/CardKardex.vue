@@ -29,7 +29,14 @@ const columnasFijas = [
         ordenar: true,
         pinned: true,
         size: 120,
-        meta: { class: 'sticky-col col-1' }
+        meta: { class: 'sticky-col col-1' },
+        cell: ({ row }) => {
+            return h('div', {
+                class: 'w-full h-full flex justify-center bg-white dark:bg-slate-900/80',
+            }, [
+                h('p', {class: 'text-black dark:text-white'}, [row.original.No_document])
+            ])
+        }
     },
     {
         accessorKey: 'name',
@@ -48,6 +55,8 @@ const columnasFijas = [
         meta: { class: 'sticky-col col-3' }
     }
 ]
+const campoTotalizado = ref(0)
+const nombreCampoTotalizado = ref('')
 
 const {
     options,
@@ -229,13 +238,34 @@ async function guardarCeldasPintadas() {
     }
 }
 
-
+function calcularColumnaTotalizada(celda) {
+    campoTotalizado.value = 0
+    nombreCampoTotalizado.value = celda.nombre
+    datosOrdenados.value.map(d => {
+        if (d._kardexValores[celda.id]) {
+            campoTotalizado.value += parseInt(d._kardexValores[celda.id])
+        }
+    })
+}
 
 const columnasKardex = computed(() => {
     camposAfiltrar.value = []
     return camposPlantilla.value?.map(campo => ({
         accessorKey: `kardex_${campo.nombre}`,
-        header: campo.titulo,
+        header: ({ row }) => {
+            if (campo.tipo === 'number') {
+                return h(UButton, {
+                    color: 'neutral',
+                    variant: 'ghost',
+                    label: campo.titulo,
+                    icon: 'i-lucide-sigma',
+                    class: '-mx-2.5',
+                    onClick: () => { calcularColumnaTotalizada(campo) }
+                })
+            } else {
+                return campo.titulo
+            }
+        },
         size: campo.tipo === 'textarea' ? 250 : 150,
         cell: ({ row }) => {
             const pacienteId = row.original.paciente_id
@@ -265,6 +295,24 @@ const columnasKardex = computed(() => {
 })
 
 const columns = computed(() => [...columnasFijas, ...columnasKardex.value])
+
+const datosExcel = computed(() => {
+    return datosOrdenados.value.map(d => {
+        const kardexConTitulos = {}
+
+        camposPlantilla.value.forEach(campo => {
+            kardexConTitulos[campo.titulo] =
+                d._kardexValores?.[campo.id] ?? '.'
+        })
+
+        return {
+            Paciente: d.name,
+            Documento: d.No_document,
+            EPS: d.Eps,
+            ...kardexConTitulos
+        }
+    })
+})
 
 function regenerarColumnas() {
     filasCambiadas.value.clear()
@@ -353,6 +401,32 @@ async function onPlantillaGuardada() {
 const columnPinning = ref({
     left: ['No_document'],
 })
+
+const copiado = ref(false)
+
+const campoTotalizadoFormateado = computed(() => {
+    const valor = Number(campoTotalizado.value) || 0
+
+    return new Intl.NumberFormat('es-CO', {
+        maximumFractionDigits: 0
+    }).format(valor)
+})
+
+const copiarTotal = async () => {
+    try {
+        await navigator.clipboard.writeText(
+            String(campoTotalizado.value)
+        )
+
+        copiado.value = true
+
+        setTimeout(() => {
+            copiado.value = false
+        }, 1500)
+    } catch (error) {
+        console.error('No se pudo copiar el total:', error)
+    }
+}
 </script>
 
 <template>
@@ -379,8 +453,8 @@ const columnPinning = ref({
                     </UButton>
                     <ModalAdminPlantilla v-if="esAdmin" @guardado="onPlantillaGuardada">
                     </ModalAdminPlantilla>
-                    <download-excel :data="datosOrdenados" name="kardex" type="xlsx">
-                        <ButtonRounded tooltip="Max 20 filas" color="w-fit">
+                    <download-excel :data="datosExcel" name="kardex" type="xlsx">
+                        <ButtonRounded tooltip="Formato Excel" color="w-fit">
                             <UButton icon="i-lucide-file-chart-column" color="primary" variant="ghost">
                                 Descargar
                             </UButton>
@@ -479,7 +553,8 @@ const columnPinning = ref({
                                             Los cambios se aplican automáticamente
                                         </span>
 
-                                        <UButton color="primary" variant="soft" @click="mostrarFiltrosAvanzados = false">
+                                        <UButton color="primary" variant="soft"
+                                            @click="mostrarFiltrosAvanzados = false">
                                             <i class="fa-solid fa-check mr-1.5"></i>
                                             Listo
                                         </UButton>
@@ -506,7 +581,8 @@ const columnPinning = ref({
                 class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-end">
                 <USelect v-for="(filtro, key) in filtrosConOpciones.slice(3)" :key="key"
                     v-model="filtros[filtro.columna]" :placeholder="filtro.placeholder"
-                    :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos,]" class="w-full" @change="async() => {filtro.accion?.(filtros)}" />
+                    :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos,]" class="w-full"
+                    @change="async () => { filtro.accion?.(filtros) }" />
             </div>
             </div>
         </template>
@@ -515,6 +591,65 @@ const columnPinning = ref({
             <UTable :columns="columns" :data="datosPaginados" sticky v-model:column-pinning="columnPinning"
                 :row-class="(row) => filaFueCambiada(row.paciente_id) ? 'bg-yellow-100' : ''"
                 class="flex-1 max-h-[62vh]" />
+            <!-- Totalización -->
+            <div v-if="campoTotalizado > 0" class="
+            flex flex-col sm:flex-row
+            items-start sm:items-center
+            justify-end
+            gap-3
+            px-4 py-3
+            rounded-xl
+            border border-gray-200 dark:border-gray-700
+            bg-gray-50 dark:bg-gray-800/60
+        ">
+                <!-- Información -->
+                <div class="flex items-center gap-3">
+                    <div class="
+                    flex items-center justify-center
+                    w-9 h-9
+                    rounded-lg
+                    bg-blue-100 dark:bg-blue-900/30
+                    text-blue-600 dark:text-blue-400
+                ">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Total
+                        </p>
+
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                            {{ nombreCampoTotalizado }} :
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Valor -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <UInput :model-value="campoTotalizadoFormateado" readonly class="w-full sm:w-48" :ui="{
+                        base: 'text-right font-semibold tabular-nums cursor-pointer'
+                    }" @click="copiarTotal">
+                        <template #trailing>
+                            <button type="button" class="
+                            text-gray-400
+                            hover:text-blue-600
+                            dark:hover:text-blue-400
+                            transition-colors
+                        " title="Copiar total" @click.stop="copiarTotal">
+                                <i :class="[
+                                    'fa-solid',
+                                    copiado
+                                        ? 'fa-check text-green-500'
+                                        : 'fa-copy'
+                                ]"></i>
+                            </button>
+                        </template>
+                    </UInput>
+                </div>
+
+                <UButton icon="i-lucide-x" @click="campoTotalizado = 0" variant="soft"></UButton>
+            </div>
         </div>
 
         <div v-if="historias.length > 0 && columns.length <= 3" class="text-center py-8">
@@ -555,7 +690,7 @@ const columnPinning = ref({
         </Transition>
 
         <Transition name="slide-up">
-            <div v-if="celdaActiva.fila !== null && celdaActiva.columna !== null"
+            <div v-if="celdaActiva.fila !== null && celdaActiva.columna !== null && !actualizarCambios"
                 class="fixed bottom-23  left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-xl shadow-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                 <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Color:</label>
                 <input v-model="colorPicker" type="color"
@@ -564,8 +699,7 @@ const columnPinning = ref({
                     @click="pintarCelda(celdaActiva.fila, celdaActiva.columna, colorPicker)">
                     <i class="fa-solid fa-paintbrush text-xs"></i>
                 </ButtonRounded>
-                <ButtonRounded tooltip="Borrar Color"
-                    @click="despintarCelda(celdaActiva.fila, celdaActiva.columna)">
+                <ButtonRounded tooltip="Borrar Color" @click="despintarCelda(celdaActiva.fila, celdaActiva.columna)">
                     <i class="fa-solid fa-trash text-xs"></i>
                 </ButtonRounded>
                 <div class="w-px h-5 bg-gray-300 dark:bg-gray-600"></div>
