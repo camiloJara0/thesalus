@@ -88,9 +88,8 @@ const columns = props.Propiedades.columns.map(col => {
 watch(
     () => props.Propiedades.data,
     (nuevosDatos) => {
-        console.log(nuevosDatos)
         if (!nuevosDatos?.length) return
-console.log('casa')
+
         if (isFiltrando.value) {
             data.value = [...nuevosDatos]
         } else {
@@ -179,8 +178,6 @@ onMounted(async () => {
                 !loading.value && hayMasDatos.value && !isFiltrando.value
         }
     )
-
-
 })
 
 const cardConfig = computed(() => props.Propiedades.card || null)
@@ -262,13 +259,13 @@ onBeforeUnmount(() => {
                 <h3 class="font-bold text-lg w-1/2">{{ props.Propiedades.titulo }}</h3>
                 <div class="flex flex-wrap justify-end gap-2 w-1/2">
                     <UButton v-for="button in props.Propiedades.buttons" :variant="button.variant" :color="button.color"
-                        loading-auto :trailing-icon="button.icon" size="md" @click="button.accion">
+                        loading-auto :icon="button.icon" size="md" @click="button.accion">
                         <span class="hidden md:block">{{ button.texto }}</span>
                     </UButton>
 
                     <client-only v-if="Propiedades.excel">
                         <UDropdownMenu :items="items">
-                            <UButton label="Open" variant="subtle" color="secondary" trailing-icon="lucide-table"
+                            <UButton label="Open" variant="subtle" color="secondary" icon="lucide-table"
                                 size="md">
                                 <span class="hidden md:block">Exportar</span>
                             </UButton>
@@ -286,11 +283,11 @@ onBeforeUnmount(() => {
                     </client-only>
 
                     <UButton @click="() => { mostrarFiltros = !mostrarFiltros }" variant="solid" color="primary"
-                        trailing-icon="lucide-list-filter" size="md">
+                        icon="lucide-list-filter" size="md">
                         <span class="hidden md:block">Filtrar</span>
                     </UButton>
                     <UButton v-if="props.Propiedades.agregar" @click="props.Propiedades.agregar" variant="solid"
-                        color="primary" trailing-icon="lucide-plus" size="md">
+                        color="primary" icon="lucide-plus" size="md">
                         <span class="hidden md:block">Agregar</span>
                     </UButton>
                     <UButton v-if="props.Propiedades.llamadatos" icon="i-lucide-cloud-sync" color="primary"

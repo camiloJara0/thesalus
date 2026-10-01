@@ -95,8 +95,10 @@ export const useCitasStore = defineStore('Citas', {
             const key = cambio ? `Cita:cambio:${Date.now()}` : `Cita:hoy`
             
             if(cambio) {
-                const hoy = new Date()
-                return await this.obtenerCitas.call(this, key, () => traerCitasPorRango(this.mesCitaGuardada || hoy.toLocaleDateString(), this.fechaHastaCitaGuardada || this.mesCitaGuardada))
+                const calendarioStore = useCalendarioCitas()
+                const fechaSeleccionada = `${calendarioStore.años}-${calendarioStore.meses}-01`
+                const fechaSeleccionadaHasta = `${calendarioStore.años}-${calendarioStore.meses}-31`
+                return await this.obtenerCitas.call(this, key, () => traerCitasPorRango(this.mesCitaGuardada || fechaSeleccionada, this.fechaHastaCitaGuardada || this.mesCitaGuardada || fechaSeleccionadaHasta))
             }
             if (online || cambio) {
                 return await this.obtenerCitas.call(this, key, () => traerCitasHoy())

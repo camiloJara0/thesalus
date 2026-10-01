@@ -4,6 +4,7 @@ import { useCalendarioCitas } from '~/stores/Calendario.js'
 import { diasSemana } from '~/data/Fechas.js'
 import { storeToRefs } from 'pinia';
 import { useCitasStore } from '~/stores/Formularios/citas/Cita';
+import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
 
 const props = defineProps({
     citas: {
@@ -73,18 +74,36 @@ function parseFechaISO(iso) {
 }
 
 // Propiedad devuelve array de fechas de todas las citas
-const diasConCitas = computed(() => {
-    const arrayCitas = [];
-    Citas.value.map((cita) => {
-        if (cita.estado === 'Inactiva') {
-            arrayCitas.push(cita.fecha.split('-').reverse().join('/'))
-        }
-    })
-    return arrayCitas
-})
+const citasProcesadas = computed(() => {
+    const diasConCitas = [];
+    const diasConCitasMes = [];
 
-const diasVencidos = computed(() => {
-    const arrayCitas = [];
+    Citas.value.forEach((cita) => {
+        if (cita.estado !== 'Inactiva') return;
+
+        const fechaFormateada = cita.fecha.split('-').reverse().join('/');
+        diasConCitas.push(fechaFormateada);
+
+        const mesCita = parseInt(cita.fecha.split('-')[1]) - 1;
+
+        if (mesCita === mesActual.value) {
+            diasConCitasMes.push(fechaFormateada);
+        }
+    });
+
+    return {
+        diasConCitas,
+        diasConCitasMes
+    };
+});
+
+const diasConCitas = computed(() => citasProcesadas.value.diasConCitas);
+const diasConCitasMes = computed(() => citasProcesadas.value.diasConCitasMes);
+
+const vencidasProcesadas = computed(() => {
+    const diasVencidos = [];
+    const diasVencidosMes = [];
+
     Citas.value.map((cita) => {
         if (!cita.fechaHasta) {
             cita.fechaHasta = cita.fecha
@@ -92,19 +111,32 @@ const diasVencidos = computed(() => {
 
         const fechaHoyC = parseFechaISO(new Date().toISOString().split('T')[0]);
         const fechaHasta = parseFechaISO(cita.fechaHasta);
+
+        const mesCita = parseInt(cita.fecha.split('-')[1]) - 1;
+
         if (cita.estado === 'Inactiva' && fechaHoyC > fechaHasta) {
-            arrayCitas.push(cita.fecha.split('-').reverse().join('/'))
+            diasVencidos.push(cita.fecha.split('-').reverse().join('/'))
+            if(mesCita === mesActual.value) {
+                diasVencidosMes.push(cita.fecha.split('-').reverse().join('/'))
+            }
         }
     })
-    return arrayCitas
+    return {
+        diasVencidos,
+        diasVencidosMes
+    }
 })
+
+const diasVencidos = computed(() => vencidasProcesadas.value.diasVencidos);
+const diasVencidosMes = computed(() => vencidasProcesadas.value.diasVencidosMes);
 
 const citasProximas = computed(() => {
     const arrayCitas = [];
     Citas.value.map((cita) => {
         const fechaHoyC = parseFechaISO(new Date().toISOString().split('T')[0]);
         const fecha = parseFechaISO(cita.fecha);
-        if (cita.estado === 'Inactiva' && fecha > fechaHoyC) {
+        const mesCita = new Date(cita.fecha).getMonth();
+        if (cita.estado === 'Inactiva' && fecha > fechaHoyC && mesCita == mesActual.value) {
             arrayCitas.push(cita.fecha.split('-').reverse().join('/'))
         }
     })
@@ -194,11 +226,11 @@ const siguienteMes = () => {
         <div
             class="w-full bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-xl shadow-md px-4 py-2 flex justify-around items-center">
             <div class="flex flex-col items-center">
-                <span class="text-base font-bold text-red-600 dark:text-red-300">{{ diasVencidos.length }}</span>
+                <span class="text-base font-bold text-red-600 dark:text-red-300">{{ diasVencidosMes.length }}</span>
                 <span class="text-xs text-gray-600 dark:text-gray-300">Citas vencidas</span>
             </div>
             <div class="flex flex-col items-center">
-                <span class="text-base font-bold text-blue-600">{{ diasConCitas.length }}</span>
+                <span class="text-base font-bold text-blue-600">{{ diasConCitasMes.length }}</span>
                 <span class="text-xs text-gray-600 dark:text-gray-300">Citas pendientes</span>
             </div>
             <div class="flex flex-col items-center">

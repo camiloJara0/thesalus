@@ -44,7 +44,10 @@ const components = {
         <div v-if="Propiedades.header.titulo !== ''" class="md:pb-6 pb-4 flex md:flex-row flex-col gap-3 items-center justify-between">
             <div>
                 <h2 class="md:text-2xl text-xl font-semibold">{{ Propiedades.header.titulo }}</h2>
-                <p class="text-gray-600 dark:text-gray-200 mt-1">{{ Propiedades.header.descripcion }}</p>
+                <div class="flex gap-2 items-center">
+                    <i class="fa-solid fa-circle-info text-orange-600 dark:text-orange-200"></i>
+                    <p class="text-orange-600 text-xs dark:text-orange-200 mt-1">{{ Propiedades.header.descripcion }}</p>
+                </div>
             </div>
 
             <div v-if="Propiedades.header.button" class="flex gap-3 items-center cursor-pointer">

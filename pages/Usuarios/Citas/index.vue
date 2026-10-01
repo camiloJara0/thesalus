@@ -27,6 +27,7 @@ const filtros = ref([])
 const puedeVer = hasPermiso('Citas_view')
 const puedeGet = hasPermiso('Citas_get')
 const puedePost = hasPermiso('Citas_post')
+const showMensaje = ref(false)
 
 const {
     fecha,
@@ -79,6 +80,10 @@ useMultiAutoRefresh([
 
 onMounted(async () => {
     await llamadatos(false)
+    showMensaje.value = true
+    setTimeout(() => {
+        showMensaje.value = false
+    }, 1500)
     // Rellenar fecha del formulario
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
 });
@@ -151,7 +156,7 @@ const propiedades = computed(() => {
         pagina
             .setHeaderPage({
                 titulo: 'Calendario de tu Agenda',
-                descripcion: 'Visualiza y administra la agenda de citas.',
+                descripcion: 'Las citas se cargan al navegar entre los meses para mantener una experiencia rápida.',
                 button: [
                     { text: 'En Lista', icon: 'i-lucide-table', color: 'neutral', action: showFila },
                     { text: 'Calendario', icon: 'i-lucide-calendar', color: varView.showCalendario ? 'primary' : 'neutral', action: showCalendario },
