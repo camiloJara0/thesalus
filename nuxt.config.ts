@@ -92,6 +92,7 @@ export default defineNuxtConfig({
       pacientesConHistoria: 'api/v1/pacientesConHistoria',
       pacientesInactivos: 'api/v1/pacientesInactivos',
       profesionalesInactivos: 'api/v1/profesionalesInactivos',
+      infoCitas: 'api/v1/infoCitas',
     }
   },
 

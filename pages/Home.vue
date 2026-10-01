@@ -33,6 +33,7 @@ const secciones = ref([]);
 const addPermisos = ref(false);
 const notificaciones = ref([]);
 const nombreProfesion = ref('');
+const infoCitas = ref({});
 const router = useRouter()
 
 const chartData = ref([]);
@@ -113,6 +114,8 @@ onMounted(async () => {
         })
 
         const listCitas = await citasStore.listCitas();
+        infoCitas.value = await citasStore.infoCitas();
+        console.log('infoCitas.value', infoCitas.value)
 
         Citas.value = listCitas
             .filter((cita) => {
@@ -597,6 +600,60 @@ const propiedadesPermisos = computed(() => {
                     </div>
                 </div>
 
+                <div v-if="rol === 'Profesional'">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                        Informacion sobre tu Agenda y Pacientes
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div
+                            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer text-left"
+                        >
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas totales</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_total }}</p>
+                        </div>
+                        <div class="shrink-0 w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                            <i class="fa-solid fa-calendar-plus text-blue-600 dark:text-blue-400 text-sm" />
+                        </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer text-left"
+                        >
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas Pendientes</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_pendientes }}</p>
+                        </div>
+                        <div class="shrink-0 w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
+                            <i class="fa-solid fa-users text-green-600 dark:text-green-400 text-sm" />
+                        </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer text-left"
+                        >
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas Realizadas</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_realizadas }}</p>
+                        </div>
+                        <div class="shrink-0 w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+                            <i class="fa-solid fa-file-shield text-amber-600 dark:text-amber-400 text-sm" />
+                        </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer text-left"
+                        >
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas Vencidas</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_vencidas }}</p>
+                        </div>
+                        <div class="shrink-0 w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+                            <i class="fa-solid fa-file-shield text-amber-600 dark:text-amber-400 text-sm" />
+                        </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- AGENDA HOY (Profesional) -->
                 <div v-if="rol === 'Profesional'">
                     <UCard>

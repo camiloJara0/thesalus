@@ -1,4 +1,4 @@
-import { traerCitasFiltradas, traerCitasHoy, traerCitasPaginadas, traerCitasPorRango } from "~/Core/Cita/GETCita";
+import { infoCitas, traerCitasFiltradas, traerCitasHoy, traerCitasPaginadas, traerCitasPorRango } from "~/Core/Cita/GETCita";
 import { enviarFormularioCita } from "~/Core/Cita/POSTCita";
 import { useProfesionalStore } from "~/stores/Entidades/Profesional";
 
@@ -169,6 +169,9 @@ export const useCitasStore = defineStore('Citas', {
             return citasPendientes;
         },
 
+        async infoCitas() {
+            return await infoCitas()
+        },
 
         borrarFormulario() {
             this.Formulario = estructuraCita

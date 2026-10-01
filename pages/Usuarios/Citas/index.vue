@@ -28,6 +28,7 @@ const puedeVer = hasPermiso('Citas_view')
 const puedeGet = hasPermiso('Citas_get')
 const puedePost = hasPermiso('Citas_post')
 const showMensaje = ref(false)
+const infoCitas = ref({})
 
 const {
     fecha,
@@ -80,10 +81,11 @@ useMultiAutoRefresh([
 
 onMounted(async () => {
     await llamadatos(false)
+    infoCitas.value = await citasStore.infoCitas()
     showMensaje.value = true
     setTimeout(() => {
         showMensaje.value = false
-    }, 1500)
+    }, 2000)
     // Rellenar fecha del formulario
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
 });
@@ -342,4 +344,16 @@ const propiedadesTabla = computed(() => {
     <Cita></Cita>
     <PDFServicio v-if="varView.showPDFServicio"></PDFServicio>
     <Historia v-if="varView.showNuevaHistoria" />
+    <Transition v-if="showMensaje" name="fade-slide">
+        <div 
+        class="fixed top-9 left-8 z-50 flex items-center gap-3 px-4 py-2 
+                rounded-lg shadow-lg bg-white dark:bg-gray-800 border 
+                border-gray-200 dark:border-gray-700 animate-fadeIn"
+        >
+        <i class="fa-solid fa-info text-blue-500"></i>
+        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
+            Tienes: <span class="font-bold">{{ infoCitas?.citas_pendientes }}</span> citas pendientes
+        </span>
+        </div>
+    </Transition>
 </template>
