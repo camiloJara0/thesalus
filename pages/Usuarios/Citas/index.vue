@@ -27,6 +27,7 @@ const filtros = ref([])
 const puedeVer = hasPermiso('Citas_view')
 const puedeGet = hasPermiso('Citas_get')
 const puedePost = hasPermiso('Citas_post')
+const puedeVerTodosPacientes = hasPermiso('ListaPacientes')
 const showMensaje = ref(false)
 const infoCitas = ref({})
 
@@ -97,7 +98,7 @@ const agregarCita = () => {
 };
 
 // Funciones para manejar visibilidad de Pagina
-const showFila = () => {
+const showFila = async() => {
     citasStore.contexto = 'Tabla'
     varView.showEnFila = !varView.showEnFila
 };
@@ -317,8 +318,11 @@ const propiedadesTabla = computed(() => {
                 }
             },
             { columna: 'estado', placeholder: 'Estado', options: [{label: 'Realizada', value: 'Realizada'}, {label: 'Cancelada', value: 'cancelada'}, {label: 'Inactiva', value: 'inactiva'}], accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
-            { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
-            { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: 
+            puedeVerTodosPacientes 
+                ? { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } } 
+                : { columna: 'profesional.info_usuario.name', value: varView.getUser.name,  tipo: 'fixed'},
+
+                { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: 
                 async(filtros) => { 
                     const data = await traerCitasFiltradas(filtros); 
                     cargarcitasFiltradas(data)
@@ -337,7 +341,7 @@ const propiedadesTabla = computed(() => {
 
 <template>
     <Pagina v-if="!varView.showEnFila && puedeVer" :Propiedades="propiedades" :key="refresh" />
-    <FondoDefault v-show="varView.showEnFila && puedeVer">
+    <FondoDefault v-if="varView.showEnFila && puedeVer">
         <TablaScroll :Propiedades="propiedadesTabla"/>
     </FondoDefault>
     <Restringido v-if="!puedeVer"/>

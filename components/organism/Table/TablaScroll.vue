@@ -35,7 +35,10 @@ const {
 
 const isFiltrando = computed(() => {
     const busquedaActiva = busqueda.value?.trim() !== ''
-    const filtrosActivos = Object.values(filtros.value).some(v => v && v !== '' && v !== 'all')
+    const filtrosActivos = filtrosConOpciones.value.some(filtro => {
+        const valorFiltro = filtros.value[filtro.columna]
+        return valorFiltro && valorFiltro !== '' && valorFiltro !== 'all'
+    })
     const ordenActivo = columnaOrden.value !== ''
     return busquedaActiva || filtrosActivos || ordenActivo
 })
@@ -89,7 +92,7 @@ watch(
     () => props.Propiedades.data,
     (nuevosDatos) => {
         if (!nuevosDatos?.length) return
-
+        
         if (isFiltrando.value) {
             data.value = [...nuevosDatos]
         } else {
@@ -248,7 +251,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     observer?.disconnect()
-})
+});
 </script>
 
 <template>

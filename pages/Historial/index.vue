@@ -334,7 +334,9 @@ const consultasConfig = computed(() => {
                 { 
                     const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Medicina'})
                     cargarAlmacen('Consultas', data)
-                } }
+                } },
+            { columna: 'historia.id_paciente', placeholder: 'paciente', value: historiasStore.Formulario.Analisis.historia.id_paciente, tipo: 'fixed' },
+            { columna: 'servicio.plantilla', value: 'Medicina', tipo: 'fixed' }
         ]
     };
 });
@@ -367,7 +369,9 @@ const evolucionesConfig = computed(() => {
                 { 
                     const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Terapia'})
                     cargarAlmacen('Terapias', data)
-                } }
+                } },
+            { columna: 'historia.id_paciente', placeholder: 'paciente', value: historiasStore.Formulario.Analisis.historia.id_paciente, tipo: 'fixed' },
+            { columna: 'servicio.plantilla', value: 'Terapia', tipo: 'fixed' }
         ]
     };
 });
@@ -390,7 +394,9 @@ const notasConfig = computed(() => {
                     const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Nota'})
                     cargarAlmacen('Notas', data)
                 } 
-            }
+            },
+            { columna: 'historia.id_paciente', placeholder: 'paciente', value: historiasStore.Formulario.Analisis.historia.id_paciente, tipo: 'fixed' },
+            { columna: 'servicio.plantilla', placeholder: 'nota', value: 'Nota', tipo: 'fixed' },
         ]
     };
 });
@@ -430,7 +436,9 @@ const nutricionConfig = computed(() => {
                 { 
                     const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Evolucion'})
                     cargarAlmacen('Evoluciones', data)
-                } }
+                } },
+            { columna: 'historia.id_paciente', placeholder: 'paciente', value: historiasStore.Formulario.Analisis.historia.id_paciente, tipo: 'fixed' },
+            { columna: 'servicio.plantilla', value: 'Evolucion', tipo: 'fixed' }
         ]
     };
 });
@@ -458,7 +466,9 @@ const trabajoSocialConfig = computed(() => {
                 { 
                     const data = await historiasStore.analisisFiltrados({...filtros, plantilla: 'Trabajo Social'})
                     cargarAlmacen('Trabajos', data)
-                } }
+                } },
+            { columna: 'historia.id_paciente', placeholder: 'paciente', value: historiasStore.Formulario.Analisis.historia.id_paciente, tipo: 'fixed' },
+            { columna: 'servicio.plantilla', value: 'Trabajo Social', tipo: 'fixed' }
         ]
     };
 });

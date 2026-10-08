@@ -121,6 +121,13 @@ export async function traerCitasFiltradas (configuracion) {
     const config = useRuntimeConfig()
     const token = decryptData(localStorage.getItem('token'))
 
+    const filtros = {
+        estado: configuracion.estado,
+        fecha_año: configuracion.fecha_año,
+        fecha_mes: configuracion.fecha_mes,
+        name_medico: configuracion.name_medico ?? configuracion['profesional.info_usuario.name'] ?? null,
+        servicio: configuracion.servicio ?? configuracion['servicio.name'] ?? null
+    }
     const online = navigator.onLine;
     if (online) {
         try {
@@ -129,7 +136,7 @@ export async function traerCitasFiltradas (configuracion) {
                 metodo: 'POST',
                 url: config.public.citasFiltradas,
                 token: token,
-                body: configuracion
+                body: filtros
             }
             const respuesta = await api.functionCall(options)
 

@@ -252,9 +252,9 @@ const propiedadesTabla = computed(() => {
 </script>
 <template>
     <!-- Formularios -->
-    <Form :Propiedades="propiedadesUser" />
-    <Form :Propiedades="propiedadesVerUser" />
-    <Form :Propiedades="propiedadesVerUserOffline" />
+    <Form v-if="puedePost" :Propiedades="propiedadesUser" />
+    <Form v-if="puedePut" :Propiedades="propiedadesVerUser" />
+    <Form v-if="puedePut" :Propiedades="propiedadesVerUserOffline" />
 
     <!-- Modal de Permisos -->
 

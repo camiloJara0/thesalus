@@ -64,7 +64,7 @@ const propiedadesVerProfesion = puedePutProfesion
 </script>
 <template>
     <div>
-        <Form :Propiedades="propiedadesProfesion"></Form>
-        <Form :Propiedades="propiedadesVerProfesion"></Form>
+        <Form v-if="puedePostProfesion" :Propiedades="propiedadesProfesion"></Form>
+        <Form v-if="puedePutProfesion" :Propiedades="propiedadesVerProfesion"></Form>
     </div>
 </template>

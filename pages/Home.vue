@@ -610,10 +610,10 @@ const propiedadesPermisos = computed(() => {
                         >
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas totales</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_total }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-300 truncate">{{ infoCitas?.citas_total }}</p>
                         </div>
                         <div class="shrink-0 w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                            <i class="fa-solid fa-calendar-plus text-blue-600 dark:text-blue-400 text-sm" />
+                            <i class="fa-solid fa-calendar-plus text-gray-300 text-lg" />
                         </div>
                         </div>
 
@@ -624,8 +624,8 @@ const propiedadesPermisos = computed(() => {
                             <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas Pendientes</p>
                             <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_pendientes }}</p>
                         </div>
-                        <div class="shrink-0 w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
-                            <i class="fa-solid fa-users text-green-600 dark:text-green-400 text-sm" />
+                        <div class="shrink-0 w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center">
+                            <i class="fa-solid fa-calendar-day text-gray-300 text-lg" />
                         </div>
                         </div>
 
@@ -634,10 +634,10 @@ const propiedadesPermisos = computed(() => {
                         >
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas Realizadas</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_realizadas }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-300 truncate">{{ infoCitas?.citas_realizadas }}</p>
                         </div>
-                        <div class="shrink-0 w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-                            <i class="fa-solid fa-file-shield text-amber-600 dark:text-amber-400 text-sm" />
+                        <div class="shrink-0 w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
+                            <i class="fa-solid fa-check text-gray-300 text-lg" />
                         </div>
                         </div>
 
@@ -646,10 +646,10 @@ const propiedadesPermisos = computed(() => {
                         >
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Citas Vencidas</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ infoCitas?.citas_vencidas }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-300 truncate">{{ infoCitas?.citas_vencidas }}</p>
                         </div>
                         <div class="shrink-0 w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-                            <i class="fa-solid fa-file-shield text-amber-600 dark:text-amber-400 text-sm" />
+                            <i class="fa-solid fa-warning text-gray-300 text-lg" />
                         </div>
                         </div>
                     </div>

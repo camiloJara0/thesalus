@@ -198,7 +198,9 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
 
     // Generar opciones por datos no repetidos de columna a filtrar
     const filtrosConOpciones = computed(() => {
-        return unref(columnas).map(col => {
+        return unref(columnas)
+        .filter(col => col.tipo !== 'fixed')
+        .map(col => {
             const columnaReal = col.columnaReal || col.columna;
 
             if (col.tipo === 'mes') {
@@ -248,7 +250,10 @@ export function useOrdenamiento(datos = ref([]), columnas = [], noBuscarPor = []
 
     const borrarFiltros = () => {
         busqueda.value = ''
-        filtros.value = {}
+        filtrosConOpciones.value.map(f => {
+            if (f.value) return
+            filtros.value[f.columna] = '';
+        })
         menorAMayor.value = true;
         columnaOrden.value = '';
         Object.keys(cacheOrdenes).forEach(k => delete cacheOrdenes[k]); // limpiar cache
