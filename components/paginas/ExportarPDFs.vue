@@ -397,17 +397,6 @@ const generarExcel = async () => {
                             </div>
                         </div>
 
-                        <!-- Progreso -->
-                        <div v-if="generandoPDFs" class="mt-6 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Generando PDFs...</p>
-                                <span class="text-sm font-bold text-blue-600">{{ progreso }}%</span>
-                            </div>
-                            <div class="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
-                                <div class="bg-linear-to-r from-blue-400 to-blue-600 h-full transition-all duration-500 ease-out"
-                                    :style="{ width: progreso + '%' }"></div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Botones -->
@@ -415,7 +404,7 @@ const generarExcel = async () => {
                         <ButtonForm
                             class="bg-gray-500 hover:bg-gray-600 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
                             @click="cerrar">
-                            <i class="fa-solid fa-xmark mr-2"></i> {{ cancelarPDFs ? 'Cancelando...' : 'Cancelar' }}
+                            <i class="fa-solid fa-xmark mr-2"></i> {{ 'Cancelar' }}
                         </ButtonForm>
 
                         <download-excel

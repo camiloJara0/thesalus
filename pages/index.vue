@@ -53,6 +53,7 @@ const opcionesCompañy = ref([])
 const show = ref(false)
 const showCambiar = ref(false)
 const stateCodigo = ref(false)
+const stateEnviando = ref(false)
 
 // funcion para validar primer ingreso
 async function validaUsuario(event) {
@@ -91,7 +92,9 @@ function cerrar() {
 
 async function enviarCodigo(data) {
     varView.cargando = true
+    stateEnviando.value = true
     stateCodigo.value = await validarYEnviarRecuperarContraseña(data)
+    stateEnviando.value = false
     varView.cargando = false
 }
 
@@ -125,7 +128,8 @@ const propiedadesRecuperar = computed(() => {
         cerrar: cerrar,
         show: show,
         enviarCodigo,
-        stateCodigo: stateCodigo.value
+        stateCodigo: stateCodigo.value,
+        stateEnviando: stateEnviando.value
     });
 
     const propiedadesCambiarContraseña = useIngresoContraseñaBuilder({

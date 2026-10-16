@@ -117,7 +117,8 @@ function limpiar() {
                     @click="(event) => manejarClick(event, item, tablaStore?.Formulario, limpiar)"
                     class="flex justify-center md:w-45 w-1/3"
                     variant="solid"
-                    loading-auto
+                    :loading="item.loading"
+                    :loading-auto="item.loading === undefined"
                     :ui="{ rounded: 'rounded-xl' }"
                 >
                     {{ props.Propiedades.formulario.botones ? item.text : 'Cancelar' }}

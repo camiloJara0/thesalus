@@ -9,6 +9,7 @@ export function useRecuperarContraseñaBuilder({
   show,
   enviarCodigo,
   stateCodigo,
+  stateEnviando,
 }) {
   const builder = new FormularioBuilder()
 
@@ -26,7 +27,7 @@ export function useRecuperarContraseñaBuilder({
     ])
   } else {
     builder.setBotones([
-      { text: 'Enviar código', color: 'secondary', type: 'enviarCodigo', accion: enviarCodigo },
+      { text: 'Enviar código', color: 'secondary', type: 'enviarCodigo', accion: enviarCodigo, loading: stateEnviando },
       { text: 'Cancelar', color: 'neutral', type: 'cerrar', accion: cerrar },
     ])
   }

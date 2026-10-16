@@ -300,7 +300,7 @@ const propiedadesTablaVadecums = computed(() => {
 
 const propiedadesTablaCie10 = computed(() => {
     return {
-        titulo: 'Gestión de Servicios',
+        titulo: 'Gestión de codigos CIE-10',
         llamadatos: llamadatosCie10,
         agregar: puedePost ? agregarCie10 : null,
         data: Cie10,

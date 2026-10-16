@@ -86,7 +86,7 @@ onMounted(async () => {
     showMensaje.value = true
     setTimeout(() => {
         showMensaje.value = false
-    }, 2000)
+    }, 3000)
     // Rellenar fecha del formulario
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
 });
