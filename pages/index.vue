@@ -26,23 +26,16 @@ onMounted(async () => {
     try {
         varView.cargando = true
 
+        // Solo preparar la base: NO se borra en cada carga de login
+        // (la cache se limpia solo si cambia el usuario, ver Ingresar.js)
         await indexedDB.initialize();
-
-
-        const isValid = await indexedDB.validateVersion('db-thesalus');
-
-        if (isValid) {
-            await indexedDB.clearDatabase('db-thesalus');
-        } else {
-            await indexedDB.deleteDatabase('db-thesalus');
-        }
 
         await storeCodigos.initialize();
         await storeCodigos.guardardatos()
         clearSession()
         varView.cargando = false;
     } catch (e) {
-        console.error('No se pudo reiniciar IndexedDB:', e);
+        console.error('No se pudo inicializar IndexedDB:', e);
         varView.cargando = false;
     }
 

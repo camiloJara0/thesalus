@@ -91,7 +91,7 @@ export const useServicioStore = defineStore('Servicio', {
                     res = await enviarServicio({ Servicio: data })
                 }
 
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Servicio')
 
             }
 

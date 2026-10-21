@@ -111,9 +111,8 @@ const refreshKey = ref(0);
 // ============ CARGAR DATOS INICIALES ============
 onMounted(async () => {
     medicos.value = await medicosStore.traer();
-    await pacientesStore.traer(false)
+    await pacientesStore.traer()
     await cargarHistorias();
-    await historiasStore.traerNoEnviados()
     filtros.value = await traerFiltrosHistoria()
     varView.datosActualizados();
 });

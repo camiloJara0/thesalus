@@ -91,7 +91,7 @@ export const useConvenioStore = defineStore('Convenio', {
                     res = await guardarConvenio(data)
                 }
 
-                    indexedDB.borrardato(data.id)
+                    await indexedDB.borrardato(data.id, 'Convenio')
 
             }
 

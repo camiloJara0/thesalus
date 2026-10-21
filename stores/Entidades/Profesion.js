@@ -96,7 +96,7 @@ export const useProfesionStore = defineStore('Profesion', {
                     res = await enviarProfesion({ Profesion: data })
                 }
 
-                    indexedDB.borrardato(this.ProfesionNoEnviados[i].id)
+                    await indexedDB.borrardato(this.ProfesionNoEnviados[i].id, 'Profesion')
 
             }
 

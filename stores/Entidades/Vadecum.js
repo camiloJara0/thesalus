@@ -140,7 +140,7 @@ export const useVadecumStore = defineStore('Vadecum', {
                     res = await guardarVadecum(data)
                 }
 
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Vadecum')
 
             }
 

@@ -32,6 +32,9 @@ const props = defineProps({
 const generandoPDFs = ref(false);
 const cancelarPDFs = ref(false);
 const progreso = ref(0);
+// Control de la peticion en curso (permite cancelarla o ponerle tiempo limite)
+let controladorExportacion = null;
+const TIEMPO_MAXIMO_EXPORTACION = 120000;
 const pacientesStore = usePacientesStore()
 const profesionalStore = useProfesionalStore()
 const calendarioCitasStore = useCalendarioCitas();
@@ -92,6 +95,7 @@ watch(file, (newValue) => {
 
 function cerrar() {
     cancelarPDFs.value = true; // activar la cancelación de pdf
+    controladorExportacion?.abort();
     file.id_paciente = ''
     file.id_profesional = ''
     if (!generandoPDFs.value) { varView.showExportarPDFs = false }
@@ -141,6 +145,11 @@ const enviarPDFs = async () => {
 
         generandoPDFs.value = true;
         progreso.value = 0;
+        cancelarPDFs.value = false;
+        controladorExportacion = new AbortController();
+        const controlador = controladorExportacion;
+        const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_EXPORTACION);
+        let exportacionCompleta = false;
 
         // Cargar datos necesarios
         const token = decryptData(localStorage.getItem('token'))
@@ -148,6 +157,7 @@ const enviarPDFs = async () => {
         try {
             const res = await fetch(`${config.public.api}/${config.public.exportarPdf}`, {
                 method: 'POST',
+                signal: controlador.signal,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/pdf',
@@ -190,14 +200,33 @@ const enviarPDFs = async () => {
             a.remove();
 
             setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+            exportacionCompleta = true;
 
         } catch (err) {
-            console.error("Error al obtener el PDF:", err);
+            if (err.name === 'AbortError') {
+                // Cancelado por el usuario o por tiempo limite
+                if (!cancelarPDFs.value) {
+                    options.position = 'top-end';
+                    options.background = '#d33'
+                    options.texto = "La exportación superó el tiempo máximo, intente con un rango menor";
+                    options.tiempo = 2500;
+                    mensaje();
+                }
+            } else {
+                console.error("Error al obtener el PDF:", err);
+                options.position = 'top-end';
+                options.background = '#d33'
+                options.texto = "Error al generar los PDFs. Por favor intente nuevamente.";
+                options.tiempo = 2000;
+                mensaje();
+            }
+        } finally {
+            clearTimeout(tiempoLimite);
         }
 
 
-        // Si no se canceló, mostramos mensaje de éxito
-        if (!cancelarPDFs.value) {
+        // Solo mostrar exito si la exportacion termino completa y no se cancelo
+        if (exportacionCompleta && !cancelarPDFs.value) {
             options.position = 'top-end';
             options.texto = `PDFs generados y descargados exitosamente`;
             options.background = '#22c55e';
@@ -214,6 +243,10 @@ const enviarPDFs = async () => {
     } finally {
         generandoPDFs.value = false;
         progreso.value = 0;
+        // Si se interrumpio en curso, cerrar el modal (el usuario ya lo pidio)
+        if (controladorExportacion?.signal.aborted) {
+            varView.showExportarPDFs = false
+        }
     }
 }
 
@@ -223,10 +256,15 @@ const generarExcel = async () => {
     try {
         // Cargar datos necesarios
         const token = decryptData(localStorage.getItem('token'))
+        cancelarPDFs.value = false;
+        controladorExportacion = new AbortController();
+        const controlador = controladorExportacion;
+        const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_EXPORTACION);
         let analisisFiltrados = []
         try {
             const res = await fetch(`${config.public.api}/${config.public.exportarPdf}`, {
                 method: 'POST',
+                signal: controlador.signal,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
@@ -246,7 +284,9 @@ const generarExcel = async () => {
             const json = await res.json()
             analisisFiltrados = json.data
         } catch (err){
-            console.log('error al obtener datos', err)
+            if (err.name !== 'AbortError') console.log('error al obtener datos', err)
+        } finally {
+            clearTimeout(tiempoLimite);
         }
 
         if (analisisFiltrados.length === 0) {

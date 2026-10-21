@@ -271,7 +271,7 @@ export const useMovimientoStore = defineStore('Movimiento', {
                     res = await enviarMovimiento({ Movimientos: data })
                 }
 
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Movimiento')
 
             }
 

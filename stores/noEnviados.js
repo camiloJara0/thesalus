@@ -101,7 +101,6 @@ export const useNoEnviados = defineStore('noEnviados', {
 
             await store.sincronizar();
             await this.cargarDocumentosNoEnviados();
-            await this.cargarDocumentosNoEnviados();
         },
 
         getStoreForSection(key) {
@@ -144,6 +143,7 @@ export const useNoEnviados = defineStore('noEnviados', {
                     const data = JSON.parse(event.target.result);
 
                     await actualizarEnIndexedDB(data);
+                    await this.cargarDocumentosNoEnviados()
                 } catch (error) {
                     console.error('Error al leer el archivo:', error);
                 }
@@ -152,8 +152,6 @@ export const useNoEnviados = defineStore('noEnviados', {
             lector.readAsText(archivo);
             this.importacion = null;
             this.showImportar = false
-            await this.cargarDocumentosNoEnviados()
-            await this.cargarDocumentosNoEnviados()
         },
 
         descargarNoEnviados() {

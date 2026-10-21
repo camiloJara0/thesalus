@@ -4,10 +4,43 @@ import { ref, computed } from 'vue'
 import { accionesFormularios } from '~/stores/Formularios/accionesFormulario'
 import { loadComponent } from '~/components/organism/Forms/componentLoader'
 
-export function useFormulario(props) {
+export function useFormulario(props, formData = null) {
     const varView = useVarView()
     const notificaciones = useNotificacionesStore()
     const seccionActual = ref(0)
+
+    // Guardado automatico + indicador de estado
+    const estadoGuardado = ref('idle')
+    const ultimoGuardado = ref(null)
+    const autoSaveActivo = Boolean(formData && props.Propiedades.formulario?.autoSave)
+    let debounceGuardado = null
+    let ocultarIndicador = null
+
+    function persistirAutomatico() {
+        if (!autoSaveActivo) return
+
+        estadoGuardado.value = 'guardando'
+        clearTimeout(debounceGuardado)
+        clearTimeout(ocultarIndicador)
+
+        debounceGuardado = setTimeout(() => {
+            const ok = guardarDatos(formData)
+
+            if (ok) {
+                estadoGuardado.value = 'guardado'
+                ultimoGuardado.value = new Date()
+                ocultarIndicador = setTimeout(() => {
+                    estadoGuardado.value = 'idle'
+                }, 3000)
+            } else {
+                estadoGuardado.value = 'error'
+            }
+        }, 800)
+    }
+
+    if (autoSaveActivo) {
+        watch(() => seccionActual.value, persistirAutomatico, { deep: true })
+    }
 
     // Inicializa formData
     function transformarFormData(secciones) {
@@ -65,6 +98,105 @@ export function useFormulario(props) {
         if (seccionActual.value > 0) {
             seccionActual.value--
         }
+    }
+
+    // ─────────────────────────────────────────────
+    // VALIDACIÓN Y PROGRESO POR PASO
+    // ─────────────────────────────────────────────
+
+    function secciones() {
+        return props.Propiedades.formulario?.secciones || []
+    }
+
+    /**
+     * Rutas (vmodel) faltantes de una sección.
+     * @returns {string[]}
+     */
+    function faltantesSeccion(index, datos = formData) {
+        const seccion = secciones()[index]
+        if (!seccion || !Array.isArray(seccion.requeridos) || !seccion.requeridos.length) return []
+        if (!datos) return []
+
+        return seccion.requeridos.filter(ruta => !isValid(getValue(datos, ruta)))
+    }
+
+    /**
+     * Valida una sección. Si no hay formData disponible
+     * recurre a los inputs nativos inválidos del paso actual.
+     */
+    function validarSeccion(index, datos = formData) {
+        const faltantes = faltantesSeccion(index, datos)
+
+        if (faltantes.length > 0) return false
+
+        if (index === seccionActual.value) {
+            const invalidos = document.querySelectorAll('input:invalid, textarea:invalid')
+            if (invalidos.length > 0) return false
+        }
+
+        return true
+    }
+
+    /**
+     * Completitud de una sección (0-100).
+     * Prioriza la regla de dominio `completitud(formData)` del builder;
+     * si no existe, calcula sobre los campos requeridos.
+     */
+    function progresoSeccion(index, datos = formData) {
+        const seccion = secciones()[index]
+        if (!seccion || !datos) return 0
+
+        if (typeof seccion.completitud === 'function') {
+            return Math.round(Math.min(100, Math.max(0, seccion.completitud(datos))))
+        }
+
+        const requeridos = seccion.requeridos || []
+        if (!requeridos.length) return 0
+
+        const listos = requeridos.filter(ruta => isValid(getValue(datos, ruta))).length
+        return Math.round((listos / requeridos.length) * 100)
+    }
+
+    /** Progreso total del formulario (0-100). */
+    const progresoFormulario = computed(() => {
+        const lista = secciones()
+        if (!lista.length || !formData) return 0
+
+        const suma = lista.reduce((total, _seccion, index) => total + progresoSeccion(index), 0)
+        return Math.round(suma / lista.length)
+    })
+
+    /**
+     * Navega a un paso: solo se permite saltar a pasos cuyos
+     * pasos anteriores están completos (avance progresivo).
+     */
+    function irASeccion(index) {
+        const lista = secciones()
+        if (index < 0 || index >= lista.length) return false
+        if (index === seccionActual.value) return true
+
+        if (index > seccionActual.value) {
+            for (let i = 0; i < index; i++) {
+                if (!validarSeccion(i)) {
+                    notificarPasoIncompleto(faltantesSeccion(i))
+                    seccionActual.value = i
+                    return false
+                }
+            }
+        }
+
+        seccionActual.value = index
+        return true
+    }
+
+    function notificarPasoIncompleto(faltantes = []) {
+        notificaciones.options.position = 'top-end'
+        notificaciones.options.background = '#d33'
+        notificaciones.options.texto = faltantes.length
+            ? `Completa los campos obligatorios (${faltantes.length}) para continuar`
+            : 'Completa los campos obligatorios para continuar'
+        notificaciones.options.tiempo = 1800
+        notificaciones.mensaje()
     }
 
     // funciones para manejar vmodel
@@ -216,6 +348,22 @@ export function useFormulario(props) {
         setValue,
         isValid,
         manejarClick,
+
+        // Guardado automático e indicador de estado
+        autoSaveActivo,
+        estadoGuardado,
+        ultimoGuardado,
+        persistirAutomatico,
+        // Validación y progreso por paso
+        faltantesSeccion,
+        validarSeccion,
+        progresoSeccion,
+        progresoFormulario,
+        irASeccion,
+        notificarPasoIncompleto,
+        camposRequeridos,
+        mandarFormulario,
+        limpiarLocal,
     }
 }
 

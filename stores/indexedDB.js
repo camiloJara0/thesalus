@@ -9,16 +9,34 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             almacen: '',
             aguardar: {},
             respuesta: null,
-            EXPECTED_VERSION: 6
+            EXPECTED_VERSION: 6,
+            _inicializando: null
         };
     },
     actions: {
         async initialize() {
-            return new Promise((resolve, reject) => {
+            // Evita aperturas concurrentes (varias lecturas en paralelo comparten una sola)
+            if (this.bd) return this.bd
+            if (this._inicializando) return this._inicializando
+
+            this._inicializando = new Promise((resolve, reject) => {
                 const indexedDB = window.indexedDB || window.webkitIndexedDB;
-                const request = indexedDB.open('db-thesalus', 1)
+                const request = indexedDB.open('db-thesalus', this.EXPECTED_VERSION)
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result
+                    const tx = event.target.transaction
+
+                    // Idempotente: crea store/indice solo si no existen (BDs viejas)
+                    const crear = (nombre, opciones) => {
+                        if (db.objectStoreNames.contains(nombre)) return tx.objectStore(nombre)
+                        return db.createObjectStore(nombre, opciones)
+                    }
+                    const indice = (objStore, nombre, campo) => {
+                        if (!objStore.indexNames.contains(nombre)) {
+                            objStore.createIndex(nombre, campo, { unique: false })
+                        }
+                    }
+
                     const stores = [
                         'Paciente',
                         'Profesional',
@@ -48,109 +66,116 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                         'Movimiento',
                         'Kardex',
                         'CeldaColors',
-                        'Historial_cambio_sonda'
+                        'Historial_cambio_sonda',
+                        'Convenio',
+                        'Historial_prestaciones',
+                        'Cie10',
+                        'Vadecum'
                     ]
-                    const pacientes = db.createObjectStore('Paciente', { keyPath: 'id', autoIncrement: true });
-                    pacientes.createIndex("buscapaciente", "id", { unique: false });
+                    const pacientes = crear('Paciente', { keyPath: 'id', autoIncrement: true });
+                    indice(pacientes, "buscapaciente", "id");
 
-                    const medicos = db.createObjectStore('Profesional', { keyPath: 'id', autoIncrement: true });
-                    medicos.createIndex("buscaprofesional", "id", { unique: false });
+                    const medicos = crear('Profesional', { keyPath: 'id', autoIncrement: true });
+                    indice(medicos, "buscaprofesional", "id");
 
-                    const usersInfo = db.createObjectStore('InformacionUser', { keyPath: 'id', autoIncrement: true });
-                    usersInfo.createIndex("buscaaInformacionUser", "id", { unique: false });
+                    const usersInfo = crear('InformacionUser', { keyPath: 'id', autoIncrement: true });
+                    indice(usersInfo, "buscaaInformacionUser", "id");
 
-                    const diagnostico = db.createObjectStore('Diagnosticos', { keyPath: 'id', autoIncrement: true });
-                    diagnostico.createIndex("buscadiagnostico", "id_diagnostico", { unique: false });
+                    const diagnostico = crear('Diagnosticos', { keyPath: 'id', autoIncrement: true });
+                    indice(diagnostico, "buscadiagnostico", "id_diagnostico");
 
-                    const diagnosticoCIF = db.createObjectStore('DiagnosticosCIF', { keyPath: 'id', autoIncrement: true });
-                    diagnosticoCIF.createIndex("buscadiagnostico", "id_diagnostico", { unique: false });
+                    const diagnosticoCIF = crear('DiagnosticosCIF', { keyPath: 'id', autoIncrement: true });
+                    indice(diagnosticoCIF, "buscadiagnostico", "id_diagnostico");
 
-                    const antecedentes = db.createObjectStore('Antecedentes', { keyPath: 'id', autoIncrement: true });
-                    antecedentes.createIndex("buscaantecedentes", "id_antecedente", { unique: false });
+                    const antecedentes = crear('Antecedentes', { keyPath: 'id', autoIncrement: true });
+                    indice(antecedentes, "buscaantecedentes", "id_antecedente");
 
-                    const enfermedadActual = db.createObjectStore('Enfermedad', { keyPath: 'id', autoIncrement: true });
-                    enfermedadActual.createIndex("buscaenfermedadActual", "enfermedad", { unique: false });
+                    const enfermedadActual = crear('Enfermedad', { keyPath: 'id', autoIncrement: true });
+                    indice(enfermedadActual, "buscaenfermedadActual", "enfermedad");
 
-                    const historiaClinica = db.createObjectStore('HistoriaClinica', { keyPath: 'id', autoIncrement: true });
-                    historiaClinica.createIndex("buscahistoriaClinica", "id_historiaClinica", { unique: false });
+                    const historiaClinica = crear('HistoriaClinica', { keyPath: 'id', autoIncrement: true });
+                    indice(historiaClinica, "buscahistoriaClinica", "id_historiaClinica");
 
-                    const examenFisico = db.createObjectStore('ExamenFisico', { keyPath: 'id', autoIncrement: true });
-                    examenFisico.createIndex("buscaexamenFisico", "id", { unique: false });
+                    const examenFisico = crear('ExamenFisico', { keyPath: 'id', autoIncrement: true });
+                    indice(examenFisico, "buscaexamenFisico", "id");
 
-                    const analisis = db.createObjectStore('Analisis', { keyPath: 'id', autoIncrement: true });
-                    analisis.createIndex("buscaanalisis", "id", { unique: false });
+                    const analisis = crear('Analisis', { keyPath: 'id', autoIncrement: true });
+                    indice(analisis, "buscaanalisis", "id");
 
-                    const planManejoMedicamentos = db.createObjectStore('Plan_manejo_medicamentos', { keyPath: 'id', autoIncrement: true });
-                    planManejoMedicamentos.createIndex("buscaMedicamentos", "descripcion", { unique: false });
+                    const planManejoMedicamentos = crear('Plan_manejo_medicamentos', { keyPath: 'id', autoIncrement: true });
+                    indice(planManejoMedicamentos, "buscaMedicamentos", "descripcion");
 
-                    const planManejoProcedimientos = db.createObjectStore('Plan_manejo_procedimientos', { keyPath: 'id', autoIncrement: true });
-                    planManejoProcedimientos.createIndex("buscaProcedimientos", "descripcion", { unique: false });
+                    const planManejoProcedimientos = crear('Plan_manejo_procedimientos', { keyPath: 'id', autoIncrement: true });
+                    indice(planManejoProcedimientos, "buscaProcedimientos", "descripcion");
 
-                    const planManejoInsumos = db.createObjectStore('Plan_manejo_insumos', { keyPath: 'id', autoIncrement: true });
-                    planManejoInsumos.createIndex("buscainsumos", "nombre", { unique: false });
+                    const planManejoInsumos = crear('Plan_manejo_insumos', { keyPath: 'id', autoIncrement: true });
+                    indice(planManejoInsumos, "buscainsumos", "nombre");
 
-                    const planManejoEquipos = db.createObjectStore('Plan_manejo_equipos', { keyPath: 'id', autoIncrement: true });
-                    planManejoEquipos.createIndex("buscaequipos", "descripcion", { unique: false });
+                    const planManejoEquipos = crear('Plan_manejo_equipos', { keyPath: 'id', autoIncrement: true });
+                    indice(planManejoEquipos, "buscaequipos", "descripcion");
 
-                    const citas = db.createObjectStore('Cita', { keyPath: 'id' });
-                    citas.createIndex("buscaCita", "id", { unique: false });
+                    const citas = crear('Cita', { keyPath: 'id' });
+                    indice(citas, "buscaCita", "id");
 
-                    const keyCitas = db.createObjectStore('KeyCitas', { keyPath: 'key' });
-                    const keyAnalisis = db.createObjectStore('KeyAnalisis', { keyPath: 'key' });
+                    crear('KeyCitas', { keyPath: 'key' });
+                    crear('KeyAnalisis', { keyPath: 'key' });
 
-                    const empresa = db.createObjectStore('Empresa', { keyPath: 'no_identificacion' });
-                    empresa.createIndex("buscaEmpresa", "no_identificacion", { unique: false });
+                    const empresa = crear('Empresa', { keyPath: 'no_identificacion' });
+                    indice(empresa, "buscaEmpresa", "no_identificacion");
 
-                    const software = db.createObjectStore('Software', { keyPath: 'id', autoIncrement: true });
-                    software.createIndex("buscaSoftware", "id", { unique: false });
+                    const software = crear('Software', { keyPath: 'id', autoIncrement: true });
+                    indice(software, "buscaSoftware", "id");
 
-                    const facturacion = db.createObjectStore('Facturacion', { keyPath: 'id', autoIncrement: true });
-                    facturacion.createIndex("buscaFacturacion", "id", { unique: false });
+                    const facturacion = crear('Facturacion', { keyPath: 'id', autoIncrement: true });
+                    indice(facturacion, "buscaFacturacion", "id");
 
-                    const nota = db.createObjectStore('Nota', { keyPath: 'id', autoIncrement: true });
-                    nota.createIndex("buscaNota", "id", { unique: false });
+                    const nota = crear('Nota', { keyPath: 'id', autoIncrement: true });
+                    indice(nota, "buscaNota", "id");
 
-                    const descripcionNota = db.createObjectStore('Descripcion_nota', { keyPath: 'id', autoIncrement: true });
-                    descripcionNota.createIndex("buscaNota", "id", { unique: false });
+                    const descripcionNota = crear('Descripcion_nota', { keyPath: 'id', autoIncrement: true });
+                    indice(descripcionNota, "buscaNota", "id");
 
-                    const eps = db.createObjectStore('EPS', { keyPath: 'id', autoIncrement: true });
-                    eps.createIndex("buscaEPS", "id", { unique: false });
+                    const eps = crear('EPS', { keyPath: 'id', autoIncrement: true });
+                    indice(eps, "buscaEPS", "id");
 
-                    const profesion = db.createObjectStore('Profesion', { keyPath: 'id', autoIncrement: true });
-                    profesion.createIndex("buscaProfesion", "id", { unique: false });
+                    const profesion = crear('Profesion', { keyPath: 'id', autoIncrement: true });
+                    indice(profesion, "buscaProfesion", "id");
 
-                    const terapia = db.createObjectStore('Terapia', { keyPath: 'id', autoIncrement: true });
-                    terapia.createIndex("buscaTerapia", "id", { unique: false });
+                    const terapia = crear('Terapia', { keyPath: 'id', autoIncrement: true });
+                    indice(terapia, "buscaTerapia", "id");
 
-                    const servicio = db.createObjectStore('Servicio', { keyPath: 'id', autoIncrement: true });
-                    servicio.createIndex("buscaServicio", "id", { unique: false });
+                    const servicio = crear('Servicio', { keyPath: 'id', autoIncrement: true });
+                    indice(servicio, "buscaServicio", "id");
 
-                    const insumo = db.createObjectStore('Insumo', { keyPath: 'id', autoIncrement: true });
-                    insumo.createIndex("buscaInsumo", "id", { unique: false });
+                    const insumo = crear('Insumo', { keyPath: 'id', autoIncrement: true });
+                    indice(insumo, "buscaInsumo", "id");
 
-                    const movimiento = db.createObjectStore('Movimiento', { keyPath: 'id', autoIncrement: true });
-                    movimiento.createIndex("buscaMovimiento", "id", { unique: false });
+                    const movimiento = crear('Movimiento', { keyPath: 'id', autoIncrement: true });
+                    indice(movimiento, "buscaMovimiento", "id");
 
-                    const kardex = db.createObjectStore('Kardex', { keyPath: 'id' });
-                    kardex.createIndex("buscaKardex", "id", { unique: false });
+                    const kardex = crear('Kardex', { keyPath: 'id' });
+                    indice(kardex, "buscaKardex", "id");
 
-                    const celdaColors = db.createObjectStore('CeldaColors', { keyPath: 'id', });
-                    celdaColors.createIndex("buscaCeldaColors", "id", { unique: false });
+                    const celdaColors = crear('CeldaColors', { keyPath: 'id', });
+                    indice(celdaColors, "buscaCeldaColors", "id");
 
-                    const historialCambioSonda = db.createObjectStore('Historial_cambio_sonda', { keyPath: 'id', });
-                    historialCambioSonda.createIndex("buscaHistorialCambioSonda", "id", { unique: false });
+                    const historialCambioSonda = crear('Historial_cambio_sonda', { keyPath: 'id', });
+                    indice(historialCambioSonda, "buscaHistorialCambioSonda", "id");
 
-                    const convenios = db.createObjectStore('Convenio', { keyPath: 'id', autoIncrement: true });
+                    crear('Convenio', { keyPath: 'id', autoIncrement: true });
 
-                    db.createObjectStore('Historial_prestaciones', { keyPath: 'id', autoIncrement: true });
-                    db.createObjectStore('Cie10', { keyPath: 'id', autoIncrement: true });
-                    db.createObjectStore('Vadecum', { keyPath: 'id', autoIncrement: true });
+                    crear('Historial_prestaciones', { keyPath: 'id', autoIncrement: true });
+                    crear('Cie10', { keyPath: 'id', autoIncrement: true });
+                    crear('Vadecum', { keyPath: 'id', autoIncrement: true });
 
-                    // Tabla de versión
-                    if (!db.objectStoreNames.contains("Version")) {
-                        const versionStore = db.createObjectStore("Version", { keyPath: "id" });
-                        versionStore.put({ id: 1, version: this.EXPECTED_VERSION });
+                    // Tabla de versión (siempre sellada en cada upgrade)
+                    let tablaVersion
+                    if (db.objectStoreNames.contains("Version")) {
+                        tablaVersion = tx.objectStore("Version")
+                    } else {
+                        tablaVersion = db.createObjectStore("Version", { keyPath: "id" })
                     }
+                    tablaVersion.put({ id: 1, version: this.EXPECTED_VERSION });
 
                     // Tabla de control de actualizaciones
                     if (!db.objectStoreNames.contains("LastUpdate")) {
@@ -163,7 +188,14 @@ export const useIndexedDBStore = defineStore("indexeddb", {
 
                 }
 
+                request.onblocked = () => {
+                    console.warn('⚠️ La actualización de db-thesalus está bloqueada por otra pestaña. Cierre las demás pestañas y recargue.');
+                    this._inicializando = null
+                    reject('upgrade-blocked')
+                }
+
                 request.onerror = (event) => {
+                    this._inicializando = null
                     reject(event.target.errorCode)
                 }
 
@@ -187,18 +219,64 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                 req.onsuccess = () => {
                     const info = req.result;
                     const ahora = Date.now();
-                    resolve(!info || (ahora - info.lastUpdated) > limiteMs);
+                    // Tolerante: registros viejos guardan lastUpdate, los nuevos lastUpdated
+                    const ultimaActualizacion = info ? (info.lastUpdated ?? info.lastUpdate ?? 0) : 0;
+                    resolve(!info || (ahora - ultimaActualizacion) > limiteMs);
                 };
+                req.onerror = () => resolve(true);
             });
         },
 
-        async leerdatos() {
+        // TTL por consulta (clave de cache como 'Cita:hoy', 'Analisis:paciente:5')
+        async necesitaRefrescarConsulta(clave, limiteMs) {
+            if (!this.bd) {
+                await this.initialize()
+            }
+            const tx = this.bd.transaction("LastUpdate", "readonly");
+            const store = tx.objectStore("LastUpdate");
+            const req = store.get(clave);
+
+            return new Promise(resolve => {
+                req.onsuccess = () => {
+                    const info = req.result;
+                    if (!info) return resolve(true);
+                    const ultimaActualizacion = info.lastUpdated ?? info.lastUpdate ?? 0;
+                    resolve((Date.now() - ultimaActualizacion) > limiteMs);
+                };
+                req.onerror = () => resolve(true);
+            });
+        },
+
+        async marcarConsulta(clave) {
+            if (!this.bd) {
+                await this.initialize()
+            }
+            const tx = this.bd.transaction("LastUpdate", "readwrite");
+            tx.objectStore("LastUpdate").put({ store: clave, lastUpdated: Date.now() });
+            await tx.done;
+        },
+
+        // Limpia la cache si cambio el usuario (evita datos de otra cuenta)
+        async asegurarScopeUsuario(usuario) {
+            const clave = 'idb_scope_usuario'
+            const actual = String(usuario ?? '')
+            const anterior = localStorage.getItem(clave)
+
+            if (anterior === actual) return false
+
+            await this.clearDatabase('db-thesalus')
+            localStorage.setItem(clave, actual)
+            return true
+        },
+
+        async leerdatos(almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
             return new Promise((resolve, reject) => {
-                let transaccion = this.bd.transaction(this.almacen, "readonly");
-                let STlee = transaccion.objectStore(this.almacen);
+                let transaccion = this.bd.transaction(nombre, "readonly");
+                let STlee = transaccion.objectStore(nombre);
                 const request = STlee.getAll();
 
                 request.onerror = function () {
@@ -211,21 +289,23 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             })
         },
 
-        async guardardatos(aguardar) {
+        async guardardatos(aguardar, almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
-            let transaccion = this.bd.transaction(this.almacen, "readwrite");
-            let STabre = transaccion.objectStore(this.almacen);
+            let transaccion = this.bd.transaction(nombre, "readwrite");
+            let STabre = transaccion.objectStore(nombre);
             STabre.add(aguardar);
         },
 
-        async guardardatosID(aguardar) {
+        async guardardatosID(aguardar, almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
-            const tx = this.bd.transaction(this.almacen, 'readwrite');
-            const store = tx.objectStore(this.almacen);
+            const tx = this.bd.transaction(nombre, 'readwrite');
+            const store = tx.objectStore(nombre);
 
             const limpio = JSON.parse(JSON.stringify(aguardar));
 
@@ -239,13 +319,14 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             return result;
         },
 
-        async leerpordato(key) {
+        async leerpordato(key, almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
             return new Promise((resolve, reject) => {
-                let transaccion = this.bd.transaction(this.almacen, "readonly");
-                let STlee = transaccion.objectStore(this.almacen);
+                let transaccion = this.bd.transaction(nombre, "readonly");
+                let STlee = transaccion.objectStore(nombre);
 
                 let request = STlee.get(key)
                 request.onerror = function () {
@@ -259,13 +340,14 @@ export const useIndexedDBStore = defineStore("indexeddb", {
 
         },
 
-        async leerNoEnviados() {
+        async leerNoEnviados(almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize();
             }
             return new Promise((resolve, reject) => {
-                let transaccion = this.bd.transaction(this.almacen, "readonly");
-                let store = transaccion.objectStore(this.almacen);
+                let transaccion = this.bd.transaction(nombre, "readonly");
+                let store = transaccion.objectStore(nombre);
 
                 let resultado = [];
                 let request = store.openCursor();
@@ -288,13 +370,14 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             });
         },
 
-        async borrardato(key) {
+        async borrardato(key, almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
             return new Promise((resolve, reject) => {
-                let transaccion = this.bd.transaction(this.almacen, "readwrite");
-                let STlee = transaccion.objectStore(this.almacen);
+                let transaccion = this.bd.transaction(nombre, "readwrite");
+                let STlee = transaccion.objectStore(nombre);
 
                 let request = STlee.delete(key)
 
@@ -308,13 +391,14 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             })
         },
 
-        async actualiza(aguardar) {
+        async actualiza(aguardar, almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
             return new Promise((resolve, reject) => {
-                let transaccion = this.bd.transaction(this.almacen, "readwrite");
-                let STlee = transaccion.objectStore(this.almacen);
+                let transaccion = this.bd.transaction(nombre, "readwrite");
+                let STlee = transaccion.objectStore(nombre);
 
                 let request = STlee.put(aguardar)
 
@@ -328,7 +412,9 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             })
         },
 
-        async bulkPut(datos = []) {
+        async bulkPut(datos = [], almacen = null) {
+            const nombre = almacen ?? this.almacen;
+            if (!Array.isArray(datos)) return false;
             if (!this.bd) {
                 await this.initialize();
             }
@@ -341,9 +427,11 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                     Object.keys(item).length > 0
                 );
             });
+            // Nada que guardar: no desactivar registros cacheados (evita vaciar la cache)
+            if (datosValidos.length === 0) return false;
             return new Promise((resolve, reject) => {
-                const transaccion = this.bd.transaction(this.almacen, "readwrite");
-                const store = transaccion.objectStore(this.almacen);
+                const transaccion = this.bd.transaction(nombre, "readwrite");
+                const store = transaccion.objectStore(nombre);
 
                 const request = store.getAll();
 
@@ -353,7 +441,7 @@ export const useIndexedDBStore = defineStore("indexeddb", {
 
                     // Marcar como inactivos los que ya no vienen
                     registrosActuales.forEach(registro => {
-                        if (this.almacen == 'Cita') return
+                        if (nombre == 'Cita') return
                         if(registro.estado == 'Inactiva' || registro.estado == 'Realizada') return
                         if (registro.sincronizado === 0) return;
                         if (registro.id == null) return;
@@ -375,13 +463,14 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             });
         },
 
-        async borrartodo() {
+        async borrartodo(almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
             return new Promise((resolve, reject) => {
-                let transaccion = this.bd.transaction(this.almacen, "readwrite");
-                let STlee = transaccion.objectStore(this.almacen);
+                let transaccion = this.bd.transaction(nombre, "readwrite");
+                let STlee = transaccion.objectStore(nombre);
 
                 let request = STlee.clear()
 
@@ -397,8 +486,7 @@ export const useIndexedDBStore = defineStore("indexeddb", {
 
         async listDatos(id, Tabla, Campo = 'id_historia') {
 
-            this.almacen = Tabla
-            const datosTabla = await this.leerdatos()
+            const datosTabla = await this.leerdatos(Tabla)
 
             const getValor = (obj, path) => {
                 return path.split('.').reduce((acc, key) => {
@@ -413,13 +501,13 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             return datos
         },
 
-        async borra_lee(key) {
+        async borra_lee(key, almacen = null) {
+            const nombre = almacen ?? this.almacen;
             if (!this.bd) {
                 await this.initialize()
             }
-            return await borrardato(key).then(() => {
-                return leerdatos()
-            })
+            await this.borrardato(key, nombre)
+            return await this.leerdatos(nombre)
         },
 
         async deleteDatabase(dbName) {
@@ -427,6 +515,7 @@ export const useIndexedDBStore = defineStore("indexeddb", {
                 this.bd.close();
                 this.bd = null;
             }
+            this._inicializando = null
 
             return new Promise((resolve, reject) => {
                 const request = indexedDB.deleteDatabase(dbName);

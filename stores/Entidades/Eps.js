@@ -90,7 +90,7 @@ export const useEpsStore = defineStore('Eps', {
                     res = await enviarEps({ EPS: this.EpsNoEnviados[i] })
                 }
 
-                indexedDB.borrardato(this.EpsNoEnviados[i].id)
+                await indexedDB.borrardato(this.EpsNoEnviados[i].id, 'EPS')
             }
 
             await this.traer(true, true)

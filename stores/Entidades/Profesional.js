@@ -129,7 +129,7 @@ export const useProfesionalStore = defineStore('Profesional', {
                 } else {
                     res = await guardarProfesional(data)
                 }
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Profesional')
 
             }
 

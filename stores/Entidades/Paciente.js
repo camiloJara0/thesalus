@@ -126,7 +126,7 @@ export const usePacientesStore = defineStore('Pacientes', {
                     res = await enviarPaciente({ Paciente: this.NoEnviados[i] })
                 }
 
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Paciente')
 
             }
 

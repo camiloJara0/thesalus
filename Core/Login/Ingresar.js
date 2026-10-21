@@ -1,5 +1,6 @@
 import { useNotificacionesStore } from '~/stores/notificaciones.js'
 import { useApiRest } from '~/stores/apiRest.js';
+import { useIndexedDBStore } from '~/stores/indexedDB.js';
 import { encryptData } from '~/composables/Formulario/crypto.js';
 import { traerDatos } from '../BDload';
 
@@ -47,6 +48,10 @@ const enviarFormulario = async (datos) => {
                 localStorage.setItem('Rol', rolEncrypt);
                 localStorage.setItem('Permisos', permisosEncrypt);
                 localStorage.setItem('permisosTemporales', JSON.stringify(permisosIndividuales ?? []))
+
+                // Si cambio el usuario, limpiar la cache local antes de sembrar datos
+                const indexedDB = useIndexedDBStore();
+                await indexedDB.asegurarScopeUsuario(respuesta.user.usuario?.id ?? respuesta.user.correo)
 
                 await traerDatos((porcentaje, texto) => {
                     actualizarProgreso(porcentaje, texto);

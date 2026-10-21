@@ -77,8 +77,6 @@ onMounted(async () => {
     let citas = [];
     let Historias = [];
 
-    servicios.value = await apiRest.getData('Servicio', 'servicios');
-
     if (rol.value === 'Admin') {
         const historiaStore = useHistoriasStore();
         Historias = await historiaStore.ultimasHistorias();
@@ -100,7 +98,7 @@ onMounted(async () => {
         notificaciones.value = generarNotificacionesAdmin();
     } else if (rol.value === 'Profesional') {
         const pacientesStore = usePacientesStore();
-        pacientesList.value = await pacientesStore.traer(true, true);
+        pacientesList.value = await pacientesStore.traer();
 
         const seccionesApp = await storeProfesion.traerSecciones();
         const permisos = await storeProfesion.traerPermisos(profesional.value.id_profesion);

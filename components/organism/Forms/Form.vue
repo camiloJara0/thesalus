@@ -24,7 +24,8 @@ const {
     seccionActual,
     camposActuales,
     componentInstances,
-} = useFormulario(props)
+    irASeccion
+} = useFormulario(props, tablaStore.Formulario)
 
 const fondos = {
     true: FondoBlur,
@@ -76,7 +77,7 @@ function limpiar() {
                 <Wizard
                     v-if="Propiedades.formulario && Propiedades.formulario.tipo !== undefined && Propiedades.formulario.tipo === 'Wizard'"
                     :Propiedades="Propiedades.formulario" :SeccionActual="seccionActual"
-                    :key="Propiedades.formulario.soloVer" :cerrar="limpiar" />
+                    :key="Propiedades.formulario.soloVer" :cerrar="limpiar" :irASeccion="irASeccion" />
                 <!-- Titulo Sin wizard -->
                 <div class="w-full py-1 flex flex-col flex-1 min-h-0">
                     <div v-if="Propiedades.formulario && Propiedades.formulario.tipo !== 'Wizard'"

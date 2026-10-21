@@ -17,10 +17,10 @@ export async function traerDatos(onProgress = () => {}) {
 
         onProgress(10, 'Cargando datos base...');
         await Promise.all([
-            serviciosStore.traer(true, true),
-            pacientesStore.traer(true, true),
-            profesionalesStore.traer(true, true),
-            inventarioStore.traer(true, true),
+            serviciosStore.traer(),
+            pacientesStore.traer(),
+            profesionalesStore.traer(),
+            inventarioStore.traer(),
         ]);
 
         onProgress(60, 'Cargando citas...');

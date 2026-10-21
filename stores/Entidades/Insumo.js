@@ -119,7 +119,7 @@ export const useInsumoStore = defineStore('Insumo', {
                     res = await guardarInsumo({ Insumos: data })
                 }
 
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Insumo')
 
             }
 
@@ -288,7 +288,7 @@ export const useInsumoStore = defineStore('Insumo', {
                 const res = await enviarMovimiento({ Movimientos: this.NoEnviados[i] })
 
                 if (res) {
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Movimiento')
                 }
             }
 

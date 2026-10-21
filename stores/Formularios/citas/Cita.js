@@ -46,30 +46,52 @@ export const useCitasStore = defineStore('Citas', {
             const indexedDB = useIndexedDBStore()
             const apiRest = useApiRest()
 
-            // Buscar en IndexedDB primero
-            let keyCita = await indexedDB.getData(key)
+            // Claves volatiles (paginado, filtros, refresco forzado): siempre van a red
+            const volatil = /:(cursor|filtros|cambio):/.test(key)
+            const TTL_CONSULTA = 60 * 1000
 
-            if (keyCita) {
+            // Cache fresca: sin llamada a red
+            if (!volatil && !(await indexedDB.necesitaRefrescarConsulta(key, TTL_CONSULTA))) {
                 indexedDB.almacen = 'Cita'
-                let citas = await indexedDB.leerdatos()
+                const citas = await indexedDB.leerdatos()
                 this.Citas = await this.filtrarPorRol(citas)
                 return this.Citas
             }
 
-            // Si no hay datos locales, llamar online
-            let citas = await fetchFn()
+            let citas = null
+            try {
+                citas = await fetchFn()
+            } catch (e) {
+                console.warn('obtenerCitas: fallo la consulta, se usa cache local', key, e)
+            }
+
+            // Offline o error: servir desde la cache local
+            if (!Array.isArray(citas)) {
+                indexedDB.almacen = 'Cita'
+                const local = await indexedDB.leerdatos()
+                this.Citas = await this.filtrarPorRol(local)
+                return this.Citas
+            }
 
             citas = await this.filtrarPorRol(citas)
 
-            const mapaCitas = new Map(this.Citas.map(c => [c.id, c]))
-
-            for (const cita of citas) {
-                mapaCitas.set(cita.id, cita) // si existe se actualiza si no se agrega
+            // Base del merge: cache completa (clave estable) o solo memoria (volatile)
+            let base = this.Citas
+            if (!volatil) {
+                indexedDB.almacen = 'Cita'
+                base = await indexedDB.leerdatos()
             }
-            this.Citas = Array.from(mapaCitas.values())
-            await apiRest.postOfflineData('KeyCitas', [{ key: key }])
-            await apiRest.postOfflineData('Cita', this.Citas)
-            
+
+            const mapaCitas = new Map(base.map(c => [c.id, c]))
+            for (const cita of this.Citas) mapaCitas.set(cita.id, cita)
+            for (const cita of citas) mapaCitas.set(cita.id, cita)
+            this.Citas = await this.filtrarPorRol(Array.from(mapaCitas.values()))
+
+            if (!volatil) {
+                await apiRest.postOfflineData('Cita', this.Citas)
+                await indexedDB.marcarConsulta(key)
+            }
+
             return this.Citas
         },
 
@@ -187,19 +209,18 @@ export const useCitasStore = defineStore('Citas', {
 
         async sincronizar() {
             const indexedDB = useIndexedDBStore()
-            indexedDB.almacen = 'Cita'
             const online = navigator.onLine;
             if (this.NoEnviados.length < 1 || !online) return
 
             for (let i = 0; i < this.NoEnviados.length; i++) {
                 const res = await enviarFormularioCita({ Cita: this.NoEnviados[i] })
 
-
-                    indexedDB.borrardato(this.NoEnviados[i].id)
-
+                if (res) {
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Cita')
+                }
             }
 
-            await this.traer(true, true)
+            await this.listCitas(true)
         },
 
         async indexDBDatos() {

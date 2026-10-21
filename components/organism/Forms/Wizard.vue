@@ -9,8 +9,12 @@ const props = defineProps({
     },
     SeccionActual: {
         default: 0
+    },
+    irASeccion: {
+        type: Function,
+        default: () => {}
     }
-});
+});console.log(props)
 const varView = useVarView()
 
 function editar() {
@@ -24,8 +28,8 @@ function editar() {
         <div class="flex flex-col">
             <h2 class="text-white font-bold md:text-2xl text-xl">{{ Propiedades.tituloFormulario }}</h2>
             <div class="flex gap-3 pt-1">
-                <p class="flex items-center text-gray-200 text-sm gap-1" v-for="(seccion, index) in Propiedades.secciones"
-                :class="{ 'text-white font-medium': index === props.SeccionActual }">
+                <p class="flex items-center text-gray-200 text-sm gap-1 hover:text-gray-100 cursor-pointer" v-for="(seccion, index) in Propiedades.secciones"
+                :class="{ 'text-white font-medium': index === props.SeccionActual }" @click="props.irASeccion(index)">
                     {{ seccion.nombre }}
                     <i class="fa-solid fa-angle-right text-gray-300" v-if="index + 1 !== props.Propiedades.secciones.length"></i>
                 </p>

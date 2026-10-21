@@ -31,7 +31,7 @@ const nuevoProcedimiento = ref(false)
 const CIE10 = ref([])
 
 onMounted(async () => {
-    const pacientes = await pacientesStore.traer(true, true);
+    const pacientes = await pacientesStore.traer();
     pacientesList.value = pacientes.map(p => {return {label: `${p.info_usuario.name} - ${p.info_usuario.No_document}`, value: p.id}})
     const medicos = await medicosStore.traer()
     medicosList.value = medicos.map(m => { return {label: `${m.info_usuario.name} - ${m.info_usuario.No_document}`, value: m.id}})

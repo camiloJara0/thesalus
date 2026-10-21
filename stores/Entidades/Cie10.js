@@ -91,7 +91,7 @@ export const useCie10Store = defineStore('Cie10', {
                     res = await guardarCie10(data)
                 }
                 
-                    indexedDB.borrardato(this.NoEnviados[i].id)
+                    await indexedDB.borrardato(this.NoEnviados[i].id, 'Cie10')
 
             }
 
