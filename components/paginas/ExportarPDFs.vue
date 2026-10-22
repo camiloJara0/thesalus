@@ -35,6 +35,7 @@ const progreso = ref(0);
 // Control de la peticion en curso (permite cancelarla o ponerle tiempo limite)
 let controladorExportacion = null;
 const TIEMPO_MAXIMO_EXPORTACION = 120000;
+const TIEMPO_MAXIMO_POLLING = 900000;
 const pacientesStore = usePacientesStore()
 const profesionalStore = useProfesionalStore()
 const calendarioCitasStore = useCalendarioCitas();
@@ -148,19 +149,19 @@ const enviarPDFs = async () => {
         cancelarPDFs.value = false;
         controladorExportacion = new AbortController();
         const controlador = controladorExportacion;
-        const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_EXPORTACION);
+        const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_POLLING);
         let exportacionCompleta = false;
 
         // Cargar datos necesarios
         const token = decryptData(localStorage.getItem('token'))
 
         try {
-            const res = await fetch(`${config.public.api}/${config.public.exportarPdf}`, {
+            const resCrear = await fetch(`${config.public.api}/${config.public.exportarAsync}`, {
                 method: 'POST',
                 signal: controlador.signal,
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/pdf',
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -169,21 +170,66 @@ const enviarPDFs = async () => {
                     id_profesional: file.id_profesional,
                     fechaInicio: file.fechaInicio,
                     fechaFin: file.fechaFin,
-                    individual: false
                 })
 
             });
 
-            if (!res.ok) {
-                throw new Error(`Error en la petición: ${res.status}`);
+            if (!resCrear.ok) {
+                throw new Error(`Error al iniciar la exportación: ${resCrear.status}`);
             }
 
-            const blob = await res.blob();
+            const crearJson = await resCrear.json();
+            const exportId = crearJson.export_id;
+
+            let estado = 'pendiente';
+
+            while (!cancelarPDFs.value) {
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+
+                if (controlador.signal.aborted) break;
+
+                const resEstado = await fetch(`${config.public.api}/${config.public.estadoExport}/${exportId}/estado`, {
+                    signal: controlador.signal,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!resEstado.ok) {
+                    throw new Error(`Error consultando el estado: ${resEstado.status}`);
+                }
+
+                const info = await resEstado.json();
+                estado = info.estado;
+
+                if (info.total > 0) {
+                    progreso.value = Math.round((info.completados / info.total) * 100);
+                }
+
+                if (estado === 'lista') break;
+                if (estado === 'fallida') throw new Error('La exportación falló en el servidor');
+            }
+
+            if (estado !== 'lista' || cancelarPDFs.value) return;
+
+            const resDescarga = await fetch(`${config.public.api}/${config.public.descargarExport}/${exportId}/descarga`, {
+                signal: controlador.signal,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!resDescarga.ok) {
+                throw new Error(`Error al descargar la exportación: ${resDescarga.status}`);
+            }
+
+            const blob = await resDescarga.blob();
             const url = window.URL.createObjectURL(blob);
 
             // Leer el nombre desde el header
-            const disposition = res.headers.get('Content-Disposition');
-            let fileName = `${varView.servicioPDF || file.servicio}.pdf`;
+            const disposition = resDescarga.headers.get('Content-Disposition');
+            let fileName = `${file.servicio}.zip`;
             if (disposition) {
                 const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/);
                 if (match && match[1]) {
@@ -262,7 +308,7 @@ const generarExcel = async () => {
         const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_EXPORTACION);
         let analisisFiltrados = []
         try {
-            const res = await fetch(`${config.public.api}/${config.public.exportarPdf}`, {
+            const res = await fetch(`${config.public.api}/${config.public.exportarExcel}`, {
                 method: 'POST',
                 signal: controlador.signal,
                 headers: {
@@ -276,13 +322,11 @@ const generarExcel = async () => {
                     id_profesional: file.id_profesional,
                     fechaInicio: file.fechaInicio,
                     fechaFin: file.fechaFin,
-                    individual: false,
-                    excel: true,
                 })
 
             });
             const json = await res.json()
-            analisisFiltrados = json.data
+            analisisFiltrados = json.data || []
         } catch (err){
             if (err.name !== 'AbortError') console.log('error al obtener datos', err)
         } finally {
@@ -303,45 +347,37 @@ const generarExcel = async () => {
             file.servicio === 'Nota'
                 ? {
                     'id': 'id',
-                    'Fecha Nota': 'nota.fecha_nota',
-                    'Paciente': 'paciente.info_usuario.name',
-                    'Profesional': 'profesional.info_usuario.name',
-                    'Servicio': 'servicio.name',
+                    'Fecha Nota': 'nota_fecha',
+                    'Paciente': 'paciente',
+                    'Profesional': 'profesional',
+                    'Servicio': 'servicio',
                     'Motivo de Consulta': 'motivo',
-                    'Observaciones': 'nota.tipoAnalisis'
+                    'Observaciones': 'nota_tipo'
                 }
                 : file.servicio === 'Terapia'
                     ? {
                         'id': 'id',
-                        'Fecha Terapia': 'terapia.fecha',
-                        'Paciente': 'paciente.info_usuario.name',
-                        'Profesional': 'profesional.info_usuario.name',
-                        'Servicio': 'servicio.name',
-                        'Sesion': 'terapia.sesion',
-                        'Descripción Terapia': 'terapia.objetivos',
-                        'Observaciones': 'terapia.evolucion'
+                        'Fecha Terapia': 'terapia_fecha',
+                        'Paciente': 'paciente',
+                        'Profesional': 'profesional',
+                        'Servicio': 'servicio',
+                        'Sesion': 'terapia_sesion',
+                        'Descripción Terapia': 'terapia_objetivos',
+                        'Observaciones': 'terapia_evolucion'
                     }
                     : {
                         'id': 'id',
-                        'Fecha Registro': 'created_at',
-                        'Paciente': 'paciente.info_usuario.name',
-                        'Profesional': 'profesional.info_usuario.name',
-                        'Servicio': 'servicio.name',
+                        'Fecha Registro': 'fecha',
+                        'Paciente': 'paciente',
+                        'Profesional': 'profesional',
+                        'Servicio': 'servicio',
                         'Motivo': 'motivo',
                         'Diagnóstico': 'tipoAnalisis',
                         'Tratamiento': 'tratamiento',
                         'Observación': 'observacion',
-                        'Análisis Clínico': 'analisis'
+                        'Análisis Clínico': 'analisisClinico'
                     };
 
-        analisisFiltrados = analisisFiltrados.map(analisis => {
-            return {
-                ...analisis,
-                paciente: pacientesStore.Pacientes.find(
-                    p => parseInt(p.id) === parseInt(analisis.historia.id_paciente)
-                ) || '',
-            }
-        })
         return analisisFiltrados
 
     } catch (error) {
@@ -461,6 +497,10 @@ const generarExcel = async () => {
                             }}
                         </ButtonForm>
 
+                    </div>
+
+                    <div v-if="generandoPDFs" class="w-full text-center mt-3 text-sm text-gray-600 dark:text-gray-300">
+                        Generando PDFs... {{ progreso }}%
                     </div>
                 </div>
             </div>
