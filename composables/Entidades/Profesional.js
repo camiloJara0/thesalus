@@ -25,7 +25,7 @@ export function useProfesionalActions({
     const cerrar = () => {
         profesionalStore.showModificarProfesional = false;
         profesionalStore.showNuevoProfesional = false;
-        varView.soloVer = false;
+        varView.soloVer = true;
     };
 
     /* ===============================
@@ -35,6 +35,7 @@ export function useProfesionalActions({
     const modificarMedico = (profesional) => {
         profesionalStore.Formulario.Profesional = JSON.parse(JSON.stringify(profesional))
         profesionalStore.showModificarProfesional = true;
+        varView.soloVer = false;
     };
 
     /* ===============================

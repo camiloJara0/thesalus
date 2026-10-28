@@ -30,6 +30,9 @@ export function useProfesionalBuilder({
         value: d.nombre
     })) || []
 
+    const config = useRuntimeConfig()
+    const urlBack = config.public.api
+
     function filtrarMunicipios(departamentoSeleccionado) {
         const departamento = municipios.find(d => d.nombre === departamentoSeleccionado);
         municipiosList.value = departamento ? departamento.municipios.map(m => ({ label: `${m.NOMBRE} - ${m.CODIGO_MUNICIPIO}`, value: m.NOMBRE })) : [];
@@ -310,23 +313,30 @@ export function useProfesionalBuilder({
             minLength: '5',
             vmodel: 'Profesional.user.correo',
         })
-    builder.addCampo({
-        component: 'Input',
-        type: 'file',
-        placeholder: 'Firma y Sello (opcional)',
-        id: 'sello',
-        name: 'sello',
-        tamaño: 'w-full cursor-pointer',
-        events: {
-            onInput: async (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const imagenReducida = await reducirImagen(file);
-                    profesionalStore.Formulario.Profesional.sello = imagenReducida;
+        builder.addCampo({
+            component: 'Input',
+            type: 'file',
+            placeholder: 'Firma y Sello (opcional)',
+            id: 'sello',
+            name: 'sello',
+            tamaño: 'w-full cursor-pointer',
+            events: {
+                onChange: async (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const imagenReducida = await reducirImagen(file);
+                        profesionalStore.Formulario.Profesional.sello = imagenReducida;
+                    }
                 }
             }
+        })
+        if (verUser && profesionalStore.Formulario.Profesional.sello) {
+            builder.addCampo({
+                component: 'Label',
+                text: '<i class="fa-solid fa-signature text-sky-600 mr-2"></i>Firma cargada',
+                tamaño: 'w-full md:col-span-2 flex justify-end text-end',
+            })
         }
-    })
 
 
     return builder.build()

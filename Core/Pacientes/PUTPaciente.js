@@ -46,7 +46,8 @@ export const actualizarPaciente = async (datos, reintento = false) => {
                 return true
             }
         } catch (error) {
-            console.error('Fallo al enviar. Guardando localmente', error);
+            console.error('Fallo al enviar', error);
+            return false
         }
     } else {
         try {

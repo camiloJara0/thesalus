@@ -14,7 +14,7 @@ const props = defineProps({
         type: Function,
         default: () => {}
     }
-});console.log(props)
+});
 const varView = useVarView()
 
 function editar() {

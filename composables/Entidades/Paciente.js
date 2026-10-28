@@ -32,6 +32,7 @@ export function usePacienteActions({
         mapCampos(paciente, pacientesStore.Formulario);
         pacientesStore.Formulario.Paciente.convenio_id = paciente.convenios?.[0]?.id
         pacientesStore.showModificarPaciente = true;
+        varView.soloVer = false;
     };
 
     // ELIMINAR PACIENTE
@@ -177,13 +178,22 @@ export function usePacienteActions({
                 {
                     label: 'Activar',
                     onSelect: async() => {
-                        await actualizarPaciente({Paciente: paciente})
-                        notificaciones.options = {
-                            position: "top-end",
-                            texto: "Paciente activado con éxito.",
-                            background: "#6bc517",
-                            tiempo: 1500
-                        };
+                        const res = await actualizarPaciente({Paciente: paciente})
+                        if(res) {
+                            notificaciones.options = {
+                                position: "top-end",
+                                texto: "Paciente activado con éxito.",
+                                background: "#6bc517",
+                                tiempo: 1500
+                            };
+                        } else {
+                            notificaciones.options = {
+                                position: "top-end",
+                                texto: "No se puedo reactivar el paciente.",
+                                background: "#d33",
+                                tiempo: 1500
+                            };
+                        }
 
                         await notificaciones.mensaje();
                         await pacientesStore.traer(true, true)

@@ -34,6 +34,7 @@ export const useProfesionalStore = defineStore('Profesional', {
                 },
                 id_profesion: '',
                 correoProfesional: '',
+                sello: '',
                 estado: 1,
             },
         },

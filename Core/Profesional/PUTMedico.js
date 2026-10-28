@@ -12,7 +12,6 @@ export const editarProfesional = async (datos, reintento = false) => {
         try {
             // mandar a api
             const formData = new FormData();
-
             // Campos de texto
             formData.append("id_infoUsuario", datos.info_usuario.id);
             formData.append("name", datos.info_usuario.name);
@@ -37,7 +36,7 @@ export const editarProfesional = async (datos, reintento = false) => {
             formData.append("correo", datos.user.correo);
 
             // Imagen reducida (Blob)
-            if (datos.sello && datos.sello instanceof Blob && datos.sello.size > 0) {
+            if (datos.sello) {
                 formData.append("selloFile", datos.sello, "sello.jpg");
             }
 

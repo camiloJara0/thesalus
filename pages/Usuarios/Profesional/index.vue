@@ -52,10 +52,6 @@ async function llamaProfesionesList() {
     profesiones.value = profesionesList.value.map((profesion) => {
         return { label: profesion.nombre, value: profesion.id }
     });
-    profesiones.value.push({ 
-        label: 'Sin profesion', 
-        value: null 
-    })
     profesiones.value.unshift({
         label: 'Agregar Profesión',
         icon: 'i-lucide-plus',
