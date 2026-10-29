@@ -184,7 +184,7 @@ const enviarPDFs = async () => {
             let estado = 'pendiente';
 
             while (!cancelarPDFs.value) {
-                await new Promise((resolve) => setTimeout(resolve, 5000));
+                await new Promise((resolve) => setTimeout(resolve, 15000));
 
                 if (controlador.signal.aborted) break;
 

@@ -94,10 +94,12 @@ const isActive = (path) => route.path === path
                 </nav>
 
                 <!-- Perfil / Logout -->
-                <NuxtLink @click="clearSession" class="flex-col items-center gap-3 md:flex flex-none">
-                    <i
-                        class="fa-solid fa-right-from-bracket text-lg text-white md:text-gray-300 dark:text-black hover:text-red-600 cursor-pointer"></i>
-                </NuxtLink>
+                <div class="flex flex-col items-center gap-4">
+                    <NuxtLink @click="clearSession" class="flex-col items-center gap-3 md:flex flex-none">
+                        <i
+                            class="fa-solid fa-right-from-bracket text-lg text-white md:text-gray-300 dark:text-black hover:text-red-600 cursor-pointer"></i>
+                    </NuxtLink>
+                </div>
             </div>
 
             <!-- Estado expandido -->
@@ -135,18 +137,21 @@ const isActive = (path) => route.path === path
                 <!-- Perfil -->
                 <div class="menu-item py-4 border-t border-gray-700 dark:border-gray-200 mt-4">
                     <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="text-gray-200 dark:text-gray-800 font-medium text-sm">Perfil</span>
+                        <span class="text-gray-400 dark:text-gray-500 text-xs font-semibold uppercase tracking-wider">{{ varView.getRol }}</span>
                         <i class="fa-solid fa-user text-lg text-gray-400 dark:text-gray-600 transition"></i>
                     </div>
                     <div class="flex flex-col gap-1 pl-2">
-                        <p class="text-gray-400 dark:text-gray-600 font-semibold text-sm text-wrap transition">
-                            {{ varView.getRol }}
-                        </p>
-                        <NuxtLink to="/Ayuda" class="mt-1 text-yellow-400 dark:text-yellow-600 font-semibold text-sm hover:text-yellow-500 text-wrap transition">
+                        <NuxtLink to="/Perfil"
+                            class="mt-1 font-semibold text-sm text-gray-200 dark:text-gray-800 hover:text-blue-500 text-wrap transition"
+                            :class="{ 'text-blue-500!': isActive('/Perfil') }">
+                            <i class="fa-solid fa-user-pen mr-1"></i>Mi perfil
+                        </NuxtLink>
+                        <NuxtLink to="/Ayuda" class="mt-1 text-gray-200 dark:text-gray-800 font-semibold text-sm hover:text-yellow-500 text-wrap transition"
+                        :class="{ 'text-yellow-500!': isActive('/Ayuda') }">
                             <i class="fa-solid fa-circle-question mr-1"></i>Ayuda
                         </NuxtLink>
-                        <NuxtLink @click="clearSession" class="text-red-500 font-semibold text-sm hover:text-red-700 text-wrap transition">
-                            Cerrar Sesion
+                        <NuxtLink @click="clearSession" class="text-gray-200 dark:text-gray-800 font-semibold text-sm hover:text-red-700 text-wrap transition">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Cerrar Sesion
                         </NuxtLink>
                     </div>
                 </div>

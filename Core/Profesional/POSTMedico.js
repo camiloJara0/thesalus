@@ -38,7 +38,7 @@ export const guardarProfesional = async (datos, reintento = false) => {
             formData.append("id_correoCreador", usuario.id);
 
             // Imagen reducida (Blob)
-            if (datos.sello) {
+            if (datos.sello instanceof Blob) {
                 formData.append("selloFile", datos.sello, "sello.jpg");
             }
 

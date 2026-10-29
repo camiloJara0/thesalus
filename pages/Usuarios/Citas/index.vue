@@ -82,11 +82,13 @@ useMultiAutoRefresh([
 
 onMounted(async () => {
     await llamadatos(false)
-    infoCitas.value = await citasStore.infoCitas()
-    showMensaje.value = true
-    setTimeout(() => {
-        showMensaje.value = false
-    }, 3000)
+    if(varView.getRol === 'Profesional') {
+        infoCitas.value = await citasStore.infoCitas()
+        showMensaje.value = true
+        setTimeout(() => {
+            showMensaje.value = false
+        }, 3000)
+    }
     // Rellenar fecha del formulario
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
 });

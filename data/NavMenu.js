@@ -1,5 +1,6 @@
 // Creacion de botones del Navbar
 import { useSession } from '~/composables/useSession';
+import { navigateTo } from '#app';
 
 const { clearSession } = useSession();
 
@@ -10,15 +11,15 @@ export const submenuNotificaciones = [
 
 export const submenuSesion = [
     { 
-        id: 1, 
-        label: 'Iniciar Sesión', 
-        icon: 'lucide-user', 
+        id: 0, 
+        label: 'Mi perfil', 
+        icon: 'i-lucide-user-round', 
         onSelect: async() => {
-            await clearSession();
+            await navigateTo('/Perfil');
         }
     },
     { 
-        id: 2, 
+        id: 1, 
         label: 'Cerrar Sesión', 
         icon: 'i-lucide-arrow-left-to-line', 
         onSelect: async() => {

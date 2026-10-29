@@ -36,7 +36,7 @@ export const editarProfesional = async (datos, reintento = false) => {
             formData.append("correo", datos.user.correo);
 
             // Imagen reducida (Blob)
-            if (datos.sello) {
+            if (datos.sello instanceof Blob) {
                 formData.append("selloFile", datos.sello, "sello.jpg");
             }
 

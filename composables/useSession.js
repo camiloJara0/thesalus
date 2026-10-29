@@ -1,9 +1,10 @@
+import { decryptData } from '~/composables/Formulario/crypto';
 const SESSION_KEYS = ['token', 'user', 'Rol', 'Permisos', 'permisosTemporales', 'seccion', 'ultimaSincronizacion']
 
 export function useSession() {
     const notificaciones = useNotificacionesStore()
-const noEnviados = useNoEnviados()
-const router = useRouter()
+    const noEnviados = useNoEnviados()
+    const router = useRouter()
 
     async function clearSession() {
         if(noEnviados.totalDocumentosNoEnviados > 0){
@@ -19,15 +20,26 @@ const router = useRouter()
 
             if (respuesta !== "confirmado") return;
 
-            SESSION_KEYS.forEach(key => localStorage.removeItem(key))
-            sessionStorage.clear()
-router.push('/')
-        } else {
-            SESSION_KEYS.forEach(key => localStorage.removeItem(key))
-            sessionStorage.clear()
-router.push('/')
         }
+
+        await cerrarSesion()
+        // SESSION_KEYS.forEach(key => localStorage.removeItem(key))
+        // sessionStorage.clear()
+        router.push('/')
     }
 
     return { clearSession }
+}
+
+async function cerrarSesion() {
+    const api = useApiRest();
+    const config = useRuntimeConfig()
+    const token = decryptData(localStorage.getItem('token'))
+
+    let options = {
+        metodo: 'POST',
+        url: config.public.logout,
+        token: token,
+    }
+    await api.functionCall(options)
 }

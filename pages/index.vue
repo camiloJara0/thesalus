@@ -20,7 +20,7 @@ const config = useRuntimeConfig()
 const indexedDB = useIndexedDBStore();
 const storeCodigos = useCodigos();
 const mostrarContraseña = ref(false)
-const { clearSession } = useSession()
+const SESSION_KEYS = ['token', 'user', 'Rol', 'Permisos', 'permisosTemporales', 'seccion', 'ultimaSincronizacion']
 
 onMounted(async () => {
     try {
@@ -32,7 +32,8 @@ onMounted(async () => {
 
         await storeCodigos.initialize();
         await storeCodigos.guardardatos()
-        clearSession()
+        SESSION_KEYS.forEach(key => localStorage.removeItem(key))
+        sessionStorage.clear()
         varView.cargando = false;
     } catch (e) {
         console.error('No se pudo inicializar IndexedDB:', e);

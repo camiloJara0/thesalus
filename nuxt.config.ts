@@ -93,10 +93,12 @@ export default defineNuxtConfig({
       estadoExport: 'api/v1/exportar',
       descargarExport: 'api/v1/exportar',
       exportarExcel: 'api/v1/exportarExcel',
+      miPerfil: 'api/v1/miPerfil',
       pacientesConHistoria: 'api/v1/pacientesConHistoria',
       pacientesInactivos: 'api/v1/pacientesInactivos',
       profesionalesInactivos: 'api/v1/profesionalesInactivos',
       infoCitas: 'api/v1/infoCitas',
+      logout: 'api/v1/logout'
     }
   },
 

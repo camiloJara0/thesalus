@@ -27,12 +27,16 @@ import Loader from '~/components/molecules/Spinner/Loader.vue';
 import Actualizado from '~/components/molecules/Spinner/Actualizado.vue';
 import Permiso from '~/components/molecules/Spinner/Permiso.vue';
 import LoaderPorcentaje from '~/components/molecules/Spinner/LoaderPorcentaje.vue';
+import { useAvisoSello } from '~/composables/useAvisoSello';
 
 const varView = useVarView();
+const { avisarSiFaltaSello } = useAvisoSello();
 
 onMounted(async() => {
     const permisos = JSON.parse(localStorage.getItem('permisosTemporales') ?? "[]");
     varView.permisoTemporal = permisos.length > 0 ? true : false
+
+    avisarSiFaltaSello();
 });
 
 </script>

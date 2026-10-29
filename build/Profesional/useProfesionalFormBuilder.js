@@ -19,6 +19,7 @@ export function useProfesionalBuilder({
     verUser,
     soloVer,
     eliminar,
+    perfil = false,
     validarFecha = () => { },
     validarTipoDoc = () => { },
 }) {
@@ -52,7 +53,10 @@ export function useProfesionalBuilder({
         .setEliminarFormulario(eliminar)
         .setCamposRequeridos(camposRequeridos)
         .setFormulariotamaño('LG')
-    if (verUser) {
+    if (perfil) {
+        builder
+            .setFormularioTituloFormulario('Mi perfil')
+    } else if (verUser) {
         builder
             .setFormularioTituloFormulario('Modificar Usuario')
     } else {
@@ -87,7 +91,7 @@ export function useProfesionalBuilder({
             vmodel: 'Profesional.info_usuario.No_document',
             validate: validarDocumento,
             events: {
-                onKeyUp: buscarUsuario
+                onKeyUp: perfil ? undefined : buscarUsuario
             },
         })
         .addCampo({
@@ -316,7 +320,7 @@ export function useProfesionalBuilder({
         builder.addCampo({
             component: 'Input',
             type: 'file',
-            placeholder: 'Firma y Sello (opcional)',
+            placeholder: perfil ? 'Firma y Sello * (PNG o JPG, máx 5MB)' : 'Firma y Sello (opcional)',
             id: 'sello',
             name: 'sello',
             tamaño: 'w-full cursor-pointer',
@@ -330,7 +334,13 @@ export function useProfesionalBuilder({
                 }
             }
         })
-        if (verUser && profesionalStore.Formulario.Profesional.sello) {
+        if (perfil && typeof profesionalStore.Formulario.Profesional.sello === 'string' && profesionalStore.Formulario.Profesional.sello) {
+            builder.addCampo({
+                component: 'Label',
+                text: `<img src="${urlBack}/storage/${profesionalStore.Formulario.Profesional.sello}" alt="Sello y firma cargados" style="max-height: 80px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px; background: #fff;" />`,
+                tamaño: 'w-full flex justify-center',
+            })
+        } else if (verUser && profesionalStore.Formulario.Profesional.sello) {
             builder.addCampo({
                 component: 'Label',
                 text: '<i class="fa-solid fa-signature text-sky-600 mr-2"></i>Firma cargada',
