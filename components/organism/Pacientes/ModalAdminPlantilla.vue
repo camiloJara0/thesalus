@@ -235,8 +235,6 @@ function abrirEditarCampo(campo) {
     campoEditando.value = campo
     kardexStore.Formulario.Campo = JSON.parse(JSON.stringify(campo))
     if(campo.tipo == 'suma' || campo.tipo == 'resta' || campo.tipo == 'multiplicacion' || campo.tipo == 'division'){
-        // kardexStore.Formulario.Campo.formulaCampos = kardexStore.Formulario.Campo.opciones?.split('\n')
-        // console.log(kardexStore.Formulario.Campo.formulaCampos)
         kardexStore.Formulario.Campo.opciones = ''
     }
     campoModo.value = 'editar'

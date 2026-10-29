@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-100 h-[100%] py-8 px-12">
+    <div class="bg-gray-100 h-full py-8 px-12">
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h2 class="text-2xl font-bold text-gray-700">Reportes RIPS</h2>

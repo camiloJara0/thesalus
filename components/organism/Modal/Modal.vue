@@ -4,7 +4,6 @@ import Form from '~/components/organism/Forms/Form.vue';
 import Calendario from '~/components/molecules/Calendario/Calendario.vue';
 import Citas from '~/components/molecules/Calendario/Citas.vue';
 import Card from '~/components/molecules/Cards/Card.vue';
-import PDFTemplate from '~/components/organism/PDFTemplate/PDFTemplate.vue';
 
 import FondoBlur from '~/components/atoms/Fondos/FondoBlur.vue';
 import FondoTransparent from '~/components/atoms/Fondos/FondoTransparent.vue';
@@ -29,7 +28,6 @@ const components = {
     Calendario,
     Citas,
     Card,
-    PDFTemplate,
     ChartComponent
 }
 

@@ -105,7 +105,7 @@ const showTablas = ref(true)
 const showGraficas = ref(false)
 const showInventario = ref(false)
 const showItem = ref(false);
-const showPanel = ref(true)
+const showPanel = ref(false)
 const refreshKey = ref(0);
 
 // ============ CARGAR DATOS INICIALES ============

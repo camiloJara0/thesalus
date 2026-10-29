@@ -6,7 +6,6 @@ import CardConvenios from "~/components/organism/Pacientes/CardConvenios.vue";
 import CardKardex from "~/components/organism/Pacientes/CardKardex.vue";
 import ModalEPS from "~/components/organism/Pacientes/ModalEPS.vue";
 import ModalConvenios from "~/components/organism/Pacientes/ModalConvenios.vue";
-import ModalKardexDetalle from "~/components/organism/Pacientes/ModalKardexDetalle.vue";
 
 import { ref, onMounted, computed, h } from "vue";
 import { usePacientesStore } from "~/stores/Entidades/Paciente";
@@ -54,9 +53,7 @@ const conveniosOptions = ref([]);
 const municipiosList = ref([])
 
 // Estados para modales integrados
-const showKardexDetalle = ref(false);
 const historias = ref([]);
-const historiaSeleccionada = ref(null);
 
 const {
     validarFecha,
@@ -356,6 +353,4 @@ const propiedadesTabla = computed(() => {
     <ModalEPS />
 
     <ModalConvenios/>
-
-    <ModalKardexDetalle v-model="showKardexDetalle" :historia="historiaSeleccionada" />
 </template>

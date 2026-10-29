@@ -226,7 +226,6 @@ const pintarCelda = (fila, columna, color) => {
 };
 
 const despintarCelda = (fila, columna, color) => {
-    console.log(fila, columna)
     celdasPintadas.value = celdasPintadas.value.filter(C => {
         return !(C.fila === fila && C.columna === columna)
     });

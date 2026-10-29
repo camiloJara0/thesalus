@@ -113,7 +113,6 @@ onMounted(async () => {
 
         const listCitas = await citasStore.listCitas();
         infoCitas.value = await citasStore.infoCitas();
-        console.log('infoCitas.value', infoCitas.value)
 
         Citas.value = listCitas
             .filter((cita) => {
