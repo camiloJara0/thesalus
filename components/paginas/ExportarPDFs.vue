@@ -57,7 +57,38 @@ const camposRequeridos = [
     'fechaInicio', 'fechaFin'
 ];
 
+// Capacidad del sistema de exportaciones (limite global de cupos)
+const capacidad = ref({
+    active_exports: 0,
+    max_exports: 6,
+    available_slots: 6,
+    can_export: true,
+});
+const INTERVALO_CAPACIDAD = 30000;
+let intervaloCapacidad = null;
+
+const consultarCapacidad = async () => {
+    try {
+        const token = decryptData(localStorage.getItem('token'));
+        const res = await fetch(`${config.public.api}/${config.public.exportarCapacidad}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+            },
+        });
+        if (res.ok) {
+            capacidad.value = await res.json();
+        }
+    } catch (error) {
+        // Sin respuesta: conserva el ultimo estado conocido
+    }
+};
+
 onMounted(() => {
+
+    // Capacidad: consulta inicial + actualizacion cada 30 segundos
+    consultarCapacidad();
+    intervaloCapacidad = setInterval(consultarCapacidad, INTERVALO_CAPACIDAD);
     // Obtener la fecha actual desde el store
     pacientesList.value = pacientesStore.Pacientes.map(p => {
         return {
@@ -84,6 +115,13 @@ onMounted(() => {
     fechaInicio.setMonth(fechaInicio.getMonth() - 1);
     file.fechaInicio = fechaInicio.toISOString().split('T')[0];
 
+})
+
+onUnmounted(() => {
+    if (intervaloCapacidad) {
+        clearInterval(intervaloCapacidad);
+        intervaloCapacidad = null;
+    }
 })
 
 watch(file, (newValue) => {
@@ -175,11 +213,35 @@ const enviarPDFs = async () => {
             });
 
             if (!resCrear.ok) {
+                if (resCrear.status === 429) {
+                    // Limite global de exportaciones alcanzado: mensaje amigable, sin errores tecnicos
+                    let datosLimite = null;
+                    try { datosLimite = await resCrear.json(); } catch (e) { /* respuesta sin cuerpo JSON */ }
+
+                    capacidad.value = {
+                        active_exports: datosLimite?.active_exports ?? capacidad.value.max_exports,
+                        max_exports: datosLimite?.max_exports ?? capacidad.value.max_exports,
+                        available_slots: 0,
+                        can_export: false,
+                    };
+
+                    options.position = 'top-end';
+                    options.background = '#f59e0b';
+                    options.color = '#fff';
+                    options.texto = datosLimite?.message
+                        || 'Actualmente el sistema está procesando el máximo de exportaciones permitidas. Por favor espere unos minutos e inténtelo nuevamente.';
+                    options.tiempo = 4000;
+                    mensaje();
+                    return;
+                }
                 throw new Error(`Error al iniciar la exportación: ${resCrear.status}`);
             }
 
             const crearJson = await resCrear.json();
             const exportId = crearJson.export_id;
+
+            // Un cupo mas fue consumido: actualiza la capacidad mostrada
+            consultarCapacidad();
 
             let estado = 'pendiente';
 
@@ -289,6 +351,8 @@ const enviarPDFs = async () => {
     } finally {
         generandoPDFs.value = false;
         progreso.value = 0;
+        // Refresca la capacidad: la exportacion ya no ocupa cupo (lista/fallida/cancelada)
+        consultarCapacidad();
         // Si se interrumpio en curso, cerrar el modal (el usuario ya lo pidio)
         if (controladorExportacion?.signal.aborted) {
             varView.showExportarPDFs = false
@@ -473,9 +537,15 @@ const generarExcel = async () => {
                             </div>
                         </div>
 
-                    </div>
+                        <!-- Capacidad del sistema -->
+                        <div v-if="!capacidad.can_export" class="rounded-xl border p-4 text-sm space-y-1 border-amber-400 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200">
+                            <p class="font-medium pt-1">
+                                Actualmente el sistema está procesando el máximo de exportaciones permitidas.
+                                Por favor espere unos minutos e inténtelo nuevamente.
+                            </p>
+                        </div>
 
-                    <!-- Botones -->
+                    </div>
                     <div class="w-full flex justify-center items-center gap-4 px-4 mt-6">
                         <ButtonForm
                             class="bg-gray-500 hover:bg-gray-600 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"

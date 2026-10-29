@@ -93,6 +93,7 @@ export default defineNuxtConfig({
       estadoExport: 'api/v1/exportar',
       descargarExport: 'api/v1/exportar',
       exportarExcel: 'api/v1/exportarExcel',
+      exportarCapacidad: 'api/exportaciones/capacidad',
       miPerfil: 'api/v1/miPerfil',
       pacientesConHistoria: 'api/v1/pacientesConHistoria',
       pacientesInactivos: 'api/v1/pacientesInactivos',
