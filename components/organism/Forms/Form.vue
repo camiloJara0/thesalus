@@ -16,14 +16,17 @@ const props = defineProps({
 const tablaStore = await cargarStore(props.Propiedades?.content?.storePinia) || {}
 
 const {
-    traerDatos,
     guardarDatos,
+    hayBorrador,
     getValue,
     setValue,
     manejarClick,
     seccionActual,
     camposActuales,
     componentInstances,
+    progresoFormulario,
+    estadoGuardado,
+    ultimoGuardado,
     irASeccion
 } = useFormulario(props, tablaStore.Formulario)
 
@@ -37,15 +40,43 @@ const fondos = {
 //    console.log(newValue)
 // }, {deep: true})
 
-// Traer datos del localStorage
+// Restauración de borradores: gestionada por useFormulario (reactiva al contexto)
+const manejadorBeforeUnload = (event) => {
+    if (props.Propiedades.formulario?.autoSave && hayBorrador()) {
+        event.preventDefault()
+        event.returnValue = ''
+    }
+}
+
 onMounted(() => {
-    const datosGuardados = traerDatos();
-    if (datosGuardados) Object.assign(tablaStore?.Formulario, datosGuardados)
-});
+    window.addEventListener('beforeunload', manejadorBeforeUnload)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('beforeunload', manejadorBeforeUnload)
+})
+
+// Advertencia antes de abandonar la aplicacion con un borrador sin enviar
+onBeforeRouteLeave(async () => {
+    if (!(props.Propiedades.formulario?.autoSave && hayBorrador())) return true
+
+    const notificaciones = useNotificacionesStore()
+    notificaciones.options.icono = 'warning'
+    notificaciones.options.titulo = 'Formulario con cambios'
+    notificaciones.options.html = 'Hay información sin enviar. El borrador se conserva en este equipo.<br>¿Deseas salir?'
+    notificaciones.options.confirmtext = 'Salir'
+    notificaciones.options.canceltext = 'Continuar editando'
+    return (await notificaciones.alertRespuesta()) === 'confirmado'
+})
 
 function limpiar() {
     mapCamposLimpios(tablaStore?.Formulario)
-    localStorage.removeItem(props.Propiedades.content.storeId)
+
+    // Los formularios con autoSave conservan su borrador al cerrar
+    // (solo se elimina al enviar exitosamente con limpiarLocal)
+    if (!props.Propiedades.formulario?.autoSave) {
+        localStorage.removeItem(props.Propiedades.content.storeId)
+    }
 
     const show = props.Propiedades.formulario.show
 
@@ -77,7 +108,9 @@ function limpiar() {
                 <Wizard
                     v-if="Propiedades.formulario && Propiedades.formulario.tipo !== undefined && Propiedades.formulario.tipo === 'Wizard'"
                     :Propiedades="Propiedades.formulario" :SeccionActual="seccionActual"
-                    :key="Propiedades.formulario.soloVer" :cerrar="limpiar" :irASeccion="irASeccion" />
+                    :key="Propiedades.formulario.soloVer" :cerrar="limpiar" :irASeccion="irASeccion"
+                    :progreso="progresoFormulario" :estadoGuardado="estadoGuardado"
+                    :ultimoGuardado="ultimoGuardado" />
                 <!-- Titulo Sin wizard -->
                 <div class="w-full py-1 flex flex-col flex-1 min-h-0">
                     <div v-if="Propiedades.formulario && Propiedades.formulario.tipo !== 'Wizard'"

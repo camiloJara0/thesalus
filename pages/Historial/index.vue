@@ -115,6 +115,18 @@ onMounted(async () => {
     await cargarHistorias();
     filtros.value = await traerFiltrosHistoria()
     varView.datosActualizados();
+
+    // Deep-link desde una historia clinica: /Historial?paciente={id}
+    const route = useRoute();
+    if (route.query.paciente) {
+        const fila = historiasList.value.find(
+            (h) => String(h.id) === String(route.query.paciente)
+        );
+        if (fila) {
+            await seleccionarPaciente(fila);
+            navigateTo({ query: {} }, { replace: true });
+        }
+    }
 });
 
 // ============ CARGAR HISTORIAS ============

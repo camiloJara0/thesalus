@@ -38,6 +38,7 @@ export default defineNuxtConfig({
       analisisPaciente: 'api/v1/analisisPaciente',
       analisisPaginado: 'api/v1/analisisPaginado',
       analisisFiltrado: 'api/v1/analisisFiltrado',
+      analisisCompleta: 'api/v1/analisis',
       filtrosAnalisis: 'api/v1/filtrosAnalisis',
       examenFisicos: 'api/v1/examenFisicos',
       planManejoMedicamentos: 'api/v1/planManejoMedicamentos',

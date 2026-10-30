@@ -112,6 +112,13 @@ export function useHistoriaBuilder({
         .setFormularioTituloFormulario('Registrar Consulta')
         .setFormularioShow(show)
         .setFormularioTipo('Wizard')
+        .setAutoSave(true)
+        .setResumen(true)
+        .setDraftContext((datos) => {
+            const idPaciente = datos?.Analisis?.historia?.id_paciente ?? ''
+            const plantilla = varView.tipoConsulta?.plantilla ?? ''
+            return `${plantilla}:${idPaciente}`
+        })
         .setBotones([
             { text: 'Siguiente', color: 'primary', type: 'enviar' },
             { text: 'Atrás', accion: cerrarModal, color: 'neutral', type: 'cerrar' },

@@ -16,12 +16,15 @@ export class FormularioBuilder {
         soloVer: false, // Campos disabled (no se pueden editar)
         editarFormulario: false, // Campos editables (disabled cambiable)
         eliminar: null, // Funcion de eliminar
+        autoSave: false, // Guardado automatico de borradores (opt-in)
+        resumen: false, // Resumen previo al envio (opt-in)
         footer: null, // Configuración del footer con botones
       },
       content: {
         storeId: '', // Identificador de la acción en el módulo accionesFormulario
         storePinia: '', // Nombre del store de pinia asociado
         camposRequeridos: '', // Lista de campos requeridos
+        draftContext: null, // Funcion opcional: contexto del borrador (paciente/plantilla)
       },
       seccionActual: null
     }
@@ -59,6 +62,21 @@ export class FormularioBuilder {
 
   setCamposRequeridos(campos) {
     this.propiedades.content.camposRequeridos = campos
+    return this
+  }
+
+  setAutoSave(estado = true) {
+    this.propiedades.formulario.autoSave = Boolean(estado)
+    return this
+  }
+
+  setResumen(estado = true) {
+    this.propiedades.formulario.resumen = Boolean(estado)
+    return this
+  }
+
+  setDraftContext(fn) {
+    this.propiedades.content.draftContext = typeof fn === 'function' ? fn : null
     return this
   }
 

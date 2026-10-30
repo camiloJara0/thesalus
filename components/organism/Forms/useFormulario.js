@@ -39,7 +39,8 @@ export function useFormulario(props, formData = null) {
     }
 
     if (autoSaveActivo) {
-        watch(() => seccionActual.value, persistirAutomatico, { deep: true })
+        watch(() => formData, persistirAutomatico, { deep: true })
+        watch(() => seccionActual.value, persistirAutomatico)
     }
 
     // Inicializa formData
@@ -151,10 +152,15 @@ export function useFormulario(props, formData = null) {
         }
 
         const requeridos = seccion.requeridos || []
-        if (!requeridos.length) return 0
+        // Sin requeridos explicitos: mide el diligenciamiento de todos los campos con vmodel
+        const rutas = requeridos.length
+            ? requeridos
+            : (seccion.campos || []).map(c => c.vmodel).filter(Boolean)
 
-        const listos = requeridos.filter(ruta => isValid(getValue(datos, ruta))).length
-        return Math.round((listos / requeridos.length) * 100)
+        if (!rutas.length) return 0
+
+        const listos = rutas.filter(ruta => isValid(getValue(datos, ruta))).length
+        return Math.round((listos / rutas.length) * 100)
     }
 
     /** Progreso total del formulario (0-100). */
@@ -258,7 +264,10 @@ export function useFormulario(props, formData = null) {
             } else {
                 const validacion = camposRequeridos(formData)
                 if (validacion) {
-                    await mandarFormulario(formData, limpiar)
+                    const confirmado = await confirmarResumen(formData)
+                    if (confirmado) {
+                        await mandarFormulario(formData, limpiar)
+                    }
                 } else {
                     validarform()
                 }
@@ -276,18 +285,142 @@ export function useFormulario(props, formData = null) {
         varView.cargando = false
     }
 
-    // Persistencia en localStorage
-    function traerDatos() {
-        const datosGuardados = localStorage.getItem(props.Propiedades.content.storeId)
-        return datosGuardados ? JSON.parse(datosGuardados) : null
+    // Persistencia en localStorage (borradores)
+    // Contexto opcional del borrador (paciente/plantilla) para no mezclar registros
+    function contextoBorrador(datos) {
+        const fn = props.Propiedades?.content?.draftContext
+        if (typeof fn === 'function') {
+            try { return String(fn(datos ?? formData) ?? '') } catch (e) { return '' }
+        }
+        return ''
+    }
+
+    function claveBorrador(datos) {
+        const ctx = contextoBorrador(datos)
+        return ctx ? `${props.Propiedades.content.storeId}::${ctx}` : props.Propiedades.content.storeId
+    }
+
+    /**
+     * Restaura un borrador previamente guardado en el objeto destino.
+     * Solo restaura si el contexto coincide (evita mezclar pacientes)
+     * y descarta el formato antiguo (objeto plano sin metadatos).
+     */
+    function restaurarBorrador(destino) {
+        if (!destino) return false
+
+        const clave = claveBorrador(destino)
+        const crudo = localStorage.getItem(clave)
+        if (!crudo) return false
+
+        let envoltura
+        try {
+            envoltura = JSON.parse(crudo)
+        } catch (e) {
+            localStorage.removeItem(clave)
+            return false
+        }
+
+        if (!envoltura || typeof envoltura !== 'object' || !envoltura.datos || typeof envoltura.datos !== 'object') {
+            localStorage.removeItem(clave)
+            return false
+        }
+
+        if ((envoltura.ctx || '') !== contextoBorrador(destino)) return false
+
+        Object.assign(destino, envoltura.datos)
+        return true
+    }
+
+    function hayBorrador() {
+        try {
+            return localStorage.getItem(claveBorrador(formData)) !== null
+        } catch (e) {
+            return false
+        }
     }
 
     function guardarDatos(newValue) {
-        localStorage.setItem(props.Propiedades.content.storeId, JSON.stringify(newValue))
+        try {
+            const clave = claveBorrador(newValue)
+            localStorage.setItem(clave, JSON.stringify({
+                ts: Date.now(),
+                ctx: contextoBorrador(newValue),
+                datos: newValue,
+            }))
+            return true
+        } catch (e) {
+            console.error('No se pudo guardar el borrador:', e)
+            return false
+        }
     }
 
     function limpiarLocal() {
-        localStorage.removeItem(props.Propiedades.content.storeId)
+        localStorage.removeItem(claveBorrador(formData))
+    }
+
+    // Restauración de borradores: inmediata y reactiva al contexto.
+    // El contexto (paciente/plantilla) puede conocerse DESPUÉS del mount
+    // (p.ej. el paciente se selecciona al abrir el wizard de historia),
+    // por eso se restaura también cuando el contexto pasa a estar disponible.
+    let ctxPrevio = contextoBorrador(formData)
+    restaurarBorrador(formData)
+    watch(() => contextoBorrador(formData), (ctx) => {
+        if (ctx !== ctxPrevio) {
+            ctxPrevio = ctx
+            restaurarBorrador(formData)
+        }
+    })
+
+    /**
+     * Resumen previo al envio (opt-in: formulario.resumen).
+     * Muestra un resumen legible de lo diligenciado antes de guardar.
+     */
+    async function confirmarResumen(datos) {
+        if (!props.Propiedades.formulario?.resumen) return true
+
+        const lineas = []
+        for (const seccion of secciones()) {
+            lineas.push(`<div style="margin:8px 0 2px;font-weight:600;color:#326872">${seccion.nombre}</div>`)
+            for (const campo of seccion.campos || []) {
+                if (!campo.vmodel || !campo.label || campo.component === 'Label' || campo.component === 'GroupCampos') continue
+                const valor = getValue(datos, campo.vmodel)
+                if (!isValid(valor)) continue
+
+                let texto = ''
+                if (Array.isArray(valor)) {
+                    const objetos = valor.filter(v => v && typeof v === 'object')
+                    if (objetos.length && objetos[0].medicamento) {
+                        texto = objetos.map(o => o.medicamento).join(', ')
+                    } else if (objetos.length && objetos[0].procedimiento) {
+                        texto = objetos.map(o => o.procedimiento).join(', ')
+                    } else if (objetos.length && objetos[0].descripcion) {
+                        texto = objetos.map(o => o.descripcion).join(', ')
+                    } else {
+                        texto = `${valor.length} registro(s)`
+                    }
+                } else if (valor && typeof valor === 'object') {
+                    continue
+                } else {
+                    texto = String(valor)
+                }
+
+                if (texto.length > 200) texto = texto.substring(0, 200) + '…'
+                lineas.push(
+                    `<div style="padding:1px 0"><span style="color:#6b7280">${campo.label}:</span> ${texto}</div>`
+                )
+            }
+        }
+
+        if (!lineas.length) return true
+
+        notificaciones.options.icono = 'info'
+        notificaciones.options.titulo = 'Resumen del registro'
+        notificaciones.options.html =
+            `<div style="max-height:45vh;overflow:auto;text-align:left;font-size:13px">${lineas.join('')}</div>`
+        notificaciones.options.confirmtext = 'Guardar registro'
+        notificaciones.options.canceltext = 'Revisar'
+        const respuesta = await notificaciones.alertRespuesta()
+        return respuesta === 'confirmado'
     }
 
     function validarform() {
@@ -337,8 +470,9 @@ export function useFormulario(props, formData = null) {
 
     return {
         transformarFormData,
-        traerDatos,
         guardarDatos,
+        restaurarBorrador,
+        hayBorrador,
         seccionActual,
         camposActuales,
         componentInstances,
@@ -364,6 +498,7 @@ export function useFormulario(props, formData = null) {
         camposRequeridos,
         mandarFormulario,
         limpiarLocal,
+        confirmarResumen,
     }
 }
 

@@ -282,6 +282,15 @@ function getRowItems(row) {
             }
         )
     } else if (cita.estado == 'Realizada'){
+        if (cita.id_analisis) {
+            acciones.push({
+                label: 'Ver historia clinica',
+                icon: 'i-lucide-file-heart',
+                onSelect() {
+                    navigateTo(`/Historial/${cita.id_analisis}`)
+                }
+            })
+        }
         acciones.push({
             label: 'Ver Observacion',
             onSelect() {

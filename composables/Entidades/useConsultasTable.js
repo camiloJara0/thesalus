@@ -152,7 +152,7 @@ export const useConsultasTable = (loadItem, exportar, exportarServicio, puedePut
       {
         label: 'Ver',
         onSelect() {
-          loadItem('Consulta', consulta)
+          navigateTo(`Historial/${consulta.id}`)
         }
       },
       {

@@ -119,7 +119,7 @@ const card = {
       {
         label: 'Ver',
         onSelect() {
-          loadItem('Nota', nota)
+          navigateTo(`Historial/${nota.id}`)
         }
       },
       {

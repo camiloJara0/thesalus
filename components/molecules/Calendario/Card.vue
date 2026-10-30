@@ -128,6 +128,10 @@ function historiaPendiente(id) {
                         @click="showMotivoEdicion(cita)" />
                 </div>
                 <div v-else-if="cita.estado === 'Realizada'">
+                    <NuxtLink v-if="cita.id_analisis" :to="`/Historial/${cita.id_analisis}`"
+                        title="Ver historia clínica">
+                        <UButton icon="i-lucide-file-heart" color="primary" variant="ghost" square />
+                    </NuxtLink>
                     <UButton icon="i-lucide-info" color="primary" variant="ghost" square
                         @click="showObservacion(cita)" />
                 </div>

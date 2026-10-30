@@ -119,7 +119,7 @@ const card = {
       {
         label: 'Ver',
         onSelect() {
-          loadItem('Terapia', terapia)
+          navigateTo(`Historial/${terapia.id}`)
         }
       },
       {

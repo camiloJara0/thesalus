@@ -4,6 +4,7 @@ import { useVarView } from "~/stores/varview.js";
 import { ComponenteBuilder } from '~/build/Constructores/ComponentesBuilder';
 import Form from './organism/Forms/Form.vue';
 import Pagina from './organism/Pagina/Pagina.vue';
+import PanelContextoPaciente from './molecules/ContextoClinico/PanelContextoPaciente.vue';
 
 const varView = useVarView();
 const storeCodigos = useCodigos()
@@ -39,5 +40,11 @@ const propiedades = computed(() => {
 </script>
 
 <template>
-    <Pagina :Propiedades="propiedades"></Pagina>
+    <div class="relative">
+        <Pagina :Propiedades="propiedades"></Pagina>
+        <!-- Contexto clinico secundario del paciente (solo pantallas grandes, formulario abierto) -->
+        <div v-if="varView.showNuevaHistoria" class="hidden xl:flex flex-col items-end gap-2 fixed right-5 top-35 z-40 w-72">
+            <PanelContextoPaciente />
+        </div>
+    </div>
 </template>
