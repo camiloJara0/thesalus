@@ -152,6 +152,12 @@ export function usePacienteActions({
                     }
                 },
                 {
+                    label: 'Ver Historial',
+                    onSelect() {
+                        navigateTo({ path: '/Historial', query: { paciente: paciente.id } });
+                    }
+                },
+                {
                     label: 'Asignar de Inventario',
                     onSelect() {
                         pacientesStore.showItem = true

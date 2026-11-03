@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AyudaCampo from '~/components/atoms/Labels/AyudaCampo.vue';
+
 // Props compatibles con NuxtUI 3.3.7
 const props = defineProps({
   // Valores del modelo
@@ -67,6 +69,7 @@ const getMergedProps = () => {
 const mergedProps = computed(() => getMergedProps());
 </script>
 <template>
+  <div :class="Propiedades.tamaño">
   <UCheckbox
     :model-value="modelValue"
     :label="mergedProps.label"
@@ -82,7 +85,7 @@ const mergedProps = computed(() => getMergedProps());
     :indicator="mergedProps.indicator"
     :icon="icon"
     :indeterminate-icon="indeterminateIcon"
-    :class="Propiedades.tamaño"
+    class="w-full"
     @update:model-value="emit('update:modelValue', $event)"
     @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
   >
@@ -101,4 +104,6 @@ const mergedProps = computed(() => getMergedProps());
       <slot />
     </template>
   </UCheckbox>
+  <AyudaCampo :Propiedades="Propiedades" />
+  </div>
 </template>

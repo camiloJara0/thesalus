@@ -204,7 +204,7 @@ function handleEnter(event) {
                 </div>
             </li>
         </ul>
-        <div v-if="!Propiedades.disabled" @click="desplegarOptions" class="absolute top-2 right-3">
+        <div v-if="!Propiedades.disabled" @click="desplegarOptions" class="absolute top-1.25 right-3">
             <i class="fa-solid fa-search text-sm text-blue-600 transition-all duration-300 cursor-pointer active:scale-85"></i>
         </div>
 

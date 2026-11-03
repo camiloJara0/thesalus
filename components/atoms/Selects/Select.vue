@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AyudaCampo from '~/components/atoms/Labels/AyudaCampo.vue';
+
 // Props compatibles con NuxtUI 3.3.7
 const props = defineProps({
   // Valores del modelo
@@ -126,49 +128,52 @@ const mergedProps = computed(() => getMergedProps());
           <slot />
         </template>
       </USelect>
+      <AyudaCampo :Propiedades="Propiedades" />
     </UFormField>
     <!-- Si no es parte de un formulario -->
-    <USelect
-      v-else
-      :model-value="modelValue"
-      :items="mergedProps.items"
-      :placeholder="mergedProps.placeholder"
-      :multiple="mergedProps.multiple"
-      :searchable="searchable"
-      :required="required || Propiedades.required"
-      :disabled="mergedProps.disabled"
-      :id="mergedProps.id"
-      :name="mergedProps.name"
-      :color="mergedProps.color"
-      :variant="mergedProps.variant"
-      :size="mergedProps.size"
-      :trailing-icon="trailingIcon"
-      :leading-icon="leadingIcon"
-      :value-key="mergedProps.valueKey"
-      :label-key="mergedProps.labelKey"
-      class="w-full"
-      @update:model-value="emit('update:modelValue', $event)"
-      @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
-      @blur="emit('blur', $event); Propiedades.events?.onBlur?.($event)"
-      @update:open="emit('update:open', $event)"
-    >
-      <!-- Slots para customización de items -->
-      <template v-if="$slots['item-label']" #item-label="{ item }">
-        <slot name="item-label" :item="item" />
-      </template>
-
-      <template v-if="$slots['item-leading']" #item-leading="{ item }">
-        <slot name="item-leading" :item="item" />
-      </template>
-
-      <template v-if="$slots['item-trailing']" #item-trailing="{ item }">
-        <slot name="item-trailing" :item="item" />
-      </template>
-
-      <!-- Slot por defecto -->
-      <template v-if="$slots.default" #default>
-        <slot />
-      </template>
-    </USelect>
+     <div v-else>
+       <USelect
+         :model-value="modelValue"
+         :items="mergedProps.items"
+         :placeholder="mergedProps.placeholder"
+         :multiple="mergedProps.multiple"
+         :searchable="searchable"
+         :required="required || Propiedades.required"
+         :disabled="mergedProps.disabled"
+         :id="mergedProps.id"
+         :name="mergedProps.name"
+         :color="mergedProps.color"
+         :variant="mergedProps.variant"
+         :size="mergedProps.size"
+         :trailing-icon="trailingIcon"
+         :leading-icon="leadingIcon"
+         :value-key="mergedProps.valueKey"
+         :label-key="mergedProps.labelKey"
+         class="w-full"
+         @update:model-value="emit('update:modelValue', $event)"
+         @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
+         @blur="emit('blur', $event); Propiedades.events?.onBlur?.($event)"
+         @update:open="emit('update:open', $event)"
+       >
+         <!-- Slots para customización de items -->
+         <template v-if="$slots['item-label']" #item-label="{ item }">
+           <slot name="item-label" :item="item" />
+         </template>
+   
+         <template v-if="$slots['item-leading']" #item-leading="{ item }">
+           <slot name="item-leading" :item="item" />
+         </template>
+   
+         <template v-if="$slots['item-trailing']" #item-trailing="{ item }">
+           <slot name="item-trailing" :item="item" />
+         </template>
+   
+         <!-- Slot por defecto -->
+         <template v-if="$slots.default" #default>
+           <slot />
+         </template>
+       </USelect>
+       <AyudaCampo :Propiedades="Propiedades" />
+     </div>
   </div>
 </template>

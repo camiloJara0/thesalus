@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
+import AyudaCampo from '~/components/atoms/Labels/AyudaCampo.vue';
 
 // Select con búsqueda integrada - Compatible con NuxtUI 3.3.7
 const props = defineProps({
@@ -115,6 +116,7 @@ const mergedProps = computed(() => {
 
 
       </UInputMenu>
+      <AyudaCampo :Propiedades="Propiedades" />
     </UFormField>
     <!-- Sin UFormField -->
     <USelect
@@ -155,5 +157,6 @@ const mergedProps = computed(() => {
         <slot />
       </template>
     </USelect>
+    <AyudaCampo :Propiedades="Propiedades" />
   </div>
 </template>

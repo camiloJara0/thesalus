@@ -100,7 +100,7 @@ export const useCitasStore = defineStore('Citas', {
 
             let citas = []
             if (online) {
-                citas = await apiRest.getData('Cita', 'citas')
+                citas = await this.citasHoy(true, true)
             } else {
                 const store = useIndexedDBStore()
                 store.almacen = 'Cita'
@@ -176,7 +176,7 @@ export const useCitasStore = defineStore('Citas', {
 
         async listCitasHoy() {
             const apiRest = useApiRest()
-            let citas = await apiRest.getData('Cita', 'citas')
+            // let citas = await apiRest.getData('Cita', 'citas')
 
             let citasPendientes = citas.filter(cita => cita.estado === "Inactiva");
 

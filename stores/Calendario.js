@@ -70,18 +70,19 @@ export const useCalendarioCitas = defineStore('CalendarioCitas', {
             const [dia, mes, año] = state.fecha.split('/');
             const fechaDate = new Date(`${año}-${mes}-${dia}`);
 
-            // Array de días en español
-            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo', ];
+            // Array de días en español (getDay(): 0=Domingo)
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             return diasSemana[fechaDate.getDay()];
         },
     },
 
     actions: {
         cambiarFecha(fecha) {
-            const partes = fecha.split('/');
+            const [d, m, a] = fecha.split('/');
             this.fecha = fecha;
-            this.dias = partes[0];
-            this.meses = partes[1];
+            this.dias = d;
+            this.meses = parseInt(m);
+            this.años = parseInt(a);
         },
 
         obtenerFecha() {

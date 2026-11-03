@@ -14,6 +14,7 @@ import { useMultiAutoRefresh } from '~/composables/useAutoRefresh'
 import { traerCitasFiltradas, traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue'
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue'
+import MetricasAgenda from '~/components/molecules/Calendario/MetricasAgenda.vue'
 
 const varView = useVarView()
 const { hasPermiso } = usePermisos()
@@ -290,6 +291,14 @@ function getRowItems(row) {
                     navigateTo(`/Historial/${cita.id_analisis}`)
                 }
             })
+        } else {
+            acciones.push({
+                label: 'Ver historia clinica',
+                icon: 'i-lucide-file-heart',
+                onSelect() {
+                    navigateTo({ path: '/Historial', query: { paciente: cita.id_paciente } });
+                }
+            })
         }
         acciones.push({
             label: 'Ver Observacion',
@@ -351,9 +360,14 @@ const propiedadesTabla = computed(() => {
 </script>
 
 <template>
-    <Pagina v-if="!varView.showEnFila && puedeVer" :Propiedades="propiedades" :key="refresh" />
+    <div>
+        <!-- Panel de métricas de la agenda (solo vista calendario) -->
+        <Pagina v-if="!varView.showEnFila && puedeVer" :Propiedades="propiedades" :key="refresh" />
+        <!-- <MetricasAgenda v-if="!varView.showEnFila && puedeVer" :infoCitas="infoCitas" /> -->
+    </div>
     <FondoDefault v-if="varView.showEnFila && puedeVer">
         <TablaScroll :Propiedades="propiedadesTabla"/>
+        <MetricasAgenda :infoCitas="infoCitas" class="mt-10" />
     </FondoDefault>
     <Restringido v-if="!puedeVer"/>
     <Cita></Cita>

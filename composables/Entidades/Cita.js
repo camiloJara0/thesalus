@@ -96,7 +96,7 @@ export function useCitaActions({ fecha }) {
     async function showObservacion(cita) {
         options.icono = 'info'
         options.titulo = 'Observacion de la Cita'
-        options.texto = `Cita Realizada con id de analisis: ${cita.id_analisis}` || 'Cita Realizada con exito!'
+        options.texto = cita.id_analisis ? `Cita Realizada con id de analisis: ${cita.id_analisis}` : 'Cita Realizada con exito!'
         options.tiempo = 5000
         simple()
     }
@@ -180,7 +180,7 @@ export function useCitaActions({ fecha }) {
 
         if (varView.tipoConsulta.plantilla === 'Terapia') {
             Object.assign(historiasStore.Formulario.Analisis.Terapia, {
-                id_procedimiento: cita.id_procedimiento,
+                id_procedimiento: cita.id_procedimiento || null,
                 fecha: fechaForm,
                 hora: horaActual
             })

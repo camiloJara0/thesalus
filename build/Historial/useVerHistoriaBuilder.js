@@ -365,7 +365,8 @@ export function useVerHistoriaBuilder({
                 id: 'motivo',
                 name: 'motivo',
                 placeholder: 'Describa el motivo principal de la consulta...',
-                tamaño: 'w-full md:col-span-2'
+                tamaño: 'w-full md:col-span-2',
+                rows: 10,
             })
             .addCampo({
                 component: 'Label',
@@ -379,7 +380,8 @@ export function useVerHistoriaBuilder({
                 vmodel: 'Analisis.analisis',
                 id: 'observacion',
                 name: 'observacion',
-                tamaño: 'w-full md:col-span-2'
+                tamaño: 'w-full md:col-span-2',
+                rows: 10,
             })
     }
     else if (formularioItem.value === 'Terapia') {

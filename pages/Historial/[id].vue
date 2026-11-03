@@ -262,14 +262,14 @@ const tituloPlantilla = computed(() => {
                             @click="irACita">
                             <i class="fa-solid fa-calendar-day mr-2"></i>Agenda
                         </UButton>
-                        <UButton v-if="registro.historia?.id_paciente" color="neutral" variant="soft"
+                        <UButton v-if="registro.historia?.id_paciente" color="neutral" variant="outline"
                             class="text-gray-800 dark:text-gray-100" @click="irAHistorialPaciente">
                             <i class="fa-solid fa-folder-open mr-2"></i>Historia del paciente
                         </UButton>
                         <UButton color="neutral" variant="soft" class="text-gray-800 dark:text-gray-100" @click="verPDF">
                             <i class="fa-solid fa-file-pdf mr-2"></i>Ver PDF
                         </UButton>
-                        <UButton v-if="puedeEditar" color="white" variant="solid" class="text-blue-700"
+                        <UButton v-if="puedeEditar" color="neutral" variant="soft" class="text-blue-700"
                             @click="editarRegistro">
                             <i class="fa-solid fa-pen mr-2"></i>Editar
                         </UButton>

@@ -34,10 +34,10 @@ const {
 } = storeToRefs(calendarioCitasStore);
 
 const columnas = [
-    { columna: 'servicio.name', placeholder: 'Servicio',},
+    { columna: 'servicio.name', placeholder: 'Servicio', },
     { columna: 'estado', placeholder: 'Estado' },
-    { columna: 'profesional.info_usuario.name', placeholder: 'Profesional',},
-    { columna: 'paciente.info_usuario.name', placeholder: 'Paciente',},
+    { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', },
+    { columna: 'paciente.info_usuario.name', placeholder: 'Paciente', },
     { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes' },
     { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', },
 ]
@@ -129,50 +129,57 @@ const hayFiltrosActivosPendientes = computed(() =>
     busquedaPendientes.value !== '' || Object.values(filtrosPendientes.value).some(v => v !== '') || columnaOrdenPendientes.value
 );
 
+const tabActiva = ref('0')
+watch(tabActiva, (tab) => {
+    console.log(tab)
+})
 </script>
 
 <template>
 
     <!--Citas  -->
     <div ref="contenedorCitas" :class="props.Propiedades.estilos"
-        class="pb-5 flex flex-col gap-3 shadow-md rounded-xl md:h-[64vh] h-[50vh] overflow-y-auto bg-white dark:bg-gray-700 scrollForm relative">
+        class="pb-5 flex flex-col gap-3 shadow-md rounded-xl md:h-[67vh] h-[80vh] overflow-y-auto bg-white dark:bg-gray-700 scrollForm relative">
         <div v-if="!props.Propiedades.showTodas"
             class="flex justify-between items-center px-6 py-3 sticky top-0 bg-white dark:bg-gray-700 shadow-xs z-3">
             <p class="text-xl font-semibold">
                 {{ calendarioCitasStore.diaSemana }}, {{ dias }} {{ mes }}
             </p>
-
-            <UButton icon="i-lucide-filter" :color="showFiltros? 'primary': 'neutral'" variant="soft" @click="showFiltros = !showFiltros">Filtrar</UButton>
+            <div class="flex gap-3 items-center" :class="{'py-2': fecha !== fechaActual}">
+                <UTabs v-model="tabActiva" v-if="fecha === fechaActual" variant="link" :items="[
+                    {
+                        label: 'Actuales',
+                        slot: 'actuales',
+                        icon: 'i-lucide-calendar-clock'
+                    },
+                    {
+                        label: 'Pendientes',
+                        slot: 'pendientes',
+                        icon: 'i-lucide-clock'
+                    }
+                ]"></UTabs>
+                <UButton icon="i-lucide-filter" :color="showFiltros ? 'primary' : 'neutral'" variant="soft"
+                    @click="showFiltros = !showFiltros">Filtrar</UButton>
+            </div>
         </div>
 
-        <UTabs v-if="fecha === fechaActual" class="px-4" :items="[
-            {
-                label: 'Actuales',
-                slot: 'actuales',
-                icon: 'i-lucide-calendar-clock'
-            },
-            {
-                label: 'Pendientes ' + pendientes.length.toLocaleString('es-ES'),
-                slot: 'pendientes',
-                icon: 'i-lucide-clock'
-            }
-        ]">
-
-            <template #actuales>
+        <div v-if="!props.Propiedades.showTodas" class="px-4">
+            <div v-if="tabActiva == 0">
                 <div v-if="showFiltros" class="w-full pt-3 pb-1 flex justify-between md:flex-row flex-col">
                     <!-- Buscador y acciones -->
                     <div class="flex items-center gap-2">
                         <UInput v-model="busqueda" placeholder="Buscar por paciente, servicio..." icon="lucide-search"
                             variant="outline" size="sm" class="flex-1" />
-                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos" @click="borrarFiltros" />
+                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos"
+                            @click="borrarFiltros" />
                     </div>
 
                     <!-- Filtros por columna -->
                     <div class="flex flex-wrap gap-2">
                         <USelect v-for="(filtro, key) in filtrosConOpciones.slice(0, 3)" :key="key"
                             v-model="filtros[filtro.columna]" :placeholder="filtro.placeholder"
-                            :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]"
-                            size="sm" class="w-full sm:w-auto sm:min-w-35" />
+                            :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]" size="sm"
+                            class="w-full sm:w-auto sm:min-w-35" />
                     </div>
                 </div>
 
@@ -203,22 +210,23 @@ const hayFiltrosActivosPendientes = computed(() =>
 
                     <Card v-for="cita in datosOrdenados" :cita="cita" :Propiedades="props.Propiedades"></Card>
                 </div>
-            </template>
+            </div>
 
-            <template #pendientes>
+            <div v-else>
                 <!-- Buscador y acciones pendientes -->
                 <div v-if="showFiltros" class="w-full pt-3 pb-1 flex justify-between md:flex-row flex-col">
                     <div class="flex items-center gap-2">
                         <UInput v-model="busquedaPendientes" placeholder="Buscar pendiente..." icon="lucide-search"
                             variant="outline" size="sm" class="flex-1" />
-                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos" @click="borrarFiltros" />
+                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos"
+                            @click="borrarFiltros" />
                     </div>
 
                     <div class="flex flex-wrap gap-2">
                         <USelect v-for="(filtro, key) in filtrosConOpcionesPendientes" :key="key"
                             v-model="filtrosPendientes[filtro.columna]" :placeholder="filtro.placeholder"
-                            :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]"
-                            size="sm" class="w-full sm:w-auto sm:min-w-35" />
+                            :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]" size="sm"
+                            class="w-full sm:w-auto sm:min-w-35" />
                     </div>
                 </div>
 
@@ -231,14 +239,15 @@ const hayFiltrosActivosPendientes = computed(() =>
                 <div v-if="!datosPendientes?.length" class="w-full py-8 flex justify-center">
                     <p class="text-sm text-gray-400 dark:text-gray-500">No hay citas pendientes.</p>
                 </div>
-            </template>
+            </div>
 
-        </UTabs>
-
+        </div>
         <div v-else class="grid gap-2 p-4"
             :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
             <Card v-for="cita in datosOrdenados" :cita="cita" :Propiedades="props.Propiedades"></Card>
         </div>
+
+
 
         <div v-if="datosOrdenados?.length < 1 && fecha === fechaActual" class="w-full py-8 flex justify-center">
             <h2 class="text-lg text-gray-500">No hay citas programadas.</h2>

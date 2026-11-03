@@ -40,7 +40,7 @@ function editar() {
             class="relative w-full flex md:flex-row justify-between items-center gap-2 py-4 md:px-8 px-2 bg-(--color-default) rounded-t-lg">
             <div class="flex flex-col">
                 <h2 class="text-white font-bold md:text-2xl text-xl">{{ Propiedades.tituloFormulario }}</h2>
-                <div class="flex gap-3 pt-1">
+                <div class="flex flex-wrap gap-x-3 gap-y-1 pt-1 max-w-full">
                     <p class="flex items-center text-gray-200 text-sm gap-1 hover:text-gray-100 cursor-pointer" v-for="(seccion, index) in Propiedades.secciones"
                     :class="{ 'text-white font-medium': index === props.SeccionActual }" @click="props.irASeccion(index)">
                         {{ seccion.nombre }}

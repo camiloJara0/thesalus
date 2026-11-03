@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AyudaCampo from '~/components/atoms/Labels/AyudaCampo.vue';
+
 // Props compatibles con NuxtUI 3.3.7
 const props = defineProps({
   // Valores del modelo
@@ -151,7 +153,7 @@ const mergedProps = computed(() => getMergedProps());
           <slot />
         </template>
       </UInput>
-      <div v-html="Propiedades.slot?.tooltip"></div>
+      <AyudaCampo :Propiedades="Propiedades" />
     </UFormField>
     <!-- Si no es parte de un formulario -->
     <div v-else>
@@ -198,7 +200,7 @@ const mergedProps = computed(() => getMergedProps());
         </template>
       </UInput>
       <p v-if="errorBlur.length > 0" class="text-red-500 text-xs mt-1">{{ errorBlur }}</p>
-      <div v-html="Propiedades.slot?.tooltip"></div>
+      <AyudaCampo :Propiedades="Propiedades" />
     </div>
   </div>
 </template>

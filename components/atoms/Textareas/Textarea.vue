@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AyudaCampo from '~/components/atoms/Labels/AyudaCampo.vue';
+
 // Props compatibles con NuxtUI 3.3.7
 const props = defineProps({
   // Valores del modelo
@@ -140,51 +142,54 @@ const mergedProps = computed(() => getMergedProps());
           <slot />
         </template>
       </UTextarea>
+      <AyudaCampo :Propiedades="Propiedades" />
     </UFormField>
     <!-- Si no es parte de un formulario -->
-    <UTextarea
-      v-else
-      :model-value="modelValue"
-      :placeholder="mergedProps.placeholder"
-      :icon="mergedProps.icon"
-      :leading-icon="leadingIcon"
-      :trailing-icon="trailingIcon"
-      :id="mergedProps.id"
-      :name="mergedProps.name"
-      :minlength="mergedProps.minlength"
-      :maxlength="mergedProps.maxlength"
-      :required="required || Propiedades.required"
-      :disabled="mergedProps.disabled"
-      :autocomplete="autocomplete"
-      :color="mergedProps.color"
-      :variant="mergedProps.variant"
-      :size="mergedProps.size"
-      :rows="mergedProps.rows"
-      :autoresize="mergedProps.autoresize"
-      :maxrows="mergedProps.maxrows"
-      :loading="loading"
-      :loading-icon="loadingIcon"
-      :lang="lang"
-      :spellcheck="spellcheck"
-      class="w-full"
-      @update:model-value="emit('update:modelValue', $event)"
-      @blur="emit('blur', $event); Propiedades.events?.onBlur?.($event)"
-      @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
-    >
-      <!-- Slot leading -->
-      <template v-if="$slots.leading" #leading>
-        <slot name="leading" />
-      </template>
-
-      <!-- Slot trailing -->
-      <template v-if="$slots.trailing" #trailing>
-        <slot name="trailing" />
-      </template>
-
-      <!-- Slot default -->
-      <template v-if="$slots.default" #default>
-        <slot />
-      </template>
-    </UTextarea>
+     <div v-else>
+       <UTextarea
+         :model-value="modelValue"
+         :placeholder="mergedProps.placeholder"
+         :icon="mergedProps.icon"
+         :leading-icon="leadingIcon"
+         :trailing-icon="trailingIcon"
+         :id="mergedProps.id"
+         :name="mergedProps.name"
+         :minlength="mergedProps.minlength"
+         :maxlength="mergedProps.maxlength"
+         :required="required || Propiedades.required"
+         :disabled="mergedProps.disabled"
+         :autocomplete="autocomplete"
+         :color="mergedProps.color"
+         :variant="mergedProps.variant"
+         :size="mergedProps.size"
+         :rows="mergedProps.rows"
+         :autoresize="mergedProps.autoresize"
+         :maxrows="mergedProps.maxrows"
+         :loading="loading"
+         :loading-icon="loadingIcon"
+         :lang="lang"
+         :spellcheck="spellcheck"
+         class="w-full"
+         @update:model-value="emit('update:modelValue', $event)"
+         @blur="emit('blur', $event); Propiedades.events?.onBlur?.($event)"
+         @change="emit('change', $event); Propiedades.events?.onChange?.($event)"
+       >
+         <!-- Slot leading -->
+         <template v-if="$slots.leading" #leading>
+           <slot name="leading" />
+         </template>
+   
+         <!-- Slot trailing -->
+         <template v-if="$slots.trailing" #trailing>
+           <slot name="trailing" />
+         </template>
+   
+         <!-- Slot default -->
+         <template v-if="$slots.default" #default>
+           <slot />
+         </template>
+       </UTextarea>
+       <AyudaCampo :Propiedades="Propiedades" />
+     </div>
   </div>
 </template>

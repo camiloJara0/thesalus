@@ -65,77 +65,96 @@ function citaPendiente(id) {
 function historiaPendiente(id) {
     return historiasStore.NoEnviados?.find(analisis => analisis.Cita.id === id);
 }
+
+function irHistorial(cita) {
+    navigateTo({ path: '/Historial', query: { paciente: cita.id_paciente } });
+}
 </script>
 <template>
-    <UCard class=" overflow-hidden hover:shadow-lg transition-all duration-200">
+    <UCard class="overflow-hidden hover:shadow-lg transition-all duration-200">
         <div class="flex">
-            <div class="w-full">
-
-                <div class="flex justify-between items-center mr-2">
-                    <UBadge
-                        :color="vencida(cita) && cita.estado === 'Inactiva' ? 'warning' : cita.estado === 'Inactiva' ? 'neutral' : 'success'"
-                        variant="soft">
-                        {{ vencida(cita) && cita.estado === 'Inactiva' ? 'Vencida' : cita.estado === 'Inactiva' ?
-                            'Pendiente' : 'Realizada' }}
-                    </UBadge>
-                        <UBadge color="neutral" variant="soft">
-                            {{ cita.id }}
-                        </UBadge>
-                </div>
-
-                <div class="flex flex-col">
-                    <span class="text-2xl font-bold text-primary">
-                        {{ cita.hora === '00:00:00' ? cita.fechaHasta.substring(5, 11) : cita.hora ?
-                            cita.hora.substring(0, 5) : '' }}
-                    </span>
-
-                    <span class="text-xs text-gray-500">
-                        {{ props.Propiedades.showTodas ? cita.fecha : fechaCita }}
-                    </span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-base truncate">
-                        {{ cita.paciente?.info_usuario?.name || 'Paciente' }}
-                    </h3>
-
-                    <p class="text-sm text-gray-500">
-                        {{ cita.servicio?.name || 'Servicio' }}
-                    </p>
-                </div>
-                <div class="space-y-1 text-sm text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <UIcon name="i-lucide-user" />
-                        {{ cita.profesional?.info_usuario?.name || 'Profesional' }}
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <UIcon name="i-lucide-heart" />
-                        {{ cita.motivo }}
-                    </div>
-                </div>
+            <!-- Barra de estado (escaneo rápido) -->
+            <div class="w-1.5 shrink-0 rounded-l-md"
+                :class="vencida(cita) && cita.estado === 'Inactiva'
+                    ? 'bg-red-500'
+                    : cita.estado === 'Inactiva' ? 'bg-amber-400'
+                        : cita.estado === 'cancelada' ? 'bg-gray-400' : 'bg-green-500'">
             </div>
-            <div class="flex flex-col justify-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700 w-13">
-                <div v-if="cita.estado === 'Inactiva'">
-                    <UButton icon="i-lucide-square-pen" color="neutral" variant="ghost" square
-                        @click="actualizarCita(cita)" auto-load />
-                    <UButton icon="i-lucide-circle-x" color="error" variant="ghost" square @click="cancelarCita(cita)"
-                        auto-load />
-                    <UButton v-if="citaPendiente(cita.id)" icon="i-lucide-check" color="success" variant="soft" square
-                        @click="actualizarHistoria(historiaPendiente(cita.id))" />
-                    <UButton v-else icon="i-lucide-check" color="success" variant="soft" square
-                        @click="activarCita(cita)" />
-                    <UButton v-if="cita.motivo_edicion" icon="i-lucide-info" color="warning" variant="ghost" square
-                        @click="showMotivoEdicion(cita)" />
+
+            <div class="w-full pl-3">
+                <div class="flex justify-between items-start gap-2">
+                    <!-- Información principal -->
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-2xl font-bold leading-none"
+                                :class="vencida(cita) && cita.estado === 'Inactiva' ? 'text-red-600 dark:text-red-300' : 'text-(--color-default)'">
+                                {{ cita.hora === '00:00:00' ? (cita.fechaHasta ? cita.fechaHasta.substring(5, 10) : '') : cita.hora ?
+                                    cita.hora.substring(0, 5) : '—' }}
+                            </span>
+                            <UBadge
+                                :color="vencida(cita) && cita.estado === 'Inactiva' ? 'error' : cita.estado === 'Inactiva' ? 'warning' : cita.estado === 'cancelada' ? 'neutral' : 'success'"
+                                variant="soft">
+                                {{ vencida(cita) && cita.estado === 'Inactiva' ? 'Vencida' : cita.estado === 'Inactiva' ?
+                                    'Pendiente' : cita.estado === 'cancelada' ? 'Cancelada' : 'Realizada' }}
+                            </UBadge>
+                            <UBadge color="neutral" variant="subtle">
+                                #{{ cita.id }}
+                            </UBadge>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            {{ props.Propiedades.showTodas ? cita.fecha : fechaCita }}
+                        </p>
+                        <h3 class="font-semibold text-base truncate mt-1.5">
+                            {{ cita.paciente?.info_usuario?.name || 'Paciente' }}
+                        </h3>
+                        <p class="text-sm text-gray-500 truncate">
+                            {{ cita.servicio?.name || 'Servicio' }}
+                        </p>
+                        <div class="space-y-0.5 text-sm text-gray-500 mt-1.5">
+                            <div class="flex items-center gap-2 truncate">
+                                <UIcon name="i-lucide-user" class="size-3.5 shrink-0" />
+                                <span class="truncate">{{ cita.profesional?.info_usuario?.name || 'Profesional' }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 truncate">
+                                <UIcon name="i-lucide-heart" class="size-3.5 shrink-0" />
+                                <span class="truncate">{{ cita.motivo }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="flex flex-col justify-center gap-1 pl-2 border-l border-gray-200 dark:border-gray-700 w-11 shrink-0">
+                        <div v-if="cita.estado === 'Inactiva'">
+                            <UButton icon="i-lucide-square-pen" color="neutral" variant="ghost" square
+                                @click="actualizarCita(cita)" auto-load />
+                            <UButton icon="i-lucide-circle-x" color="error" variant="ghost" square @click="cancelarCita(cita)"
+                                auto-load />
+                            <UButton v-if="citaPendiente(cita.id)" icon="i-lucide-check" color="success" variant="soft" square
+                                @click="actualizarHistoria(historiaPendiente(cita.id))" />
+                            <UButton v-else icon="i-lucide-check" color="success" variant="soft" square
+                                @click="activarCita(cita)" />
+                            <UButton v-if="cita.motivo_edicion" icon="i-lucide-info" color="warning" variant="ghost" square
+                                @click="showMotivoEdicion(cita)" />
+                        </div>
+                        <div v-else-if="cita.estado === 'Realizada'">
+                            <NuxtLink v-if="cita.id_analisis" :to="`/Historial/${cita.id_analisis}`"
+                                title="Ver historia clínica">
+                                <UButton icon="i-lucide-file-heart" color="primary" variant="ghost" square />
+                            </NuxtLink>
+                            <NuxtLink v-else @click="irHistorial(cita)"
+                                title="Ver historia clínica">
+                                <UButton icon="i-lucide-file" color="primary" variant="ghost" square />
+                            </NuxtLink>
+                            <UButton icon="i-lucide-info" color="primary" variant="ghost" square
+                                @click="showObservacion(cita)" />
+                        </div>
+                        <div v-else-if="cita.estado === 'cancelada'">
+                            <UButton icon="i-lucide-info" color="neutral" variant="ghost" square
+                                @click="showMotivoCancelacion(cita)" />
+                        </div>
+                        <div v-else></div>
+                    </div>
                 </div>
-                <div v-else-if="cita.estado === 'Realizada'">
-                    <NuxtLink v-if="cita.id_analisis" :to="`/Historial/${cita.id_analisis}`"
-                        title="Ver historia clínica">
-                        <UButton icon="i-lucide-file-heart" color="primary" variant="ghost" square />
-                    </NuxtLink>
-                    <UButton icon="i-lucide-info" color="primary" variant="ghost" square
-                        @click="showObservacion(cita)" />
-                </div>
-                <div v-else></div>
             </div>
         </div>
     </UCard>

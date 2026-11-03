@@ -129,7 +129,7 @@ export function useHistoriaBuilder({
     if (varView.tipoConsulta?.plantilla === 'Terapia') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -226,7 +226,7 @@ export function useHistoriaBuilder({
             })
 
 
-            .nuevaSeccion(varView.tipoConsulta.name)
+            .nuevaSeccion('Sesión')
             .addCampo({
                 component: 'Label',
                 forLabel: 'objetivos',
@@ -270,6 +270,53 @@ export function useHistoriaBuilder({
                 placeholder: 'Describe el objetivo de la sesión terapéutica',
                 tamaño: 'w-full col-span-2',
             })
+
+            // --- Label: Evolución ---
+            .addCampo({
+                component: 'Label',
+                forLabel: 'evolucion',
+                tamaño: 'w-full col-span-2',
+                text: `
+                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+
+                            <div class="px-5 py-4 bg-linear-to-r from-green-500/10 to-green-500/5 border-b border-gray-200 dark:border-gray-700">
+
+                                <div class="flex items-center gap-3">
+
+                                    <div class="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                        <i class="fa-solid fa-circle-check text-green-600 text-lg"></i>
+                                    </div>
+
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-white">
+                                            Evolución de la sesión
+                                        </p>
+
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                            Describe de manera clara la evolución del paciente durante la sesión.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    `
+            })
+
+            // --- TextArea: Evolución ---
+            .addCampo({
+                component: 'Textarea',
+                vmodel: 'Analisis.Terapia.evolucion',
+                id: 'evolucion',
+                name: 'evolucion',
+                placeholder: 'Describe de manera clara la evolución del paciente durante la sesión',
+                tamaño: 'w-full col-span-2',
+                rows: 6
+            })
+
+            .nuevaSeccion('Diagnósticos')
             .addCampo({
                 component: 'GroupCampos',
                 labelGroup: 'Diagnosticos (CIE-10)',
@@ -347,56 +394,10 @@ export function useHistoriaBuilder({
                 containerCampos: 'grid grid-cols-2 gap-1'
             })
 
-
-
-            // --- Label: Evolución ---
-            .addCampo({
-                component: 'Label',
-                forLabel: 'evolucion',
-                tamaño: 'w-full col-span-2',
-                text: `
-                        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
-
-                            <div class="px-5 py-4 bg-linear-to-r from-green-500/10 to-green-500/5 border-b border-gray-200 dark:border-gray-700">
-
-                                <div class="flex items-center gap-3">
-
-                                    <div class="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                        <i class="fa-solid fa-circle-check text-green-600 text-lg"></i>
-                                    </div>
-
-                                    <div>
-                                        <p class="font-semibold text-gray-900 dark:text-white">
-                                            Evolución de la sesión
-                                        </p>
-
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            Describe de manera clara la evolución del paciente durante la sesión.
-                                        </p>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                    `
-            })
-
-            // --- TextArea: Evolución ---
-            .addCampo({
-                component: 'Textarea',
-                vmodel: 'Analisis.Terapia.evolucion',
-                id: 'evolucion',
-                name: 'evolucion',
-                placeholder: 'Describe de manera clara la evolución del paciente durante la sesión',
-                tamaño: 'w-full col-span-2'
-            })
-
     } else if (varView.tipoConsulta?.plantilla === 'Evolucion') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -480,7 +481,7 @@ export function useHistoriaBuilder({
                 ]
             })
 
-            .nuevaSeccion('Examen Fisico')
+            .nuevaSeccion('Examen físico')
             .addCampo({
                 component: 'Label',
                 forLabel: 'motivo',
@@ -519,7 +520,8 @@ export function useHistoriaBuilder({
                 id: 'motivo',
                 name: 'motivo',
                 placeholder: 'El paciente presenta dolor hace 3 días, acompañado de náuseas y fiebre...',
-                tamaño: 'w-full col-span-2'
+                tamaño: 'w-full col-span-2',
+                rows: 6
             })
 
             .addCampo({
@@ -658,7 +660,7 @@ export function useHistoriaBuilder({
                 tamaño: 'w-full col-span-1'
             })
 
-            .nuevaSeccion(varView.tipoConsulta.name)
+            .nuevaSeccion('Evolución')
             // --- Label: Evolución ---
             .addCampo({
                 component: 'Label',
@@ -700,7 +702,8 @@ export function useHistoriaBuilder({
                 id: 'evolucionNutricional',
                 name: 'evolucionNutricional',
                 placeholder: 'incluye cambios en síntomas, respuesta al tratamiento y cualquier observación relevante',
-                tamaño: 'w-full col-span-2'
+                tamaño: 'w-full col-span-2',
+                rows: 6
             })
             // --- Diagnosticos ---
             .addCampo({
@@ -803,7 +806,7 @@ export function useHistoriaBuilder({
     } else if (varView.tipoConsulta?.plantilla === 'Trabajo Social') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -886,7 +889,7 @@ export function useHistoriaBuilder({
                 ]
             })
 
-            .nuevaSeccion(varView.tipoConsulta.name)
+            .nuevaSeccion('Valoración')
             // --- Diagnosticos ---
 
             .addCampo({
@@ -927,7 +930,8 @@ export function useHistoriaBuilder({
                 id: 'motivo',
                 name: 'motivo',
                 placeholder: 'Se requiere una evaluación social para determinar el impacto...',
-                tamaño: 'w-full col-span-2'
+                tamaño: 'w-full col-span-2',
+                rows: 6
             })
 
             // --- Label: Tratamiento ---
@@ -982,10 +986,10 @@ export function useHistoriaBuilder({
             // --- Input: Observación ---
             .addCampo({
                 component: 'Input',
-                vmodel: 'Analisis.observacion',
-                type: 'text',
-                id: 'observacion',
-                name: 'observacion',
+                    vmodel: 'Analisis.observacion',
+                    type: 'text',
+                    id: 'observacion',
+                    name: 'observacion',
                 placeholder: 'Observación',
                 tamaño: 'w-full md:col-span-1 col-span-2',
                 minlength: 5
@@ -999,10 +1003,11 @@ export function useHistoriaBuilder({
                 name: 'analisis',
                 placeholder: 'El paciente presenta mejoría en su estado clínico...',
                 tamaño: 'w-full col-span-2',
-                minlength: 10
+                minlength: 10,
+                rows: 6
             })
 
-            .nuevaSeccion('Diagnosticos y plan')
+            .nuevaSeccion('Diagnóstico y plan')
             .addCampo({
                 component: 'GroupCampos',
                 labelGroup: 'Diagnosticos',
@@ -1116,7 +1121,7 @@ export function useHistoriaBuilder({
     } else if (varView.tipoConsulta?.plantilla === 'Nota') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -1201,7 +1206,7 @@ export function useHistoriaBuilder({
                 tamaño: 'w-full',
             })
 
-            .nuevaSeccion(varView.tipoConsulta.name)
+            .nuevaSeccion('Valoración')
             .addCampo({
                 component: 'Label',
                 icon: 'fa-solid fa-comment text-blue-500',
@@ -1227,7 +1232,7 @@ export function useHistoriaBuilder({
                         options: CIE10,
                         opciones: [{ value: 'description' }, { text: 'Codigo', value: 'code' }],
                         seleccionarItem: seleccionarCIE_10,
-                        label: 'Diagnostico CIE10'
+                        label: 'Diagnostico CIE10',
                     },
                     {
                         name: 'codigo',
@@ -1257,6 +1262,7 @@ export function useHistoriaBuilder({
                     { label: 'Cambios críticos', value: 'Cambios criticos' }
                 ]
             })
+            .nuevaSeccion('Subjetivo/Objetivo')
             .addCampo({
                 component: 'Label',
                 text: '<i class="fa-solid fa-note-sticky text-blue-500 mr-1"></i>Notas de enfermeria',
@@ -1286,7 +1292,8 @@ export function useHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Registre lo manifestado por el paciente o familiar (dolor, molestias, percepción)',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripcion',
+                        rows: 6,
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
@@ -1314,11 +1321,13 @@ export function useHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Registre el objetivo del cuidado de enfermería para el paciente',
                         tamaño: 'w-full',
-                        label: 'Descripcion'
+                        label: 'Descripcion',
+                        rows: 6,
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
             })
+            .nuevaSeccion('Actividades/Plan')
             .addCampo({
                 component: 'GroupCampos',
                 labelGroup: 'Actividades',
@@ -1342,6 +1351,7 @@ export function useHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Detalle las actividades de enfermería realizadas durante el turno',
                         tamaño: 'w-full',
+                        rows: 6,
                         label: 'Descripcion'
                     },
                 ],
@@ -1370,11 +1380,13 @@ export function useHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Indique el plan de cuidado a seguir según la valoración del paciente',
                         tamaño: 'w-full',
+                        rows: 6,
                         label: 'Descripcion'
                     },
                 ],
                 containerCampos: 'flex flex-col gap-1'
             })
+            .nuevaSeccion('Intervención/Eval.')
             .addCampo({
                 component: 'GroupCampos',
                 labelGroup: 'Intervencion',
@@ -1398,6 +1410,7 @@ export function useHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Describa la intervención realizada (procedimiento, cuidado o acción aplicada)',
                         tamaño: 'w-full',
+                        rows: 6,
                         label: 'Descripcion'
                     },
                 ],
@@ -1426,6 +1439,7 @@ export function useHistoriaBuilder({
                         typeCampo: 'Textarea',
                         placeholder: 'Registre la valoración del paciente (signos, síntomas, estado general)',
                         tamaño: 'w-full',
+                        rows: 6,
                         label: 'Descripcion'
                     },
                 ],
@@ -1434,7 +1448,7 @@ export function useHistoriaBuilder({
     } else if (varView.tipoConsulta?.plantilla === 'Medicina') {
         builder
             // 📌 Sección: Datos
-            .nuevaSeccion('Datos usuarios')
+            .nuevaSeccion('Datos')
             .addCampo({
                 component: 'Label',
                 forLabel: 'nombre',
@@ -1558,6 +1572,7 @@ export function useHistoriaBuilder({
                 placeholder: 'El paciente presenta dolor hace 3 días, acompañado de náuseas y fiebre...',
                 tamaño: 'w-full col-span-2',
                 minlength: 10,
+                rows: 6
             })
             .addCampo({
                 component: 'Label',
@@ -1574,10 +1589,11 @@ export function useHistoriaBuilder({
                 placeholder: 'Describa la evolucion de la enfermedad actual, sintomas, duracion, factores, desencadenantes...',
                 tamaño: 'w-full col-span-2',
                 minlength: 10,
+                rows: 6
             })
 
         builder
-            .nuevaSeccion('Examen Fisico')
+            .nuevaSeccion('Examen físico')
             .addCampo({
                 component: 'GroupCampos',
                 type: 'Input',
@@ -1749,7 +1765,7 @@ export function useHistoriaBuilder({
 
         if (puedePostAnalisis.value) {
             builder
-                .nuevaSeccion('Analisis')
+                .nuevaSeccion('Diagnóstico')
                 // 📌 Sección: Diagnósticos
 
                 .addCampo({
@@ -1854,9 +1870,11 @@ export function useHistoriaBuilder({
                     name: 'analisis',
                     placeholder: 'El paciente presenta mejoría en su estado clínico...',
                     tamaño: 'w-full col-span-2',
-                    minlength: 10
+                    minlength: 10,
+                    rows: 6
                 })
 
+                .nuevaSeccion('Plan de manejo')
                 .addCampo({
                     component: 'Label',
                     forLabel: '',

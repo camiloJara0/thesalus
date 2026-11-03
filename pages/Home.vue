@@ -62,7 +62,7 @@ useAutoRefresh({
     cambioEnApi: computed(() => varView.cambioEnApi),
     refresh,
     fetchFn: async () => {
-        await apiRest.getData('Cita', 'citas');
+        // await apiRest.getData('Cita', 'citas');
     }
 });
 
@@ -80,7 +80,7 @@ onMounted(async () => {
     if (rol.value === 'Admin') {
         const historiaStore = useHistoriasStore();
         Historias = await historiaStore.ultimasHistorias();
-        citas = await citasStore.listCitasHoy();
+        citas = await citasStore.listCitas();
 
         const pacientesStore = usePacientesStore();
         pacientesList.value = await pacientesStore.traer();

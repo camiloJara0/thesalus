@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { usePasswordVisibilityStore } from '~/stores/passwordVisibility'
+import AyudaCampo from '~/components/atoms/Labels/AyudaCampo.vue'
 
 // Props compatibles con NuxtUI 3.3.7
 const props = defineProps({
@@ -149,6 +150,7 @@ const inputType = computed(() => {
           />
         </template>
       </UInput>
+      <AyudaCampo :Propiedades="Propiedades" />
     </UFormField>
     <!-- Si no es parte de un formulario -->
     <UInput
@@ -193,6 +195,7 @@ const inputType = computed(() => {
         />
       </template>
     </UInput>
+    <AyudaCampo :Propiedades="Propiedades" />
   </div>
 </template>
 
