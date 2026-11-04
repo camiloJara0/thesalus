@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia';
 import Card from './Card.vue';
 import { useCitasStore } from '~/stores/Formularios/citas/Cita.js';
 import { useOrdenamiento } from "~/composables/Tabla/useDatosOrdenadosTabla";
+import { usePaginacion } from "~/composables/Tabla/usePaginacion";
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
 
 const props = defineProps({
@@ -111,6 +112,19 @@ const {
     borrarFiltros
 } = useOrdenamiento(citasFiltradas || ref([]), columnas, [], columns);
 
+// Paginador
+const {
+    paginaActual,
+    itemsPorPagina,
+    totalPaginas,
+    ultimaPagina,
+    cambiarItemsPorPagina,
+    siguientePagina,
+    paginaAnterior,
+    irAPagina,
+    datosPaginados,
+} = usePaginacion(datosOrdenados);
+
 // Ordenamiento para pendientes
 const {
     busqueda: busquedaPendientes,
@@ -121,6 +135,18 @@ const {
     borrarFiltros: borrarFiltrosPendientes
 } = useOrdenamiento(pendientes || ref([]), columnasPendientes, [], columns);
 
+// Paginador
+const {
+    paginaActual: paginaActualPendientes,
+    itemsPorPagina: itemsPorPaginaPendientes,
+    totalPaginas: totalPaginasPendientes,
+    ultimaPagina: ultimaPaginaPendientes,
+    siguientePagina: siguientePaginaPendientes,
+    paginaAnterior: paginaAnteriorPendientes,
+    irAPagina: irAPaginaPendientes,
+    datosPaginados: datosPaginadosPendientes,
+} = usePaginacion(datosPendientes);
+
 const hayFiltrosActivos = computed(() =>
     busqueda.value !== '' || Object.values(filtros.value).some(v => v !== '') || columnaOrden.value
 );
@@ -130,16 +156,13 @@ const hayFiltrosActivosPendientes = computed(() =>
 );
 
 const tabActiva = ref('0')
-watch(tabActiva, (tab) => {
-    console.log(tab)
-})
 </script>
 
 <template>
 
     <!--Citas  -->
     <div ref="contenedorCitas" :class="props.Propiedades.estilos"
-        class="pb-5 flex flex-col gap-3 shadow-md rounded-xl md:h-[67vh] h-[80vh] overflow-y-auto bg-white dark:bg-gray-700 scrollForm relative">
+        class="pb-5 flex flex-col gap-3 shadow-md rounded-xl overflow-y-auto bg-white dark:bg-gray-700 scrollForm relative">
         <div v-if="!props.Propiedades.showTodas"
             class="flex justify-between items-center px-6 py-3 sticky top-0 bg-white dark:bg-gray-700 shadow-xs z-3">
             <p class="text-xl font-semibold">
@@ -208,7 +231,7 @@ watch(tabActiva, (tab) => {
                         </div>
                     </template>
 
-                    <Card v-for="cita in datosOrdenados" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                    <Card v-for="cita in datosPaginados" :cita="cita" :Propiedades="props.Propiedades"></Card>
                 </div>
             </div>
 
@@ -230,10 +253,22 @@ watch(tabActiva, (tab) => {
                     </div>
                 </div>
 
+                <!-- Paginador -->
+                <div class="flex justify-between mt-3">
+                    <p class="text-sm text-gray-500 md:flex gap-1 hidden items-center">
+                        Mostrando
+                        <span class="text-gray-500">{{ ultimaPaginaPendientes - itemsPorPaginaPendientes + 1 }} al {{ ultimaPaginaPendientes }}</span>
+                        <span class="text-gray-500">de {{ datosPendientes.length }}</span>
+                    </p>
+                    <UPagination v-model:page="paginaActualPendientes" active-color="primary" active-variant="subtle" :sibling-count="1"
+                        :total="datosPendientes.length" :items-per-page="itemsPorPaginaPendientes"></UPagination>
+                </div>
                 <!-- Citas Pendientes -->
                 <div class="grid gap-2 mt-2"
                     :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
-                    <Card v-for="cita in datosPendientes" :cita="cita" :Propiedades="props.Propiedades"></Card>
+
+                    <Card v-for="cita in datosPaginadosPendientes" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                    
                 </div>
 
                 <div v-if="!datosPendientes?.length" class="w-full py-8 flex justify-center">

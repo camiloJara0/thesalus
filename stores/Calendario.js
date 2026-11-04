@@ -72,7 +72,7 @@ export const useCalendarioCitas = defineStore('CalendarioCitas', {
 
             // Array de días en español (getDay(): 0=Domingo)
             const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-            return diasSemana[fechaDate.getDay()];
+            return diasSemana[fechaDate.getDay() + 1];
         },
     },
 

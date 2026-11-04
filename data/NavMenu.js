@@ -18,8 +18,16 @@ export const submenuSesion = [
             await navigateTo('/Perfil');
         }
     },
+    {
+        id: 1,
+        label: 'Configuración',
+        icon: 'i-lucide-settings',
+        onSelect: async() => {
+            await navigateTo('/Configuracion')
+        }
+    },
     { 
-        id: 1, 
+        id: 2, 
         label: 'Cerrar Sesión', 
         icon: 'i-lucide-arrow-left-to-line', 
         onSelect: async() => {

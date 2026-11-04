@@ -18,6 +18,9 @@ const showFiltros = ref(false)
 const mostrarFiltrosAvanzados = ref(false)
 const tiempoLoading = ref(false)
 const varView = useVarView()
+const preferencias = usePreferencias()
+const claseDensidad = computed(() =>
+    preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : '')
 // funciones
 const props = defineProps({
     Propiedades: {
@@ -62,7 +65,7 @@ const {
     paginaAnterior,
     irAPagina,
     datosPaginados,
-} = usePaginacion(datosOrdenados);
+} = usePaginacion(datosOrdenados, preferencias.filasPorPagina);
 
 // Funciones de tabla
 const mostrarAcciones = (id) => {
@@ -431,7 +434,8 @@ const obtenerTituloTooltip = (texto) => {
 
     <!-- Tabla -->
     <div
-        class="mt-5 shadow-lg dark:shadow-[0_2px_4px_rgba(255,255,255,0.1)] bg-white dark:bg-gray-900 rounded-lg overflow-hidden">
+        class="mt-5 shadow-lg dark:shadow-[0_2px_4px_rgba(255,255,255,0.1)] bg-white dark:bg-gray-900 rounded-lg overflow-hidden"
+        :class="claseDensidad">
         <div class="w-full" role="table">
 
             <!-- Header Columnas -->
@@ -899,5 +903,16 @@ input {
 
 :dark .hasTooltip .tooltip::before {
     border-bottom-color: rgba(17, 24, 39, 0.95);
+}
+
+/* Densidad compacta (preferencia del usuario) */
+.densidad-compacta [role='cell'] {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+}
+
+.densidad-compacta .bodyTable p {
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
 }
 </style>

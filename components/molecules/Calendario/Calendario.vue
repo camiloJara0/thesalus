@@ -5,6 +5,7 @@ import { diasSemana, nombresMeses } from '~/data/Fechas.js'
 import { storeToRefs } from 'pinia';
 import { useCitasStore } from '~/stores/Formularios/citas/Cita';
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
+import MetricasAgenda from './MetricasAgenda.vue';
 
 const props = defineProps({
     citas: {
@@ -14,6 +15,9 @@ const props = defineProps({
     Propiedades: {
         type: [Array, Object],
         default: () => []
+    },
+    infoCitas: {
+        type: [Array, Object],
     }
 });
 
@@ -49,29 +53,20 @@ const nombreMes = computed(() => calendario.value[años.value - añoDesde.value]
 // ─────────────────────────────────────────────
 // VISTA: día / semana / mes (persistida)
 // ─────────────────────────────────────────────
-const CLAVE_VISTA = 'santa_agenda_vista'
+const preferencias = usePreferencias()
 const VISTAS = [
     { id: 'dia', label: 'Día', icon: 'i-lucide-calendar-day' },
     { id: 'semana', label: 'Semana', icon: 'i-lucide-calendar-range' },
     { id: 'mes', label: 'Mes', icon: 'i-lucide-calendar' }
 ]
 
-function leerVistaGuardada() {
-    try {
-        const v = localStorage.getItem(CLAVE_VISTA)
-        return VISTAS.some(op => op.id === v) ? v : 'mes'
-    } catch (e) {
-        return 'mes'
-    }
-}
-
-const vista = ref(leerVistaGuardada())
+const vista = computed({
+    get: () => preferencias.granularidad,
+    set: (nueva) => preferencias.set('agenda.granularidad', nueva)
+})
 
 function cambiarVista(nueva) {
     vista.value = nueva
-    try {
-        localStorage.setItem(CLAVE_VISTA, nueva)
-    } catch (e) { /* almacenamiento no disponible */ }
 }
 
 // ─────────────────────────────────────────────
@@ -315,10 +310,9 @@ const siguienteSemana = () => {
 // ─────────────────────────────────────────────
 // Vista DÍA (agenda por horas)
 // ─────────────────────────────────────────────
-const HORA_INICIO = 7;
-const HORA_FIN = 19;
-
 const agendaDia = computed(() => {
+    const HORA_INICIO = preferencias.horaInicio
+    const HORA_FIN = preferencias.horaFin
     const citas = citasDelDia(fecha.value);
     const conHora = [];
     const sinHora = [];
@@ -391,7 +385,7 @@ function bordeEstado(cita) {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 h-[67vh]">
+    <div class="flex flex-col gap-2">
         <!-- Calendario principal -->
         <div
             class="flex flex-col gap-5 shadow-md rounded-xl p-5 overflow-y-auto scrollForm bg-white dark:bg-gray-700 dark:text-white">
@@ -449,7 +443,7 @@ function bordeEstado(cita) {
 
             <!-- ═══ Vista: SEMANA ═══ -->
             <template v-else-if="vista === 'semana'">
-                <div class="grid grid-cols-7 gap-2 min-w-0">
+                <div class="grid grid-rows-7 gap-2 min-w-0">
                     <div v-for="d in diasDeLaSemana" :key="d.fecha" @click="irAFecha(d.fecha)"
                         class="flex flex-col rounded-xl border transition cursor-pointer min-h-32"
                         :class="d.seleccionado
@@ -552,6 +546,8 @@ function bordeEstado(cita) {
                 <span class="text-xs text-gray-600 dark:text-gray-300">Próximas</span>
             </div>
         </div>
+
+        <!-- <MetricasAgenda :infoCitas="props.infoCitas"/> -->
 
     </div>
 

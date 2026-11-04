@@ -78,14 +78,14 @@ const metricas = computed(() => {
 </script>
 
 <template>
-    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 mb-3 mt-3">
         <div v-for="m in metricas" :key="m.clave"
             class="flex items-center gap-3 rounded-xl shadow-md bg-white dark:bg-gray-700 px-4 py-3">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" :class="m.fondo">
                 <UIcon :name="m.icono" class="size-5" :class="m.color" />
             </div>
             <div class="min-w-0">
-                <p class="text-xl font-bold leading-tight" :class="m.color">{{ m.valor }}</p>
+                <p class="text-lg font-bold leading-tight" :class="m.color">{{ m.valor }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-300 truncate">{{ m.label }}</p>
             </div>
         </div>

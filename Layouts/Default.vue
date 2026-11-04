@@ -28,9 +28,18 @@ import Actualizado from '~/components/molecules/Spinner/Actualizado.vue';
 import Permiso from '~/components/molecules/Spinner/Permiso.vue';
 import LoaderPorcentaje from '~/components/molecules/Spinner/LoaderPorcentaje.vue';
 import { useAvisoSello } from '~/composables/useAvisoSello';
+import { usePreferencias } from '~/stores/preferencias';
 
 const varView = useVarView();
 const { avisarSiFaltaSello } = useAvisoSello();
+
+const preferencias = usePreferencias();
+preferencias.cargar();
+
+const colorMode = useColorMode();
+watch(() => preferencias.tema, (tema) => {
+    colorMode.preference = tema;
+}, { immediate: true });
 
 onMounted(async() => {
     const permisos = JSON.parse(localStorage.getItem('permisosTemporales') ?? "[]");

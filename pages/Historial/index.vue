@@ -79,6 +79,29 @@ const permisos = computed(() => ({
     trabajo_delete: hasPermiso('TrabajoSocial_delete'),
 }));
 
+// ============ PESTAÑAS (orden configurable) ============
+const preferencias = usePreferencias()
+
+const TABS_BASE = [
+    { slot: 'notas', label: 'Notas', icon: 'i-lucide-file-text' },
+    { slot: 'evoluciones', label: 'Evoluciones', icon: 'i-lucide-trending-up' },
+    { slot: 'terapias', label: 'Terapias', icon: 'i-lucide-heart-pulse' },
+    { slot: 'consultas', label: 'Consultas', icon: 'i-lucide-clipboard' },
+    { slot: 'trabajo-social', label: 'Social', icon: 'i-lucide-briefcase-business' },
+    { slot: 'diagnosticos', label: 'Diagnósticos', icon: 'i-lucide-activity' },
+    { slot: 'medicamentos', label: 'Medicamentos', icon: 'i-lucide-pill' },
+    { slot: 'tratamientos', label: 'Tratamientos', icon: 'i-lucide-bandage' },
+]
+
+const tabsItems = computed(() => {
+    const orden = preferencias.ordenTabs
+    return [...TABS_BASE].sort((a, b) => {
+        const ia = orden.indexOf(a.slot)
+        const ib = orden.indexOf(b.slot)
+        return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib)
+    })
+})
+
 // ============ ESTADO DEL COMPONENTE ============
 const historiasList = ref([]);
 const pacienteSeleccionado = ref(null);
@@ -771,16 +794,7 @@ const propiedadesItemHistoria = computed(() => {
 
             <div v-if="showTablas">
                 <!-- Secciones Principales con Tabs -->
-                <UTabs :items="[
-                    { slot: 'notas', label: 'Notas', icon: 'i-lucide-file-text' },
-                    { slot: 'evoluciones', label: 'Evoluciones', icon: 'i-lucide-trending-up' },
-                    { slot: 'terapias', label: 'Terapias', icon: 'i-lucide-heart-pulse' },
-                    { slot: 'consultas', label: 'Consultas', icon: 'i-lucide-clipboard' },
-                    { slot: 'trabajo-social', label: 'Social', icon: 'i-lucide-briefcase-business' },
-                    { slot: 'diagnosticos', label: 'Diagnósticos', icon: 'i-lucide-activity' },
-                    { slot: 'medicamentos', label: 'Medicamentos', icon: 'i-lucide-pill' },
-                    { slot: 'tratamientos', label: 'Tratamientos', icon: 'i-lucide-bandage' },
-                ]" class="w-full">
+                <UTabs :items="tabsItems" class="w-full">
 
                     <!-- Notas -->
                     <template #notas>

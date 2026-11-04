@@ -9,6 +9,7 @@ import { useOrdenamiento } from "~/composables/Tabla/useDatosOrdenadosTabla";
 const mostrarFiltros = ref(false)
 const mostrarFiltrosAvanzados = ref(false)
 const varView = useVarView()
+const preferencias = usePreferencias()
 const excelRef = ref(null)
 
 const props = defineProps({
@@ -351,7 +352,8 @@ onBeforeUnmount(() => {
         </template>
     </UCard>
     <!-- Tabla -->
-    <div class="md:block" :class="{ 'hidden': cardConfig, }">
+    <div class="md:block"
+        :class="[{ 'hidden': cardConfig }, preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : '']">
         <UTable ref="table" sticky :loading="loading" loading-color="primary" loading-animation="carousel"
             :data="datosOrdenados" :columns="columns" class="flex-1 max-h-[62vh]" />
     </div>
@@ -412,3 +414,17 @@ onBeforeUnmount(() => {
 
     <DatosExcel v-if="varView.showDatosExcel" :datos="datosOrdenados" :tabla="props.Propiedades.titulo" />
 </template>
+
+<style scoped>
+/* Densidad compacta (preferencia del usuario) */
+.densidad-compacta :deep(td) {
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+    font-size: 0.8125rem;
+}
+
+.densidad-compacta :deep(th) {
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+}
+</style>

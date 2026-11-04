@@ -24,7 +24,7 @@ export async function traerDatos(onProgress = () => {}) {
         ]);
 
         onProgress(60, 'Cargando citas...');
-        await citasStore.citasHoy(true);
+        await citasStore.citasHoy(true, true);
 
         onProgress(80, 'Cargando historial clínico...');
         await historiaStore.indexDBDatos();

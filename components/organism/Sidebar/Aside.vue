@@ -150,6 +150,11 @@ const isActive = (path) => route.path === path
                         :class="{ 'text-yellow-500!': isActive('/Ayuda') }">
                             <i class="fa-solid fa-circle-question mr-1"></i>Ayuda
                         </NuxtLink>
+                        <NuxtLink to="/Configuracion"
+                            class="mt-1 font-semibold text-sm text-gray-200 dark:text-gray-800 hover:text-blue-500 text-wrap transition"
+                            :class="{ 'text-blue-500!': isActive('/Configuracion') }">
+                            <i class="fa-solid fa-gear mr-1"></i>Configuración
+                        </NuxtLink>
                         <NuxtLink @click="clearSession" class="text-gray-200 dark:text-gray-800 font-semibold text-sm hover:text-red-700 text-wrap transition">
                             <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Cerrar Sesion
                         </NuxtLink>
