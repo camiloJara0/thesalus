@@ -261,11 +261,18 @@ export const profesionalCompleto = {
 }
 
 // ==================== DATOS DE CITA ====================
+// Fecha futura dinámica: la validación "fecha no pasada" depende del día actual
+const fechaFutura = () => {
+    const n = new Date()
+    n.setDate(n.getDate() + 30)
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`
+}
+
 export const citaCompleta = {
     id_paciente: 1,
     id_medico: 1,
     id_servicio: 1,
-    fecha: '2026-07-25',
+    fecha: fechaFutura(),
     hora: '09:00',
     motivo: 'Consulta general',
     servicio: 'Medicina General',

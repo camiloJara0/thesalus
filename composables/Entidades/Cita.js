@@ -50,7 +50,7 @@ export function useCitaActions({ fecha }) {
             return
         }
 
-        const res = validarYEnviarCancelarCita(cita, respuesta.valor)
+        const res = await validarYEnviarCancelarCita(cita, respuesta.valor)
 
         if (res) {
             options.position = 'top-end'
@@ -59,6 +59,8 @@ export function useCitaActions({ fecha }) {
             options.tiempo = 1500
             mensaje()
             options.background = '#d33'
+            // Actualizar métricas y listas tras cancelar
+            varView.cambioEnApi = true
         }
     }
 

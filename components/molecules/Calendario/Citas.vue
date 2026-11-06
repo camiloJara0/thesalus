@@ -8,6 +8,9 @@ import { useCitasStore } from '~/stores/Formularios/citas/Cita.js';
 import { useOrdenamiento } from "~/composables/Tabla/useDatosOrdenadosTabla";
 import { usePaginacion } from "~/composables/Tabla/usePaginacion";
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
+import TablaScroll from '~/components/organism/Table/TablaScroll.vue';
+import CitasScroll from './CitasScroll.vue';
+import EstadoVacio from './EstadoVacio.vue';
 
 const props = defineProps({
     citas: {
@@ -167,9 +170,10 @@ const tabActiva = ref('0')
             class="flex justify-between items-center px-6 py-3 sticky top-0 bg-white dark:bg-gray-700 shadow-xs z-3">
             <p class="text-xl font-semibold">
                 {{ calendarioCitasStore.diaSemana }}, {{ dias }} {{ mes }}
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-300">· {{ citasFiltradas.length }} citas</span>
             </p>
             <div class="flex gap-3 items-center" :class="{'py-2': fecha !== fechaActual}">
-                <UTabs v-model="tabActiva" v-if="fecha === fechaActual" variant="link" :items="[
+                <!-- <UTabs v-model="tabActiva" v-if="fecha === fechaActual" variant="link" :items="[
                     {
                         label: 'Actuales',
                         slot: 'actuales',
@@ -180,7 +184,7 @@ const tabActiva = ref('0')
                         slot: 'pendientes',
                         icon: 'i-lucide-clock'
                     }
-                ]"></UTabs>
+                ]"></UTabs> -->
                 <UButton icon="i-lucide-filter" :color="showFiltros ? 'primary' : 'neutral'" variant="soft"
                     @click="showFiltros = !showFiltros">Filtrar</UButton>
             </div>
@@ -205,12 +209,12 @@ const tabActiva = ref('0')
                             class="w-full sm:w-auto sm:min-w-35" />
                     </div>
                 </div>
-
                 <div class="grid gap-2 mt-2"
-                    :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
+                    :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-1 lg:grid-cols-1': !varView.showEnFila }">
                     <!-- Card Citas -->
 
-                    <template v-if="!unref(props.Propiedades.citas)">
+                    <!-- Cargando: solo mientras no hay datos del día -->
+                    <template v-if="varView.cargando && !datosPaginados.length">
                         <div v-for="i in 2" :key="i" :class="Propiedades.tamaño"
                             class="w-full p-4 shadow-md bg-white dark:bg-gray-700 flex flex-col gap-4 animate-pulse">
                             <div class="flex items-center gap-3">
@@ -231,7 +235,10 @@ const tabActiva = ref('0')
                         </div>
                     </template>
 
-                    <Card v-for="cita in datosPaginados" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                    <EstadoVacio v-else-if="!datosPaginados.length"
+                        titulo="No hay citas programadas para este día." />
+
+                    <Card v-for="cita in datosPaginados" :key="cita.id" :cita="cita" :Propiedades="props.Propiedades"></Card>
                 </div>
             </div>
 
@@ -241,8 +248,8 @@ const tabActiva = ref('0')
                     <div class="flex items-center gap-2">
                         <UInput v-model="busquedaPendientes" placeholder="Buscar pendiente..." icon="lucide-search"
                             variant="outline" size="sm" class="flex-1" />
-                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivos"
-                            @click="borrarFiltros" />
+                        <UButton size="sm" icon="i-lucide-x" variant="soft" color="error" v-if="hayFiltrosActivosPendientes"
+                            @click="borrarFiltrosPendientes" />
                     </div>
 
                     <div class="flex flex-wrap gap-2">
@@ -284,9 +291,9 @@ const tabActiva = ref('0')
 
 
 
-        <div v-if="datosOrdenados?.length < 1 && fecha === fechaActual" class="w-full py-8 flex justify-center">
+        <!-- <div v-if="datosOrdenados?.length < 1 && fecha === fechaActual" class="w-full py-8 flex justify-center">
             <h2 class="text-lg text-gray-500">No hay citas programadas.</h2>
-        </div>
+        </div> -->
 
     </div>
 

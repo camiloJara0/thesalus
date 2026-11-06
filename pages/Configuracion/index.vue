@@ -12,12 +12,13 @@ const opcionesTema = [
 ]
 
 const opcionesVistaInicial = [
+    { id: 'scroll', label: 'Scroll', icon: 'i-lucide-layout-list' },
     { id: 'calendario', label: 'Calendario', icon: 'i-lucide-calendar' },
-    { id: 'lista', label: 'Lista', icon: 'i-lucide-table' },
+    { id: 'tabla', label: 'Tabla', icon: 'i-lucide-table-properties' },
 ]
 
 const opcionesGranularidad = [
-    { id: 'dia', label: 'Día', icon: 'i-lucide-calendar-day' },
+    { id: 'dia', label: 'Día', icon: 'i-lucide-calendar-1' },
     { id: 'semana', label: 'Semana', icon: 'i-lucide-calendar-range' },
     { id: 'mes', label: 'Mes', icon: 'i-lucide-calendar' },
 ]

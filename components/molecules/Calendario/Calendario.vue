@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useCalendarioCitas } from '~/stores/Calendario.js'
 import { diasSemana, nombresMeses } from '~/data/Fechas.js'
 import { storeToRefs } from 'pinia';
 import { useCitasStore } from '~/stores/Formularios/citas/Cita';
 import ButtonRounded from '~/components/atoms/Buttons/ButtonRounded.vue';
-import MetricasAgenda from './MetricasAgenda.vue';
+import { estadoDeCita, claveEstadoCita, badgeEstado } from '~/data/estadosCita';
 
 const props = defineProps({
     citas: {
@@ -42,12 +42,17 @@ const {
     añoDesde
 } = storeToRefs(calendarioCitasStore);
 
-onMounted(() => {
-    // Cargar citas desde el store
-    calendarioCitasStore.obtenerFecha()
-});
-
 const mesActual = ref(parseInt(meses.value) - 1);
+
+// Seguir cambios de mes ocurridos fuera (mini calendario de la vista Scroll)
+watch([meses, años], ([m]) => {
+    if (m - 1 !== mesActual.value) mesActual.value = m - 1
+})
+
+onMounted(async () => {
+    // Conservar el contexto de fecha elegido en otras vistas (sin resetear a hoy)
+    await asegurarMesVisible()
+});
 const nombreMes = computed(() => calendario.value[años.value - añoDesde.value].meses[mesActual.value].nombre + ' ' + años.value)
 
 // ─────────────────────────────────────────────
@@ -55,7 +60,7 @@ const nombreMes = computed(() => calendario.value[años.value - añoDesde.value]
 // ─────────────────────────────────────────────
 const preferencias = usePreferencias()
 const VISTAS = [
-    { id: 'dia', label: 'Día', icon: 'i-lucide-calendar-day' },
+    { id: 'dia', label: 'Día', icon: 'i-lucide-calendar-1' },
     { id: 'semana', label: 'Semana', icon: 'i-lucide-calendar-range' },
     { id: 'mes', label: 'Mes', icon: 'i-lucide-calendar' }
 ]
@@ -226,6 +231,18 @@ const citasProximas = computed(() => {
     return arrayCitas
 })
 
+// Carga el rango del mes visible si el store aún no lo tiene (1 petición, cacheada/deduplicada)
+async function asegurarMesVisible() {
+    const anho = calendario.value[años.value - añoDesde.value]
+    if (!anho) return
+    const mes = anho.meses[mesActual.value]
+    if (!mes) return
+    const prefijo = `${años.value}-${String(mesActual.value + 1).padStart(2, '0')}-`
+    if (Citas.value.some(c => c.fecha?.startsWith(prefijo))) return
+    const m = String(mesActual.value + 1).padStart(2, '0')
+    await citasStore.citasPorRango(`${años.value}-${m}-01`, `${años.value}-${m}-${String(mes.dias).padStart(2, '0')}`)
+}
+
 // Navegar entre meses
 const anteriorMes = () => {
     if (mesActual.value === 0 && años.value === añoDesde.value) {
@@ -371,15 +388,15 @@ const tituloNavegacion = computed(() => {
 });
 
 function estadoColor(cita) {
-    if (cita.estado === 'Realizada') return 'text-green-600 dark:text-green-300';
-    if (cita._vencida) return 'text-red-600 dark:text-red-300';
-    return 'text-blue-700 dark:text-blue-300';
+    return estadoDeCita(cita).texto
 }
 
 function bordeEstado(cita) {
-    if (cita.estado === 'Realizada') return 'border-l-green-500';
-    if (cita._vencida) return 'border-l-red-500';
-    return 'border-l-blue-500';
+    const clave = claveEstadoCita(cita)
+    if (clave === 'finalizada') return 'border-l-green-500'
+    if (clave === 'vencida') return 'border-l-red-500'
+    if (clave === 'cancelada') return 'border-l-red-400'
+    return 'border-l-amber-400'
 }
 
 </script>
@@ -394,8 +411,8 @@ function bordeEstado(cita) {
             <div class="flex justify-between items-center gap-2 flex-wrap">
                 <h2 class="text-2xl font-semibold">{{ tituloNavegacion }}</h2>
                 <div class="flex items-center gap-2">
-                    <!-- Selector de vista -->
-                    <!-- <div class="flex rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+                    <!-- Granularidad: Día / Semana / Mes -->
+                    <div class="flex rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden bg-white dark:bg-gray-800">
                         <button v-for="op in VISTAS" :key="op.id" @click="cambiarVista(op.id)"
                             class="flex items-center gap-1.5 px-3 py-1.5 text-sm cursor-pointer transition"
                             :class="vista === op.id
@@ -404,7 +421,7 @@ function bordeEstado(cita) {
                             <UIcon :name="op.icon" class="size-4" />
                             <span class="hidden sm:inline">{{ op.label }}</span>
                         </button>
-                    </div> -->
+                    </div>
                     <div @click="navegar(-1)"
                         class="w-10 h-10 flex justify-center items-center rounded-xl hover:bg-blue-100 dark:hover:bg-gray-600 cursor-pointer">
                         <i class="fa-solid fa-angle-left text-blue-500"></i>
@@ -443,7 +460,7 @@ function bordeEstado(cita) {
 
             <!-- ═══ Vista: SEMANA ═══ -->
             <template v-else-if="vista === 'semana'">
-                <div class="grid grid-rows-7 gap-2 min-w-0">
+                <div class="grid grid-cols-7 gap-2 min-w-0">
                     <div v-for="d in diasDeLaSemana" :key="d.fecha" @click="irAFecha(d.fecha)"
                         class="flex flex-col rounded-xl border transition cursor-pointer min-h-32"
                         :class="d.seleccionado
@@ -515,9 +532,8 @@ function bordeEstado(cita) {
                                         {{ cita.servicio?.name }}<template v-if="cita.motivo"> · {{ cita.motivo }}</template>
                                     </p>
                                 </div>
-                                <UBadge :color="cita.estado === 'Realizada' ? 'success' : cita._vencida ? 'error' : 'info'"
-                                    variant="subtle" size="sm">
-                                    {{ cita.estado === 'Realizada' ? 'Hecha' : cita._vencida ? 'Vencida' : 'Activa' }}
+                                <UBadge :color="badgeEstado(cita).color" variant="subtle" size="sm">
+                                    {{ badgeEstado(cita).label }}
                                 </UBadge>
                             </div>
                         </div>
@@ -530,9 +546,8 @@ function bordeEstado(cita) {
             </template>
         </div>
 
-        <!-- Footer resumen -->
-        <div
-            class="w-full bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-xl shadow-md px-4 py-2 flex justify-around items-center">
+        <!-- Footer resumen del mes (las métricas globales viven en el encabezado) -->
+        <div class="w-full bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white rounded-xl shadow-md px-4 py-2 flex justify-around items-center">
             <div class="flex flex-col items-center">
                 <span class="text-base font-bold text-red-600 dark:text-red-300">{{ diasVencidosMes.length }}</span>
                 <span class="text-xs text-gray-600 dark:text-gray-300">Vencidas</span>
@@ -546,8 +561,6 @@ function bordeEstado(cita) {
                 <span class="text-xs text-gray-600 dark:text-gray-300">Próximas</span>
             </div>
         </div>
-
-        <!-- <MetricasAgenda :infoCitas="props.infoCitas"/> -->
 
     </div>
 

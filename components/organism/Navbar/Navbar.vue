@@ -8,6 +8,7 @@ import { submenuSesion } from '~/data/NavMenu';
 import { useButtonsAside } from '~/stores/ButtonActive';
 import { ref, computed, onMounted } from 'vue';
 import ModalNoEnviados from '../NoEnviados/ModalNoEnviados.vue';
+import ModalExportaciones from '../Exportaciones/ModalExportaciones.vue';
 
 const storeAside = useButtonsAside();
 const { showNavbarBurguer, cambiarEstado } = useShowNavbar();
@@ -85,6 +86,9 @@ const removeStorage = () => {
                 </li> -->
                 <li>
                     <ModalNoEnviados />
+                </li>
+                <li>
+                    <ModalExportaciones />
                 </li>
                 <li>
                     <UButton to="/Ayuda" icon="i-lucide-circle-question-mark" color="white"

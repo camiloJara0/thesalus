@@ -51,6 +51,11 @@ export const useApiRest = defineStore('apiRest', {
                 headers
             }
 
+            // Cancelación de respuestas obsoletas (opcional)
+            if (opcion.signal) {
+                options.signal = opcion.signal
+            }
+
             // Agregar body
             if (opcion.body) {
                 if (opcion.formData) {
@@ -129,6 +134,10 @@ export const useApiRest = defineStore('apiRest', {
 
                 }
             } catch (error) {
+                // Petición abortada por una más reciente: se propaga sin ruido
+                if (error?.name === 'AbortError' || error?.code === 20) {
+                    throw error;
+                }
                 console.error('Error en functionCall:', error);
                 varView.cargando = false
                 throw error;

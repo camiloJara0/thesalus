@@ -35,6 +35,8 @@ export const useCitasStore = defineStore('Citas', {
         mesCitaGuardada: 0,
         fechaHastaCitaGuardada: 0,
         NoEnviados: [],
+        // Métricas de agenda: se piden 1 vez y solo se refrescan tras CRUD
+        infoCitasData: null,
     }),
 
     getters: {
@@ -191,8 +193,11 @@ export const useCitasStore = defineStore('Citas', {
             return citasPendientes;
         },
 
-        async infoCitas() {
-            return await infoCitas()
+        async infoCitas(fuerza = false) {
+            if (!fuerza && this.infoCitasData) return this.infoCitasData
+            const data = await infoCitas()
+            if (data) this.infoCitasData = data
+            return this.infoCitasData
         },
 
         borrarFormulario() {

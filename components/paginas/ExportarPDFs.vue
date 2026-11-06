@@ -29,13 +29,12 @@ const props = defineProps({
     tabla: String,
 });
 
-const generandoPDFs = ref(false);
-const cancelarPDFs = ref(false);
-const progreso = ref(0);
-// Control de la peticion en curso (permite cancelarla o ponerle tiempo limite)
-let controladorExportacion = null;
+const exportaciones = useExportacion();
+const iniciando = ref(false);
+const exportacionId = ref(null);
+// Exportación en curso mostrada en el panel de progreso del modal
+const itemActivo = computed(() => exportaciones.porId(exportacionId.value));
 const TIEMPO_MAXIMO_EXPORTACION = 120000;
-const TIEMPO_MAXIMO_POLLING = 900000;
 const pacientesStore = usePacientesStore()
 const profesionalStore = useProfesionalStore()
 const calendarioCitasStore = useCalendarioCitas();
@@ -133,11 +132,10 @@ watch(file, (newValue) => {
 });
 
 function cerrar() {
-    cancelarPDFs.value = true; // activar la cancelación de pdf
-    controladorExportacion?.abort();
+    exportacionId.value = null
     file.id_paciente = ''
     file.id_profesional = ''
-    if (!generandoPDFs.value) { varView.showExportarPDFs = false }
+    varView.showExportarPDFs = false
 };
 
 const validarform = () => {
@@ -180,184 +178,60 @@ const filtrarAnalisisPorFecha = (analisis, servicio, fechaInicio, fechaFin, id_p
 const enviarPDFs = async () => {
     const validacion = validarform()
     if (!validacion) return
+
+    iniciando.value = true;
     try {
+        const item = await exportaciones.iniciar({
+            servicio: file.servicio,
+            id_paciente: file.id_paciente,
+            id_profesional: file.id_profesional,
+            fechaInicio: file.fechaInicio,
+            fechaFin: file.fechaFin,
+            etiqueta: etiquetaSeleccionada(),
+        });
 
-        generandoPDFs.value = true;
-        progreso.value = 0;
-        cancelarPDFs.value = false;
-        controladorExportacion = new AbortController();
-        const controlador = controladorExportacion;
-        const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_POLLING);
-        let exportacionCompleta = false;
-
-        // Cargar datos necesarios
-        const token = decryptData(localStorage.getItem('token'))
-
-        try {
-            const resCrear = await fetch(`${config.public.api}/${config.public.exportarAsync}`, {
-                method: 'POST',
-                signal: controlador.signal,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    servicio: file.servicio,
-                    id_paciente: file.id_paciente,
-                    id_profesional: file.id_profesional,
-                    fechaInicio: file.fechaInicio,
-                    fechaFin: file.fechaFin,
-                })
-
-            });
-
-            if (!resCrear.ok) {
-                if (resCrear.status === 429) {
-                    // Limite global de exportaciones alcanzado: mensaje amigable, sin errores tecnicos
-                    let datosLimite = null;
-                    try { datosLimite = await resCrear.json(); } catch (e) { /* respuesta sin cuerpo JSON */ }
-
-                    capacidad.value = {
-                        active_exports: datosLimite?.active_exports ?? capacidad.value.max_exports,
-                        max_exports: datosLimite?.max_exports ?? capacidad.value.max_exports,
-                        available_slots: 0,
-                        can_export: false,
-                    };
-
-                    options.position = 'top-end';
-                    options.background = '#f59e0b';
-                    options.color = '#fff';
-                    options.texto = datosLimite?.message
-                        || 'Actualmente el sistema está procesando el máximo de exportaciones permitidas. Por favor espere unos minutos e inténtelo nuevamente.';
-                    options.tiempo = 4000;
-                    mensaje();
-                    return;
-                }
-                throw new Error(`Error al iniciar la exportación: ${resCrear.status}`);
-            }
-
-            const crearJson = await resCrear.json();
-            const exportId = crearJson.export_id;
-
-            // Un cupo mas fue consumido: actualiza la capacidad mostrada
-            consultarCapacidad();
-
-            let estado = 'pendiente';
-
-            while (!cancelarPDFs.value) {
-                await new Promise((resolve) => setTimeout(resolve, 15000));
-
-                if (controlador.signal.aborted) break;
-
-                const resEstado = await fetch(`${config.public.api}/${config.public.estadoExport}/${exportId}/estado`, {
-                    signal: controlador.signal,
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json',
-                    },
-                });
-
-                if (!resEstado.ok) {
-                    throw new Error(`Error consultando el estado: ${resEstado.status}`);
-                }
-
-                const info = await resEstado.json();
-                estado = info.estado;
-
-                if (info.total > 0) {
-                    progreso.value = Math.round((info.completados / info.total) * 100);
-                }
-
-                if (estado === 'lista') break;
-                if (estado === 'fallida') throw new Error('La exportación falló en el servidor');
-            }
-
-            if (estado !== 'lista' || cancelarPDFs.value) return;
-
-            const resDescarga = await fetch(`${config.public.api}/${config.public.descargarExport}/${exportId}/descarga`, {
-                signal: controlador.signal,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (!resDescarga.ok) {
-                throw new Error(`Error al descargar la exportación: ${resDescarga.status}`);
-            }
-
-            const blob = await resDescarga.blob();
-            const url = window.URL.createObjectURL(blob);
-
-            // Leer el nombre desde el header
-            const disposition = resDescarga.headers.get('Content-Disposition');
-            let fileName = `${file.servicio}.zip`;
-            if (disposition) {
-                const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/);
-                if (match && match[1]) {
-                    fileName = decodeURIComponent(match[1]);
-                }
-            }
-
-            // Descargar
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName; // nombre dinámico
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-
-            setTimeout(() => window.URL.revokeObjectURL(url), 10000);
-            exportacionCompleta = true;
-
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                // Cancelado por el usuario o por tiempo limite
-                if (!cancelarPDFs.value) {
-                    options.position = 'top-end';
-                    options.background = '#d33'
-                    options.texto = "La exportación superó el tiempo máximo, intente con un rango menor";
-                    options.tiempo = 2500;
-                    mensaje();
-                }
-            } else {
-                console.error("Error al obtener el PDF:", err);
-                options.position = 'top-end';
-                options.background = '#d33'
-                options.texto = "Error al generar los PDFs. Por favor intente nuevamente.";
-                options.tiempo = 2000;
-                mensaje();
-            }
-        } finally {
-            clearTimeout(tiempoLimite);
-        }
-
-
-        // Solo mostrar exito si la exportacion termino completa y no se cancelo
-        if (exportacionCompleta && !cancelarPDFs.value) {
-            options.position = 'top-end';
-            options.texto = `PDFs generados y descargados exitosamente`;
-            options.background = '#22c55e';
-            options.tiempo = 2000;
-            mensaje();
-        }
-        cerrar();
-    } catch (error) {
-        console.error('Error al exportar PDFs:', error);
-        options.position = 'top-end';
-        options.texto = "Error al generar los PDFs. Por favor intente nuevamente.";
-        options.tiempo = 2000;
-        mensaje();
-    } finally {
-        generandoPDFs.value = false;
-        progreso.value = 0;
-        // Refresca la capacidad: la exportacion ya no ocupa cupo (lista/fallida/cancelada)
+        // Un cupo mas fue consumido (o rechazado): actualiza la capacidad mostrada
         consultarCapacidad();
-        // Si se interrumpio en curso, cerrar el modal (el usuario ya lo pidio)
-        if (controladorExportacion?.signal.aborted) {
-            varView.showExportarPDFs = false
+
+        if (item) {
+            // El modal permanece abierto mostrando el progreso: el usuario
+            // decide cuándo poner la exportación en segundo plano.
+            exportacionId.value = item.id;
         }
+    } finally {
+        iniciando.value = false;
     }
+};
+
+function etiquetaSeleccionada() {
+    const partes = [];
+    if (file.id_paciente) {
+        const p = pacientesList.value.find(x => x.value === file.id_paciente);
+        if (p) partes.push(p.label);
+    }
+    if (file.id_profesional) {
+        const p = profesionalesList.value.find(x => x.value === file.id_profesional);
+        if (p) partes.push(p.label);
+    }
+    return partes.join(' · ');
+}
+
+function ponerEnSegundoPlano() {
+    // La exportación sigue viva en el módulo global; solo se oculta el panel
+    varView.showExportarPDFs = false;
+    exportacionId.value = null;
+}
+
+async function descargarActivo() {
+    if (!itemActivo.value) return;
+    const ok = await exportaciones.descargar(itemActivo.value.id);
+    if (ok) cerrar();
+}
+
+async function reintentarActivo() {
+    if (!itemActivo.value) return;
+    const nuevo = await exportaciones.reintentar(itemActivo.value.id);
+    if (nuevo) exportacionId.value = nuevo.id;
 }
 
 const generarExcel = async () => {
@@ -366,9 +240,7 @@ const generarExcel = async () => {
     try {
         // Cargar datos necesarios
         const token = decryptData(localStorage.getItem('token'))
-        cancelarPDFs.value = false;
-        controladorExportacion = new AbortController();
-        const controlador = controladorExportacion;
+        const controlador = new AbortController();
         const tiempoLimite = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_EXPORTACION);
         let analisisFiltrados = []
         try {
@@ -403,7 +275,6 @@ const generarExcel = async () => {
             options.texto = "No se encontraron registros en el rango de fechas especificado";
             options.tiempo = 2000;
             mensaje();
-            generandoPDFs.value = false;
             return;
         }
 
@@ -463,10 +334,11 @@ const generarExcel = async () => {
                 <div class="py-6 h-full flex flex-col justify-between">
                     <!-- Título -->
                     <h2 class="text-2xl font-bold text-center py-3 text-gray-800 dark:text-gray-100 tracking-wide">
-                        Configuración de Exportación
+                        {{ itemActivo ? 'Exportación en proceso' : 'Configuración de Exportación' }}
                     </h2>
 
-                    <!-- Contenido scrollable -->
+                    <!-- Contenido scrollable (formulario) -->
+                    <template v-if="!itemActivo">
                     <div class="h-full pt-5 overflow-y-auto scrollForm px-10 space-y-6">
                         <!-- Sección rango de fechas -->
                         <div class="flex items-center gap-2 mb-5">
@@ -562,16 +434,128 @@ const generarExcel = async () => {
 
                         <ButtonForm
                             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
-                            @click="enviarPDFs" :disabled="generandoPDFs">
-                            <i class="fa-solid fa-file-export mr-2"></i> {{ generandoPDFs ? 'Procesando...' : 'PDF'
+                            @click="enviarPDFs" :disabled="iniciando">
+                            <i class="fa-solid fa-file-export mr-2"></i> {{ iniciando ? 'Iniciando...' : 'PDF'
                             }}
                         </ButtonForm>
 
                     </div>
+                    </template>
 
-                    <div v-if="generandoPDFs" class="w-full text-center mt-3 text-sm text-gray-600 dark:text-gray-300">
-                        Generando PDFs... {{ progreso }}%
-                    </div>
+                    <!-- Panel de progreso: el usuario decide cuándo ponerlo en segundo plano -->
+                    <template v-else>
+                        <div class="h-full pt-5 overflow-y-auto scrollForm px-10 space-y-6">
+
+                            <!-- Proceso -->
+                            <template v-if="['pendiente', 'procesando', 'comprimiendo'].includes(itemActivo.estado)">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-file-export text-blue-500"></i>
+                                    <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
+                                        Generando tus PDFs…
+                                    </p>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ itemActivo.servicio }} — {{ itemActivo.rango?.fechaInicio }} al {{
+                                        itemActivo.rango?.fechaFin }}
+                                    <span v-if="itemActivo.etiqueta"> · {{ itemActivo.etiqueta }}</span>
+                                </p>
+
+                                <div class="flex justify-between text-sm mb-1 text-gray-600 dark:text-gray-300">
+                                    <span>En cola de procesamiento</span>
+                                    <span v-if="itemActivo.total > 0">{{
+                                        Math.min(100, Math.round((itemActivo.completados / itemActivo.total) * 100))
+                                        }}%</span>
+                                </div>
+                                <div class="w-full h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full transition-all duration-500"
+                                        :style="{
+                                            width: (itemActivo.total > 0
+                                                ? Math.min(100, Math.round((itemActivo.completados / itemActivo.total) * 100))
+                                                : 8) + '%'
+                                        }"></div>
+                                </div>
+
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    <i class="fa-solid fa-clock mr-1"></i>
+                                    Puedes poner la exportación en segundo plano y seguir trabajando; te avisaremos
+                                    cuando esté lista.
+                                </p>
+                                <p class="text-xs text-amber-600 dark:text-amber-400">
+                                    <i class="fa-solid fa-circle-info mr-1"></i>
+                                    Según la configuración del servidor puede tardar de 5 a 20 minutos.
+                                </p>
+                            </template>
+
+                            <!-- Lista -->
+                            <template v-else-if="itemActivo.estado === 'lista'">
+                                <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+                                    <div class="rounded-full bg-emerald-50 p-4 text-emerald-600">
+                                        <i class="i-lucide-circle-check text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            Tus PDFs están listos
+                                        </h4>
+                                        <p class="text-sm text-gray-500">
+                                            {{ itemActivo.servicio }} — descarga tu archivo cuando quieras.
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Fallida -->
+                            <template v-else>
+                                <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+                                    <div class="rounded-full bg-red-50 p-4 text-red-600">
+                                        <i class="i-lucide-circle-x text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            La exportación falló
+                                        </h4>
+                                        <p class="text-sm text-gray-500">
+                                            Puedes intentarlo de nuevo.
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+
+                        </div>
+
+                        <div class="w-full flex justify-center items-center gap-4 px-4 mt-6">
+                            <template v-if="['pendiente', 'procesando', 'comprimiendo'].includes(itemActivo.estado)">
+                                <ButtonForm
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold md:w-65 sm:w-[2/3] w-full shadow-md transition-all duration-300"
+                                    @click="ponerEnSegundoPlano">
+                                    <i class="fa-solid fa-window-minimize mr-2"></i> Poner en segundo plano
+                                </ButtonForm>
+                            </template>
+                            <template v-else-if="itemActivo.estado === 'lista'">
+                                <ButtonForm
+                                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
+                                    @click="cerrar">
+                                    <i class="fa-solid fa-xmark mr-2"></i> Cerrar
+                                </ButtonForm>
+                                <ButtonForm
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
+                                    @click="descargarActivo">
+                                    <i class="fa-solid fa-download mr-2"></i> Descargar
+                                </ButtonForm>
+                            </template>
+                            <template v-else>
+                                <ButtonForm
+                                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
+                                    @click="cerrar">
+                                    <i class="fa-solid fa-xmark mr-2"></i> Cerrar
+                                </ButtonForm>
+                                <ButtonForm
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
+                                    @click="reintentarActivo">
+                                    <i class="fa-solid fa-rotate-right mr-2"></i> Reintentar
+                                </ButtonForm>
+                            </template>
+                        </div>
+                    </template>
                 </div>
             </div>
 

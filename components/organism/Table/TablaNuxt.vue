@@ -11,6 +11,7 @@ const mostrarFiltros = ref(false)
 const mostrarFiltrosAvanzados = ref(false)
 const varView = useVarView()
 const excelRef = ref(null)
+const preferencias = usePreferencias()
 
 const props = defineProps({
     Propiedades: {
@@ -45,7 +46,7 @@ const {
     paginaAnterior,
     irAPagina,
     datosPaginados,
-} = usePaginacion(datosOrdenados);
+} = usePaginacion(datosOrdenados, preferencias.filasPorPagina);
 
 const items = ref([
     {
@@ -237,7 +238,15 @@ function getRowActions(row) {
     <!-- Tabla Desktop -->
     <div class="hidden md:block">
         <UTable v-model:column-pinning="columnPinning" sticky :loading="!props.Propiedades.data || varView.cargando || varView.actualizando" loading-color="primary" loading-animation="carousel" :data="datosPaginados" :columns="columns"
-            class="flex-1 max-h-[62vh]" />
+            class="flex-1 max-h-[62vh] tableNuxt" :class="[preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : '']"   
+            :ui="{
+                tbody: `
+                        divide-y divide-default
+                        [&>tr:nth-child(even)>td]:bg-gray-100
+                        dark:[&>tr:nth-child(even)>td]:bg-gray-800
+                        `,
+            }"
+        />
     </div>
     <!-- Cards Mobile (solo si card esta definido) -->
     <div v-if="cardConfig" class="md:hidden block space-y-3 px-2">
@@ -303,7 +312,8 @@ function getRowActions(row) {
             <select name="numRegistros"
                 class="ml-3 text-sm bg-transparent border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 @change="cambiarItemsPorPagina($event.target.value)">
-                <option value="10" selected>10</option>
+                <option :value="preferencias.filasPorPagina" selected>{{ preferencias.filasPorPagina }}</option>
+                <!-- <option value="10" selected>10</option> -->
                 <option value="20">20</option>
                 <option value="50">50</option>
             </select>
@@ -311,3 +321,17 @@ function getRowActions(row) {
     </div>
     <DatosExcel v-if="varView.showDatosExcel" :datos="datosOrdenados" :tabla="props.Propiedades.titulo" />
 </template>
+
+<style scoped>
+/* Densidad compacta (preferencia del usuario) */
+.densidad-compacta :deep(td) {
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+    font-size: 0.8125rem;
+}
+
+.densidad-compacta :deep(th) {
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+}
+</style>

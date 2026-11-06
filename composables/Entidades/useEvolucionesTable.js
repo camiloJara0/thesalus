@@ -8,7 +8,13 @@ export const useEvolucionesTable = (loadItem, exportar, exportarServicio, puedeP
     { accessorKey: 'id', header: 'id' },
     { accessorKey: 'terapia.fecha', header: 'Fecha'},
     { accessorKey: 'profesional.info_usuario.name', header: 'Profesional', ordenar: true },
-    { accessorKey: 'servicio.name', header: 'Servicio', ordenar: true },
+    { accessorKey: 'servicio.name', header: 'Servicio', ordenar: true,
+      cell: ({ row }) => {
+        const texto = row.original.servicio.name || ''
+        const limitado = texto.length > 30 ? texto.substring(0, 30) + '...' : texto
+        return h('p', limitado)
+      }
+    },
     { accessorKey: 'terapia.sesion', header: 'Sesión' },
     {
       accessorKey: 'terapia.objetivos', header: 'Objetivos',

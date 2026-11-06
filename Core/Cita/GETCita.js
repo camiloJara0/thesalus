@@ -1,206 +1,164 @@
 import { decryptData } from '~/composables/Formulario/crypto';
+import { solicitudUnica, esAbortada } from '~/composables/useSolicitudUnica';
+
+function tokenActual() {
+    return decryptData(localStorage.getItem('token'))
+}
+
+function fallo(error, contexto) {
+    if (esAbortada(error)) return undefined // respuesta obsoleta descartada
+    console.error('Fallo al traer datos', contexto, error)
+    return undefined
+}
+
 export async function traerCitas () {
-    const notificacionesStore = useNotificacionesStore();
-    const api = useApiRest();
-    const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
-
-    const online = navigator.onLine;
-    if (online) {
-        try {
-            // mandar a api
-            let options = {
-                metodo: 'GET',
-                url: config.public.citasHoy,
-                token: token
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
-        } catch (error) {
-            console.error('Fallo al traer datos', error);
-        }
-    } else {
-        return false
-    }
+    return await traerCitasHoy()
 }
 
 export async function traerCitasHoy () {
-    const api = useApiRest();
+    if (!navigator.onLine) return false
     const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
+    const token = tokenActual()
 
-    const online = navigator.onLine;
-    if (online) {
+    return await solicitudUnica('citasHoy', 'hoy', async (signal) => {
         try {
-            // mandar a api
-            let options = {
+            const api = useApiRest()
+            const respuesta = await api.functionCall({
                 metodo: 'GET',
                 url: config.public.citasHoy,
-                token: token
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
+                token,
+                signal,
+            })
+            if (respuesta?.success) return respuesta.data
         } catch (error) {
-            console.error('Fallo al traer datos', error);
+            return fallo(error, 'citasHoy')
         }
-    } else {
-        return false
-    }
+    })
 }
 
 export async function traerCitasPorRango (inicio, fin) {
-    const api = useApiRest();
+    if (!navigator.onLine) return false
     const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
+    const token = tokenActual()
 
-    const online = navigator.onLine;
-    if (online) {
+    return await solicitudUnica('citasPorRango', `${inicio}:${fin}`, async (signal) => {
         try {
-            // mandar a api
-            let options = {
+            const api = useApiRest()
+            const respuesta = await api.functionCall({
                 metodo: 'POST',
                 url: config.public.citasPorRango,
-                token: token,
-                body: {
-                    inicio,
-                    fin,
-                }
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
+                token,
+                body: { inicio, fin },
+                signal,
+            })
+            if (respuesta?.success) return respuesta.data
         } catch (error) {
-            console.error('Fallo al traer datos', error);
+            return fallo(error, 'citasPorRango')
         }
-    } else {
-        return false
-    }
+    })
 }
 
 export async function traerCitasPaginadas (ultimo_id, por_pagina) {
-    const api = useApiRest();
+    if (!navigator.onLine) return false
     const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
+    const token = tokenActual()
 
-    const online = navigator.onLine;
-    if (online) {
+    return await solicitudUnica('citasPaginadas', `${ultimo_id}:${por_pagina}`, async (signal) => {
         try {
-            // mandar a api
-            let options = {
+            const api = useApiRest()
+            const respuesta = await api.functionCall({
                 metodo: 'POST',
                 url: config.public.citasPaginadas,
-                token: token,
-                body: {
-                    ultimo_id,
-                    por_pagina,
-                }
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
+                token,
+                body: { ultimo_id, por_pagina },
+                signal,
+            })
+            if (respuesta?.success) return respuesta.data
         } catch (error) {
-            console.error('Fallo al traer datos', error);
+            return fallo(error, 'citasPaginadas')
         }
-    } else {
-        return false
-    }
+    })
 }
 
 export async function traerCitasFiltradas (configuracion) {
-    const api = useApiRest();
+    if (!navigator.onLine) return false
     const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
+    const token = tokenActual()
 
     const filtros = {
         estado: configuracion.estado,
         fecha_año: configuracion.fecha_año,
         fecha_mes: configuracion.fecha_mes,
         name_medico: configuracion.name_medico ?? configuracion['profesional.info_usuario.name'] ?? null,
-        servicio: configuracion.servicio ?? configuracion['servicio.name'] ?? null
+        servicio: configuracion.servicio ?? configuracion['servicio.name'] ?? null,
     }
-    const online = navigator.onLine;
-    if (online) {
+
+    return await solicitudUnica('citasFiltradas', JSON.stringify(filtros), async (signal) => {
         try {
-            // mandar a api
-            let options = {
+            const api = useApiRest()
+            const respuesta = await api.functionCall({
                 metodo: 'POST',
                 url: config.public.citasFiltradas,
-                token: token,
-                body: filtros
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
+                token,
+                body: filtros,
+                signal,
+            })
+            if (respuesta?.success) return respuesta.data
         } catch (error) {
-            console.error('Fallo al traer datos', error);
+            return fallo(error, 'citasFiltradas')
         }
-    } else {
-        return false
+    })
+}
+
+// Catálogo compartido: promesa singleton (1 petición para cualquier consumidor).
+let promesaFiltros = null
+
+async function fetchFiltros() {
+    if (!navigator.onLine) return false
+    const config = useRuntimeConfig()
+    const token = tokenActual()
+
+    try {
+        const api = useApiRest()
+        const respuesta = await api.functionCall({
+            metodo: 'GET',
+            url: config.public.filtrosCitas,
+            token,
+        })
+        if (respuesta?.success) return respuesta.data
+    } catch (error) {
+        return fallo(error, 'filtrosCitas')
     }
 }
 
-export async function traerFiltros () {
-    const api = useApiRest()
-    const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
-
-    const online = navigator.onLine;
-    if (online) {
-        try {
-            // mandar a api
-            let options = {
-                metodo: 'GET',
-                url: config.public.filtrosCitas,
-                token: token,
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
-        } catch (error) {
-            console.error('Fallo al traer datos', error);
-        }
-    } else {
-        return false
+export function traerFiltros ({ fuerza = false } = {}) {
+    if (fuerza) promesaFiltros = null
+    if (!promesaFiltros) {
+        promesaFiltros = fetchFiltros().then((data) => {
+            if (!data) promesaFiltros = null // fallo: permitir reintento
+            return data
+        })
     }
+    return promesaFiltros
 }
 
 export async function infoCitas () {
-    const api = useApiRest()
+    if (!navigator.onLine) return false
     const config = useRuntimeConfig()
-    const token = decryptData(localStorage.getItem('token'))
+    const token = tokenActual()
 
-    const online = navigator.onLine;
-    if (online) {
+    return await solicitudUnica('infoCitas', 'actual', async (signal) => {
         try {
-            // mandar a api
-            let options = {
+            const api = useApiRest()
+            const respuesta = await api.functionCall({
                 metodo: 'GET',
                 url: config.public.infoCitas,
-                token: token,
-            }
-            const respuesta = await api.functionCall(options)
-
-            if(respuesta.success){
-                return respuesta.data
-            }
+                token,
+                signal,
+            })
+            if (respuesta?.success) return respuesta.data
         } catch (error) {
-            console.error('Fallo al traer datos', error);
+            return fallo(error, 'infoCitas')
         }
-    } else {
-        return false
-    }
+    })
 }

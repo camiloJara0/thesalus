@@ -29,6 +29,7 @@ import Permiso from '~/components/molecules/Spinner/Permiso.vue';
 import LoaderPorcentaje from '~/components/molecules/Spinner/LoaderPorcentaje.vue';
 import { useAvisoSello } from '~/composables/useAvisoSello';
 import { usePreferencias } from '~/stores/preferencias';
+import { useExportacion } from '~/stores/exportacion';
 
 const varView = useVarView();
 const { avisarSiFaltaSello } = useAvisoSello();
@@ -41,11 +42,35 @@ watch(() => preferencias.tema, (tema) => {
     colorMode.preference = tema;
 }, { immediate: true });
 
+// Módulo global de exportación PDF en segundo plano.
+// El tick cada 5 s solo detecta vencimientos de forma barata; la consulta
+// real al servidor respeta la frecuencia adaptativa (15/20/60 s por item).
+const exportaciones = useExportacion();
+exportaciones.restaurar();
+
+let intervaloExportaciones = null;
+const revisarExportaciones = () => { exportaciones.tick(); };
+const visibilidadExportaciones = () => {
+    // Al volver a la pestaña consulta de inmediato (evita avisos atrasados)
+    if (!document.hidden) exportaciones.tick();
+};
+
 onMounted(async() => {
     const permisos = JSON.parse(localStorage.getItem('permisosTemporales') ?? "[]");
     varView.permisoTemporal = permisos.length > 0 ? true : false
 
     avisarSiFaltaSello();
+
+    intervaloExportaciones = setInterval(revisarExportaciones, 5000);
+    document.addEventListener('visibilitychange', visibilidadExportaciones);
+});
+
+onUnmounted(() => {
+    if (intervaloExportaciones) {
+        clearInterval(intervaloExportaciones);
+        intervaloExportaciones = null;
+    }
+    document.removeEventListener('visibilitychange', visibilidadExportaciones);
 });
 
 </script>

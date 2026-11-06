@@ -18,7 +18,7 @@ export const DEFAULTS = {
     v: 1,
     tema: 'system',
     agenda: {
-        vistaInicial: 'calendario',
+        vistaInicial: 'scroll',
         granularidad: 'mes',
         horaInicio: 7,
         horaFin: 19,
@@ -59,8 +59,10 @@ function validar(datos) {
     out.tema = ['system', 'light', 'dark'].includes(d.tema) ? d.tema : out.tema
 
     const ag = d.agenda && typeof d.agenda === 'object' ? d.agenda : {}
-    out.agenda.vistaInicial = ['lista', 'calendario'].includes(ag.vistaInicial)
-        ? ag.vistaInicial : out.agenda.vistaInicial
+    // Migración legado: 'lista' equivale a la vista Tabla
+    const vistaGuardada = ag.vistaInicial === 'lista' ? 'tabla' : ag.vistaInicial
+    out.agenda.vistaInicial = ['scroll', 'tabla', 'calendario'].includes(vistaGuardada)
+        ? vistaGuardada : out.agenda.vistaInicial
     out.agenda.granularidad = ['dia', 'semana', 'mes'].includes(ag.granularidad)
         ? ag.granularidad : out.agenda.granularidad
 

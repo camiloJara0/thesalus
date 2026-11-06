@@ -2,27 +2,28 @@
 import PDFServicio from '~/components/paginas/PDFServicio.vue'
 
 import { useCitasStore } from '~/stores/Formularios/citas/Cita'
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue'
 import { useCitaActions } from '~/composables/Entidades/Cita'
 import { useMultiAutoRefresh } from '~/composables/useAutoRefresh'
 import { traerCitasFiltradas, traerCitasPaginadas, traerFiltros } from '~/Core/Cita/GETCita'
+import { badgeEstado } from '~/data/estadosCita'
 import TablaScroll from '~/components/organism/Table/TablaScroll.vue'
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue'
-import MetricasAgenda from '~/components/molecules/Calendario/MetricasAgenda.vue'
+import EncabezadoAgenda from '~/components/molecules/Calendario/EncabezadoAgenda.vue'
+import CitasScroll from '~/components/molecules/Calendario/CitasScroll.vue'
+import MiniCalendario from '~/components/molecules/Calendario/MiniCalendario.vue'
 
 const varView = useVarView()
 const { hasPermiso } = usePermisos()
-const citasStore = useCitasStore();
-const {showNuevaCita, showActualizarCita, showNuevaHistoria} = storeToRefs(varView)
+const citasStore = useCitasStore()
+const { showNuevaCita, showActualizarCita, showNuevaHistoria } = storeToRefs(varView)
 
-const calendarioCitasStore = useCalendarioCitas();
-const show = ref(false);
-const refresh = ref(1);
+const calendarioCitasStore = useCalendarioCitas()
+const refresh = ref(1)
 const filtros = ref([])
 const puedeVer = hasPermiso('Citas_view')
-const puedeGet = hasPermiso('Citas_get')
 const puedePost = hasPermiso('Citas_post')
 const puedeVerTodosPacientes = hasPermiso('ListaPacientes')
 const showMensaje = ref(false)
@@ -31,15 +32,82 @@ const infoCitas = ref({})
 // Vista inicial según preferencias del usuario
 const preferencias = usePreferencias()
 preferencias.cargar()
-varView.showEnFila = preferencias.vistaInicial === 'lista'
-varView.showCalendario = true
 
-const {
-    fecha,
-    meses,
-    fechaActual
-} = storeToRefs(calendarioCitasStore);
+const esAdmin = computed(() => varView.getRol === 'Admin')
 
+function resolverVistaInicial() {
+    if (varView.getRol === 'Admin') return 'tabla'
+    const guardada = preferencias.vistaInicial
+    if (guardada === 'lista' || guardada === 'tabla') return 'tabla'
+    if (guardada === 'calendario') return 'calendario'
+    return 'scroll'
+}
+
+// ── Vista activa: scroll | calendario | tabla ──
+const vista = ref(resolverVistaInicial())
+
+// Cada vista se monta una sola vez; luego se alterna con v-show (0 llamadas, scroll y filtros intactos)
+const montadas = reactive({ scroll: false, calendario: false, tabla: false })
+
+// Scroll por vista: se guarda/restaura al alternar (el scroll lo maneja FondoDefault)
+const fondoRef = ref(null)
+const posicionesScroll = {}
+
+watch(vista, (nueva, vieja) => {
+    montadas[nueva] = true
+    // Flags globales que consumen otros componentes (compatibilidad)
+    varView.showEnFila = nueva === 'tabla'
+    varView.showCalendario = nueva === 'calendario'
+
+    const el = fondoRef.value?.$el
+    if (el && vieja) posicionesScroll[vieja] = el.scrollTop
+    if (el) {
+        nextTick(() => {
+            el.scrollTop = posicionesScroll[nueva] ?? 0
+        })
+    }
+}, { immediate: true })
+
+function cambiarVista(nueva) {
+    if (esAdmin.value) return
+    vista.value = nueva
+    preferencias.set('agenda.vistaInicial', nueva)
+}
+
+// Mini calendario: filtro por día en la vista Scroll
+const fechaSel = ref(null)      // ISO 'YYYY-MM-DD' | null
+const miniAbierto = ref(false)  // acordeón móvil
+
+function seleccionarDia(fechaISO) {
+    fechaSel.value = fechaISO
+}
+
+function limpiarDia() {
+    fechaSel.value = null
+}
+
+const fechaSelFormateada = computed(() => {
+    if (!fechaSel.value) return ''
+    const [a, m, d] = fechaSel.value.split('-')
+    return `${d}/${m}/${a}`
+})
+
+// Citas de un día puntual (para la lista Scroll cuando hay día seleccionado)
+async function citasDelDiaISO(iso) {
+    const todas = await citasStore.citasPorRango(iso, iso)
+    if (!Array.isArray(todas)) return []
+    return todas.filter((cita) => {
+        if (!cita.fecha) return false
+        const inicio = cita.fecha
+        const fin = cita.fechaHasta || cita.fecha
+        if (cita.estado === 'Inactiva' && fin > inicio) {
+            return iso >= inicio && iso <= fin
+        }
+        return inicio === iso
+    })
+}
+
+const { fecha } = storeToRefs(calendarioCitasStore)
 const { Citas } = storeToRefs(citasStore)
 const citasScroll = ref([])
 
@@ -54,39 +122,27 @@ const {
     fecha
 })
 
+// Carga base: datos + catálogos (promesa compartida) + métricas (1 vez; solo tras CRUD se fuerza)
 async function llamadatos(cambio) {
-    await citasStore.citasHoy(true, cambio);
+    await citasStore.citasHoy(true, cambio)
     filtros.value = await traerFiltros()
+    infoCitas.value = await citasStore.infoCitas(!!cambio)
     varView.datosActualizados()
 }
 const cambioEnApi = computed(() => varView.cambioEnApi)
-const dummyRefresh = ref(0)
 
+// Tras crear/editar/crear historia: refresca datos y métricas sin loader a pantalla completa
 useMultiAutoRefresh([
-    {
-        showRef: showNuevaCita,
-        fetchFn: () => llamadatos(true),
-        refresh: dummyRefresh,
-        cambioEnApi
-    },
-    {
-        showRef: showActualizarCita,
-        fetchFn: () => llamadatos(true),
-        refresh,
-        cambioEnApi
-    },
-    {
-        showRef: showNuevaHistoria,
-        fetchFn: () => llamadatos(true),
-        refresh: dummyRefresh,
-        cambioEnApi
-    }
-])
+    { showRef: showNuevaCita, fetchFn: () => llamadatos(true), refresh, cambioEnApi },
+    { showRef: showActualizarCita, fetchFn: () => llamadatos(true), refresh, cambioEnApi },
+    { showRef: showNuevaHistoria, fetchFn: () => llamadatos(true), refresh, cambioEnApi },
+], { loader: 'suave' })
 
 onMounted(async () => {
-    await llamadatos(false)
-    infoCitas.value = await citasStore.infoCitas()
-    if(varView.getRol === 'Profesional') {
+    if (puedeVer) {
+        await llamadatos(false)
+    }
+    if (varView.getRol === 'Profesional') {
         showMensaje.value = true
         setTimeout(() => {
             showMensaje.value = false
@@ -96,28 +152,9 @@ onMounted(async () => {
     citasStore.Formulario.Cita.fecha = calendarioCitasStore.fecha.split('/').reverse().join('-')
 });
 
-// Funciones para manejar la visibilidad de los formularios
 const agregarCita = () => {
-    show.value = true
     varView.showNuevaCita = true
 };
-
-// Funciones para manejar visibilidad de Pagina
-const showFila = async() => {
-    citasStore.contexto = 'Tabla'
-    varView.showEnFila = !varView.showEnFila
-};
-
-const showCalendario = () => {
-    varView.showCalendario = !varView.showCalendario
-};
-
-const buttonsVista = [
-    { text: 'En Lista', icon: 'i-lucide-table', color: 'neutral', action: showFila },
-    { text: 'Calendario', icon: 'i-lucide-calendar', color: varView.showCalendario ? 'primary' : 'neutral', action: showCalendario },
-    puedePost ? { text: 'Agendar', icon: 'i-lucide-plus', color: 'primary', action: agregarCita } : '',
-    { text: '', icon: 'i-lucide-cloud-sync', color: 'primary', variant: 'soft', action: () => { llamadatos(true) } },
-]
 
 const columns = [
     { accessorKey: 'id', header: 'id', ordenar: true },
@@ -136,20 +173,11 @@ const columns = [
         accessorKey: 'estado',
         header: 'Estado',
         cell: ({ row }) => {
-            const estado = row.getValue('estado')
-
-            const color =
-                estado === 'Realizada'
-                    ? 'success'
-                    : estado === 'inactiva'
-                        ? 'neutral'
-                        : estado === 'cancelada' ? 'error'
-                            : 'neutral'
-
+            const b = badgeEstado(row.original)
             return h(
                 UBadge,
-                { variant: 'subtle', color, class: 'capitalize' },
-                () => estado
+                { variant: b.variant, color: b.color, class: 'capitalize' },
+                () => b.label
             )
         }
     },
@@ -248,102 +276,102 @@ function cargarcitasFiltradas (data) {
 }
 
 const propiedadesTabla = computed(() => {
-    const tabla = {
-        titulo: 'Calendario de tu Agenda',
-        llamadatos: llamadatos,
+    return {
+        titulo: 'Registro de citas',
+        // llamadatos: llamadatos,
         data: citasScroll.value,
-        agregar: puedePost ? agregarCita : null,
+        // agregar: puedePost ? agregarCita : null,
         cargarData: async (id, por_pagina) => {return await traerCitasPaginadas(id, por_pagina)},
+        refresco: refresh.value,
         columns: columns,
         filtros: [
-            { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion: 
-                async(filtros) => { 
-                    const data = await traerCitasFiltradas(filtros); 
-                    cargarcitasFiltradas(data) 
+            { columna: 'servicio.name', placeholder: 'Servicio', options: filtros.value.servicios?.map(s => ({ label: s, value: s })), accion:
+                async(filtros) => {
+                    const data = await traerCitasFiltradas(filtros);
+                    cargarcitasFiltradas(data)
                 }
             },
             { columna: 'estado', placeholder: 'Estado', options: [{label: 'Realizada', value: 'Realizada'}, {label: 'Cancelada', value: 'cancelada'}, {label: 'Inactiva', value: 'inactiva'}], accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
-            puedeVerTodosPacientes 
-                ? { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } } 
+            puedeVerTodosPacientes
+                ? { columna: 'profesional.info_usuario.name', placeholder: 'Profesional', options: filtros.value.medicos?.map(m => ({ label: m, value: m })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } }
                 : { columna: 'profesional.info_usuario.name', value: varView.getUser.name,  tipo: 'fixed'},
 
-                { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion: 
-                async(filtros) => { 
-                    const data = await traerCitasFiltradas(filtros); 
+                { columna: 'fecha_mes', columnaReal: 'fecha', placeholder: 'Mes', tipo: 'mes', accion:
+                async(filtros) => {
+                    const data = await traerCitasFiltradas(filtros);
                     cargarcitasFiltradas(data)
-                } 
+                }
             },
             { columna: 'fecha_año', columnaReal: 'fecha', placeholder: 'Año', tipo: 'año', options: filtros.value.años?.map(a => ({ text: String(a), value: a })), accion: async(filtros) => { const data = await traerCitasFiltradas(filtros); cargarcitasFiltradas(data) } },
         ],
     }
-    
-    if(varView.getRol === 'Profesional'){
-        tabla.buttons = [
-            { icon: 'lucide-table', accion: showFila, texto: 'En lista', color: 'primary', variant: 'subtle' },
-        ]
-    }
-
-    return tabla
 })
-
-// console.log(propiedades)
 </script>
 
 <template>
-    <div v-if="varView.getRol === 'Profesional'">
-        <FondoDefault v-if="!varView.showEnFila && puedeVer" :key="refresh">
-            <div class="md:pb-6 pb-4 flex md:flex-row flex-col gap-3 items-center justify-between">
-                <div>
-                    <h2 class="md:text-2xl text-xl font-semibold">Calendario de tu agenda</h2>
-                    <div class="flex gap-2 items-center">
-                        <i class="fa-solid fa-circle-info text-orange-600 dark:text-orange-200"></i>
-                        <p class="text-orange-600 text-xs dark:text-orange-200 mt-1">Las citas se cargan al navegar entre los meses para mantener una experiencia rápida.</p>
-                    </div>
+    <FondoDefault ref="fondoRef" v-if="puedeVer">
+        <EncabezadoAgenda :vista="vista" :info-citas="infoCitas" :puede-agendar="puedePost"
+            :puede-ver-selector="!esAdmin" :actualizando="varView.actualizando" @update:vista="cambiarVista"
+            @agendar="agregarCita" @actualizar="llamadatos(true)" />
+
+        <!-- ═══ Vista SCROLL: mini calendario + lista de citas ═══ -->
+        <div v-if="montadas.scroll" v-show="vista === 'scroll'" class="grid lg:grid-cols-[280px_1fr] gap-4 items-start">
+            <div class="lg:sticky lg:top-4">
+                <div class="lg:hidden mb-2">
+                    <UButton block color="neutral" variant="soft" size="sm"
+                        :icon="miniAbierto ? 'i-lucide-calendar-off' : 'i-lucide-calendar-days'"
+                        :label="miniAbierto ? 'Ocultar calendario' : 'Mostrar calendario'"
+                        @click="miniAbierto = !miniAbierto" />
+                </div>
+                <div :class="miniAbierto ? '' : 'hidden lg:block'">
+                    <MiniCalendario @seleccion="seleccionarDia" />
+                </div>
+            </div>
+
+            <div class="min-w-0">
+                <div v-if="fechaSel" class="mb-2 flex items-center gap-2">
+                    <UBadge color="primary" variant="soft" icon="i-lucide-calendar-check">
+                        Citas del {{ fechaSelFormateada }}
+                    </UBadge>
+                    <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-x" label="Ver todas"
+                        @click="limpiarDia" />
                 </div>
 
-                <div class="flex gap-3 items-center cursor-pointer">
-                    <UButton v-for="button in buttonsVista" :color="button.color" :icon="button.icon" :variant="button.variant"
-                        @click="button.action">
-                        <p class="hidden md:block">{{ button.text }}</p>
-                    </UButton>
-                </div>
+                <CitasScroll :Propiedades="propiedadesTabla" :propiedadesCard="{ showTodas: false, citas: Citas }"
+                    :tabla="false" :fecha-sel="fechaSel" :cargar-rango="citasDelDiaISO" @limpiar="limpiarDia" />
             </div>
+        </div>
 
-            <div :class="{
-                'grid lg:grid-cols-[1.7fr_1fr] md:grid-cols-[1fr_1fr] grid-cols-1 lg:gap-6 gap-3 h-1/2': varView.showCalendario,
-                'grid grid-cols-1 gap-3': !varView.showCalendario
-                }" class="my-2 mb-10">
-                <MoleculesCalendarioCitas :Propiedades="{showTodas: false, citas: Citas}"></MoleculesCalendarioCitas>
-                <MoleculesCalendario v-if="varView.showCalendario" :Propiedades="{citas: Citas}" :infoCitas="infoCitas"></MoleculesCalendario>
-            </div>
+        <!-- ═══ Vista CALENDARIO: calendario protagonista + citas como contexto ═══ -->
+        <div v-if="montadas.calendario" v-show="vista === 'calendario'"
+            class="grid lg:grid-cols-[1.6fr_1fr] md:grid-cols-2 grid-cols-1 gap-4 items-start">
+            <MoleculesCalendario :Propiedades="{ citas: Citas }" :infoCitas="infoCitas" />
+            <MoleculesCalendarioCitas :Propiedades="{ showTodas: false, citas: Citas }" />
+        </div>
 
-            <div class="flex justify-end">
-                <MetricasAgenda :infoCitas="infoCitas" class="w-1/2 mt-10"></MetricasAgenda>
-            </div>
-        </FondoDefault>
-    </div>
+        <!-- ═══ Vista TABLA: consulta administrativa ═══ -->
+        <div v-if="montadas.tabla" v-show="vista === 'tabla'">
+            <TablaScroll :Propiedades="propiedadesTabla" />
+        </div>
 
-    <FondoDefault v-if="(varView.showEnFila && puedeVer) || varView.getRol === 'Admin'">
-        <TablaScroll :Propiedades="propiedadesTabla"/>
-        <MetricasAgenda :infoCitas="infoCitas" class="mt-10"/>
     </FondoDefault>
 
-    <Restringido v-if="!puedeVer"/>
+    <Restringido v-if="!puedeVer" />
 
     <Cita></Cita>
-    <PDFServicio v-if="varView.showPDFServicio"></PDFServicio>
-    <Historia v-if="varView.showNuevaHistoria" />
-    <Transition v-if="showMensaje" name="fade-slide">
-        <div 
+        <PDFServicio v-if="varView.showPDFServicio"></PDFServicio>
+        <Historia v-if="varView.showNuevaHistoria" />
+        <Transition v-if="showMensaje" name="fade-slide">
+            <div
 
-        class="fixed top-9 left-8 z-50 flex items-center gap-3 px-4 py-2 
-                rounded-lg shadow-lg bg-white dark:bg-gray-800 border 
-                border-gray-200 dark:border-gray-700 animate-fadeIn"
-        >
-        <i class="fa-solid fa-info text-blue-500"></i>
-        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
-            Tienes: <span class="font-bold">{{ infoCitas?.citas_pendientes }}</span> citas pendientes
-        </span>
-        </div>
-    </Transition>
+            class="fixed top-9 left-8 z-50 flex items-center gap-3 px-4 py-2
+                    rounded-lg shadow-lg bg-white dark:bg-gray-800 border
+                    border-gray-200 dark:border-gray-700 animate-fadeIn"
+            >
+            <i class="fa-solid fa-info text-blue-500"></i>
+            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                Tienes: <span class="font-bold">{{ infoCitas?.citas_pendientes }}</span> citas pendientes
+            </span>
+            </div>
+        </Transition>
 </template>

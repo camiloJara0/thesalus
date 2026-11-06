@@ -259,11 +259,11 @@ onBeforeUnmount(() => {
     <!-- Titulo, Acciones y Filtros -->
     <UCard class="mb-3 bg-white dark:bg-gray-800">
         <template #header>
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg w-1/2">{{ props.Propiedades.titulo }}</h3>
-                <div class="flex flex-wrap justify-end gap-2 w-1/2">
-                    <UButton v-for="button in props.Propiedades.buttons" :variant="button.variant" :color="button.color"
-                        loading-auto :icon="button.icon" size="md" @click="button.accion">
+            <div class="flex justify-between items-center gap-3">
+                <h3 class="font-bold text-lg flex-1 min-w-0 truncate">{{ props.Propiedades.titulo }}</h3>
+                <div class="flex flex-wrap justify-end gap-2 flex-1">
+                    <UButton v-for="button in (props.Propiedades.buttons || [])" :variant="button.variant"
+                        :color="button.color" loading-auto :icon="button.icon" size="md" @click="button.accion">
                         <span class="hidden md:block">{{ button.texto }}</span>
                     </UButton>
 
@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-end justify-between gap-3"">
+                <div class="flex flex-wrap items-end justify-between gap-3">
                     <UInput v-model="busqueda" placeholder="Buscar dato en la Tabla..." icon="lucide-search"
                     variant="outline" size="lg" class="md:w-90 w-full" />
 
@@ -355,7 +355,14 @@ onBeforeUnmount(() => {
     <div class="md:block"
         :class="[{ 'hidden': cardConfig }, preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : '']">
         <UTable ref="table" sticky :loading="loading" loading-color="primary" loading-animation="carousel"
-            :data="datosOrdenados" :columns="columns" class="flex-1 max-h-[62vh]" />
+            :data="datosOrdenados" :columns="columns" class="flex-1 max-h-[62vh]"
+            :ui="{
+                tbody: `
+                        divide-y divide-default
+                        [&>tr:nth-child(even)>td]:bg-gray-100
+                        dark:[&>tr:nth-child(even)>td]:bg-gray-800
+                        `,
+            }" />
     </div>
 
     <!-- Cards Mobile (solo si card esta definido) -->
