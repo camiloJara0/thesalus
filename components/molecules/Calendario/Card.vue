@@ -52,7 +52,7 @@ const fechaLabel = computed(() => {
     if (!cita.fecha) return ''
     if (cita.fecha === fechaActualToISO()) return 'Hoy'
     const [a, m, d] = cita.fecha.split('-')
-    return `${d}/${m}`
+    return `${d}-${m}`
 })
 
 function fechaActualToISO() {

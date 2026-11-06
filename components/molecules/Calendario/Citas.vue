@@ -192,7 +192,7 @@ const tabActiva = ref('0')
 
         <div v-if="!props.Propiedades.showTodas" class="px-4">
             <div v-if="tabActiva == 0">
-                <div v-if="showFiltros" class="w-full pt-3 pb-1 flex justify-between md:flex-row flex-col">
+                <div v-if="showFiltros" class="w-full pt-3 pb-1 flex justify-between flex-col">
                     <!-- Buscador y acciones -->
                     <div class="flex items-center gap-2">
                         <UInput v-model="busqueda" placeholder="Buscar por paciente, servicio..." icon="lucide-search"
@@ -202,15 +202,14 @@ const tabActiva = ref('0')
                     </div>
 
                     <!-- Filtros por columna -->
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap justify-around gap-2 mt-2">
                         <USelect v-for="(filtro, key) in filtrosConOpciones.slice(0, 3)" :key="key"
                             v-model="filtros[filtro.columna]" :placeholder="filtro.placeholder"
                             :items="[{ label: 'Todos', value: 'all' }, ...filtro.datos]" size="sm"
                             class="w-full sm:w-auto sm:min-w-35" />
                     </div>
                 </div>
-                <div class="grid gap-2 mt-2"
-                    :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-1 lg:grid-cols-1': !varView.showEnFila }">
+                <div class="mt-2 h-[60vh] overflow-y-auto">
                     <!-- Card Citas -->
 
                     <!-- Cargando: solo mientras no hay datos del día -->
@@ -237,8 +236,9 @@ const tabActiva = ref('0')
 
                     <EstadoVacio v-else-if="!datosPaginados.length"
                         titulo="No hay citas programadas para este día." />
-
-                    <Card v-for="cita in datosPaginados" :key="cita.id" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                    <div class="flex flex-col gap-2">
+                        <Card v-for="cita in datosPaginados" :key="cita.id" :cita="cita" :Propiedades="props.Propiedades"></Card>
+                    </div>
                 </div>
             </div>
 
@@ -284,8 +284,7 @@ const tabActiva = ref('0')
             </div>
 
         </div>
-        <div v-else class="grid gap-2 p-4"
-            :class="{ 'xl:grid-cols-3 lg:grid-cols-2': varView.showEnFila || !varView.showCalendario, 'xl:grid-cols-2 lg:grid-cols-1': !varView.showEnFila }">
+        <div v-else class="grid gap-2 p-4 grid-cols-1 h-[60vh] overflow-y-scroll">
             <Card v-for="cita in datosOrdenados" :cita="cita" :Propiedades="props.Propiedades"></Card>
         </div>
 

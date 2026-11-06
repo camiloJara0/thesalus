@@ -180,7 +180,7 @@ const enHoy = computed(() => fecha.value === fechaActual.value)
                     'ring-1 ring-(--color-default)/60 font-semibold text-(--color-default)': num.fecha && num.fecha !== fecha && num.fecha === fechaActual,
                 }" @click="seleccionarDia(num)">
                 <template v-if="num.fecha">
-                    <span class="flex flex-col items-center leading-none gap-[3px]">
+                    <span class="flex flex-col items-center leading-none gap-0.75">
                         <span>{{ num.dia }}</span>
                         <span v-if="marcador(num.fecha) === 'punto'" class="w-1 h-1 rounded-full"
                             :class="num.fecha === fecha ? 'bg-white' : 'bg-(--color-default)'"></span>

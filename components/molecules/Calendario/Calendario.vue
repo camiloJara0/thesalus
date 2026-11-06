@@ -22,9 +22,10 @@ const props = defineProps({
 });
 
 const calendarioCitasStore = useCalendarioCitas();
-const Citas = ref(props.Propiedades.citas);
 const notificacionesStore = useNotificacionesStore();
 const citasStore = useCitasStore()
+const { Citas } = storeToRefs(citasStore)
+// const Citas = ref(props.Propiedades.citas);
 
 const {
     mensaje,
@@ -462,7 +463,7 @@ function bordeEstado(cita) {
             <template v-else-if="vista === 'semana'">
                 <div class="grid grid-cols-7 gap-2 min-w-0">
                     <div v-for="d in diasDeLaSemana" :key="d.fecha" @click="irAFecha(d.fecha)"
-                        class="flex flex-col rounded-xl border transition cursor-pointer min-h-32"
+                        class="flex flex-col rounded-xl border transition cursor-pointer min-h-64"
                         :class="d.seleccionado
                             ? 'border-(--color-default) bg-blue-50 dark:bg-blue-900/30'
                             : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-gray-500'">
@@ -479,8 +480,8 @@ function bordeEstado(cita) {
                             </p>
                         </div>
                         <!-- Citas del día -->
-                        <div class="flex-1 p-1.5 flex flex-col gap-1 overflow-y-auto scrollForm max-h-40">
-                            <div v-for="cita in d.citas" :key="cita.id"
+                        <div class="flex-1 p-1.5 flex flex-col gap-1 overflow-y-auto scrollForm max-h-[50vh]">
+                            <div v-for="cita in d.citas.slice(0,10)" :key="cita.id"
                                 class="text-[11px] leading-tight px-1.5 py-1 rounded-md border-l-2 bg-white dark:bg-gray-800 shadow-xs truncate"
                                 :class="bordeEstado(cita)">
                                 <span class="font-semibold" :class="estadoColor(cita)">
