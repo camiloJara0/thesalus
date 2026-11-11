@@ -116,7 +116,7 @@ export default defineNuxtConfig({
     },
   },
   pwa: {
-    registerType: 'autoUpdate',
+    registerType: 'prompt',
     manifest: {
       name: 'Thesalus',
       short_name: 'Thesalus',

@@ -68,18 +68,18 @@ const removeStorage = () => {
             <ul class="navbar__content__list" @click="removeStorage()"
                 :class="{ 'mostrarResponsive': showNavbarBurguer, 'ocultarResponsive': !showNavbarBurguer }">
                 <li>
-                    <nuxtLink to="/Usuarios/Citas"
-                        class="flex gap-1 text-xs text-white md:text-gray-100 hover:text-blue-500 rounded-[5px] p-2.5 shadow-lg">
-                        <i class="fa-solid fa-calendar-day"></i>
-                        <p class="text-gray-100 hover:text-white">{{ fechaActualFormateada }}</p>
-                    </nuxtLink>
-                </li>
-                <li>
                     <Breadcrumb />
                     <p class="text-gray-100 text-xs ml-1 font-semibold md:block hidden" @click="varView.showBreadCrumb = !varView.showBreadCrumb">
-                        <span v-if="!varView.showBreadCrumb">Secciones <i class="fa-solid fa-angle-right ml-1 text-gray-100 hover:text-white"></i></span>
+                        <span v-if="!varView.showBreadCrumb"><i class="fa-solid fa-angle-right ml-1 text-gray-100 hover:text-white"></i></span>
                         <span v-else> <i class="fa-solid fa-angle-left ml-2"></i></span>
                     </p>
+                </li>
+                <li>
+                    <nuxtLink to="/Usuarios/Citas"
+                        class="flex gap-1 text-white md:text-gray-100 hover:text-blue-500 rounded-[5px] p-2.5 shadow-lg">
+                        <UIcon name="i-lucide-calendar-1"></UIcon>
+                        <p class="text-gray-100 hover:text-white text-xs">{{ fechaActualFormateada }}</p>
+                    </nuxtLink>
                 </li>
                 <!-- <li>
                     <DropdownNavbar icon="fa-bell" nombre="Notificaciones" :submenu="submenuNotificaciones" />
@@ -89,12 +89,6 @@ const removeStorage = () => {
                 </li>
                 <li>
                     <ModalExportaciones />
-                </li>
-                <li>
-                    <UButton to="/Ayuda" icon="i-lucide-circle-question-mark" color="white"
-                        class="flex gap-1 text-xs text-white md:text-gray-100 hover:text-yellow-400 rounded-[5px] p-2 transition-colors duration-200"
-                        tooltip="Ayuda">
-                    </UButton>
                 </li>
                 <li>
                     <DropdownNavbar icon="fa-circle-user" :nombre="usuario" :submenu="submenuSesion" />

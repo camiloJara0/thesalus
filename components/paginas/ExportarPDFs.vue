@@ -182,7 +182,7 @@ const enviarPDFs = async () => {
     iniciando.value = true;
     try {
         const item = await exportaciones.iniciar({
-            servicio: file.servicio,
+            servicio: file.servicio == 'todos' ? null : file.servicio,
             id_paciente: file.id_paciente,
             id_profesional: file.id_profesional,
             fechaInicio: file.fechaInicio,
@@ -346,14 +346,15 @@ const generarExcel = async () => {
                             <p class="text-lg font-medium text-gray-700 dark:text-gray-300">Rango de Fechas</p>
                         </div>
 
-                        <!-- Select servicio -->
-                        <div class="pb-3" v-if="!varView.onlyPaciente">
+                        <!-- Select servicio (vacío = todos los servicios) -->
+                        <div class="pb-3">
                             <Select v-model="file.servicio" :Propiedades="{
-                                placeholder: 'Servicio',
+                                placeholder: 'Todos los servicios',
                                 id: 'servicio',
                                 name: 'servicio',
-                                label: 'Elige el Servicio',
+                                label: 'Elige el Servicio (opcional)',
                                 options: [
+                                    { label: 'Todos los servicios', value: 'todos' },
                                     { label: 'Nota', value: 'Nota' },
                                     { label: 'Terapia', value: 'Terapia' },
                                     { label: 'Evolución', value: 'Evolucion' },
@@ -427,7 +428,8 @@ const generarExcel = async () => {
 
                         <download-excel
                             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-full md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300 flex items-center justify-center gap-1 rounded-lg cursor-pointer"
-                            :fetch="generarExcel" :before-finish="cerrar" :fields="jsonFields" :name="file.servicio" type="xlsx">
+                            :fetch="generarExcel" :before-finish="cerrar" :fields="jsonFields"
+                            :name="file.servicio || 'Servicios'" type="xlsx">
                             <i class="fa-solid fa-file-excel mr-2"></i>
                             Excel
                         </download-excel>

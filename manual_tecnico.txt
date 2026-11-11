@@ -855,7 +855,7 @@ Flujo:
   @vite-pwa/nuxt configurado en nuxt.config.ts:
 
   pwa:
-    registerType: 'autoUpdate'     -> Actualizacion automatica
+    registerType: 'prompt'         -> Aviso de nueva version (toast)
     manifest:
       name: 'Thesalus'
       short_name: 'Thesalus'

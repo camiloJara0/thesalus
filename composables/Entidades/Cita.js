@@ -135,7 +135,7 @@ export function useCitaActions({ fecha }) {
         if (fechaHoy > fechaHasta) {
             options.icono = 'warning'
             options.titulo = 'Rango vencido'
-            options.texto = 'Consulta con un administrador para habilitar Cita!'
+            options.texto = 'Edita la fecha o contacta con administrador para habilitar Cita!'
             options.tiempo = 3000
             simple()
             return

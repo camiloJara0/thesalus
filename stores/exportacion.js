@@ -83,7 +83,8 @@ export const useExportacion = defineStore('exportacion', {
                 const json = await res.json()
                 const item = {
                     id: json.export_id,
-                    servicio: filtros.servicio,
+                    // Etiqueta de vista: vacío = todos los servicios (filtros conserva el valor original)
+                    servicio: filtros.servicio || 'Todos los servicios',
                     rango: {
                         fechaInicio: filtros.fechaInicio,
                         fechaFin: filtros.fechaFin,

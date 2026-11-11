@@ -22,6 +22,7 @@ const { showNuevaCita, showActualizarCita, showNuevaHistoria } = storeToRefs(var
 
 const calendarioCitasStore = useCalendarioCitas()
 const refresh = ref(1)
+const tablaKey = ref(0)
 const filtros = ref([])
 const puedeVer = hasPermiso('Citas_view')
 const puedePost = hasPermiso('Citas_post')
@@ -127,6 +128,7 @@ async function llamadatos(cambio) {
     await citasStore.citasHoy(true, cambio)
     filtros.value = await traerFiltros()
     infoCitas.value = await citasStore.infoCitas(!!cambio)
+    tablaKey.value++
     varView.datosActualizados()
 }
 const cambioEnApi = computed(() => varView.cambioEnApi)
@@ -351,7 +353,7 @@ const propiedadesTabla = computed(() => {
 
         <!-- ═══ Vista TABLA: consulta administrativa ═══ -->
         <div v-if="montadas.tabla" v-show="vista === 'tabla'">
-            <TablaScroll :Propiedades="propiedadesTabla" />
+            <TablaScroll :key="tablaKey" :Propiedades="propiedadesTabla" />
         </div>
 
     </FondoDefault>

@@ -58,7 +58,6 @@ function descartar(item) {
 <template>
     <UButton icon="i-lucide-download" color="white" variant="link" size="xs"
         class="text-gray-100 text-xs relative hover:text-white cursor-pointer" @click="show = true">
-        Exportaciones
         <span v-if="items.length > 0"
             class="rounded-full text-[8px] w-4 h-4 absolute top-0 left-0 flex justify-center items-center font-semibold text-gray-100"
             :class="colorBadge">

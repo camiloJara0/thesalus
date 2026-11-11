@@ -55,7 +55,6 @@ function obtenerDetalle(documento) {
 <template>
     <UButton icon="i-lucide-bell" color="white" variant="link" size="xs" class="text-gray-100 text-xs relative hover:text-white cursor-pointer"
         @click="show = true">
-        Notificaciones
         <span v-if="totalDocumentosNoEnviados > 0"
             class="rounded-full bg-red-600 text-[8px] w-4 h-4 absolute top-0 left-0 flex justify-center items-center font-semibold text-gray-100">
             {{ totalDocumentosNoEnviados }}

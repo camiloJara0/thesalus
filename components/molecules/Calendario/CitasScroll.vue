@@ -316,7 +316,7 @@ function getRowActions(row) {
                     </UButton>
                 </div>
             </div>
-            <div v-if="mostrarFiltros" class="w-full">
+            <div v-if="mostrarFiltros" class="w-full mt-2">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-filter text-gray-400"></i>

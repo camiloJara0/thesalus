@@ -253,6 +253,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
     observer?.disconnect()
 });
+
+async function recargar() {
+    dataScrollCache.value = []
+    await cargarDatos()
+}
+
+defineExpose({
+    recargar
+})
 </script>
 
 <template>
