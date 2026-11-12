@@ -89,19 +89,31 @@ onMounted(() => {
     consultarCapacidad();
     intervaloCapacidad = setInterval(consultarCapacidad, INTERVALO_CAPACIDAD);
     // Obtener la fecha actual desde el store
-    pacientesList.value = pacientesStore.Pacientes.map(p => {
-        return {
-            label: `${p.info_usuario.name} - ${p.info_usuario.No_document}`,
-            value: p.id
-        }
-    })
-
-    profesionalesList.value = profesionalStore.Profesionales.map(p => {
-        return {
-            label: `${p.info_usuario.name} - ${p.info_usuario.No_document}`,
-            value: p.id
-        }
-    })
+    if (varView.rol == 'Admin') {
+        pacientesList.value = pacientesStore.Pacientes.map(p => {
+            return {
+                label: `${p.info_usuario.name} - ${p.info_usuario.No_document}`,
+                value: p.id
+            }
+        })
+    
+        profesionalesList.value = profesionalStore.Profesionales.map(p => {
+            return {
+                label: `${p.info_usuario.name} - ${p.info_usuario.No_document}`,
+                value: p.id
+            }
+        })
+    } else {
+        pacientesList.value = pacientesStore.Pacientes.map(p => {
+            return {
+                label: `${p.info_usuario.name} - ${p.info_usuario.No_document}`,
+                value: p.id
+            }
+        })
+    
+        profesionalesList.value = []
+        file.id_profesional = varView.getUser.id_profesional
+    }
 
     const [dia, mes, año] = calendarioCitasStore.fechaActual.split('/');
     const fechaActual = new Date(`${año}-${mes}-${dia}`);
@@ -398,7 +410,7 @@ const generarExcel = async () => {
                                     options: pacientesList,
                                     upperCase: true,
                                 }" />
-                                <SelectSearch v-model="file.id_profesional" :Propiedades="{
+                                <SelectSearch v-if="varView.getRol === 'Admin'" v-model="file.id_profesional" :Propiedades="{
                                     placeholder: 'Profesional (opcional)',
                                     tamaño: 'w-full',
                                     id: 'profesional',
@@ -505,6 +517,23 @@ const generarExcel = async () => {
                                 </div>
                             </template>
 
+                            <!-- Lista -->
+                            <template v-else-if="itemActivo.estado === 'vacia'">
+                                <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+                                    <div class="rounded-full bg-orange-50 p-4 text-orange-600">
+                                        <i class="i-lucide-circle-x text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            No hay registros con los filtros aplicados
+                                        </h4>
+                                        <p class="text-sm text-gray-500">
+                                            {{ itemActivo.servicio }} — valida filtros e intentalo de nuevo.
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+
                             <!-- Fallida -->
                             <template v-else>
                                 <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
@@ -542,6 +571,13 @@ const generarExcel = async () => {
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
                                     @click="descargarActivo">
                                     <i class="fa-solid fa-download mr-2"></i> Descargar
+                                </ButtonForm>
+                            </template>
+                            <template v-else-if="itemActivo.estado === 'vacia'">
+                                <ButtonForm
+                                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold md:w-50 sm:w-[2/3] w-full shadow-md transition-all duration-300"
+                                    @click="cerrar">
+                                    <i class="fa-solid fa-xmark mr-2"></i> Cerrar
                                 </ButtonForm>
                             </template>
                             <template v-else>

@@ -165,6 +165,9 @@ export const useExportacion = defineStore('exportacion', {
                     } else if (item.estado === 'fallida' || item.estado === 'cancelada') {
                         item.proxima = 0
                         this.notificarFalla(item)
+                    } else if (item.estado === 'vacia') {
+                        item.proxima = 0
+                        this.notificarVacia(item)
                     } else {
                         item.proxima = Date.now() + frecuenciaConsulta(Date.now() - item.creado)
                     }
@@ -193,6 +196,16 @@ export const useExportacion = defineStore('exportacion', {
             notificaciones.options.icono = 'error'
             notificaciones.options.titulo = 'La exportación falló'
             notificaciones.options.texto = `${item.servicio}: inténtalo de nuevo desde «Exportaciones».`
+            notificaciones.options.tiempo = 5000
+            notificaciones.simple()
+            this.persistir()
+        },
+
+        notificarVacia(item) {
+            const notificaciones = useNotificacionesStore()
+            notificaciones.options.icono = 'warning'
+            notificaciones.options.titulo = 'Exportacion de PDFs vacia'
+            notificaciones.options.texto = `No hay registros de ${item.servicio}: valida los filtro e intentalo de nuevo.`
             notificaciones.options.tiempo = 5000
             notificaciones.simple()
             this.persistir()

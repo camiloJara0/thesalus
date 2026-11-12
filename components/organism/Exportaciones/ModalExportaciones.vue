@@ -129,6 +129,7 @@ function descartar(item) {
                                         </span>
                                     </template>
                                     <UBadge v-else-if="item.estado === 'lista'" color="success">Lista</UBadge>
+                                    <UBadge v-else-if="item.estado === 'vacia'" color="warning">Vacia</UBadge>
                                     <UBadge v-else color="error">Fallida</UBadge>
                                 </div>
                             </div>
@@ -157,6 +158,12 @@ function descartar(item) {
                                     <UButton size="sm" color="primary" icon="i-lucide-download"
                                         @click="descargar(item)">
                                         Descargar
+                                    </UButton>
+                                </template>
+                                <template v-if="item.estado === 'vacia'">
+                                    <UButton size="sm" color="neutral" variant="soft" icon="i-lucide-x"
+                                        @click="descartar(item)">
+                                        Descartar
                                     </UButton>
                                 </template>
                                 <template v-else-if="item.estado === 'fallida' || item.estado === 'cancelada'">

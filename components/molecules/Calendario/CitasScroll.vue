@@ -307,7 +307,7 @@ function getRowActions(row) {
 
         <template #header>
             <div class="flex justify-between items-center gap-3">
-                <h3 class="font-bold text-lg flex-1 min-w-0 truncate">Tus citas</h3>
+                <h3 class="font-bold text-lg flex-1 min-w-0 truncate">{{ props.fechaSel ? 'Citas del dia' : 'Todas tus citas'}}</h3>
                 <div class="flex flex-wrap justify-end gap-2 flex-1">
 
                     <UButton @click="() => { mostrarFiltros = !mostrarFiltros }" variant="solid" color="primary"
