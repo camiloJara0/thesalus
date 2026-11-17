@@ -201,7 +201,7 @@ const enviarPDFs = async () => {
             fechaFin: file.fechaFin,
             etiqueta: etiquetaSeleccionada(),
         });
-
+        
         // Un cupo mas fue consumido (o rechazado): actualiza la capacidad mostrada
         consultarCapacidad();
 

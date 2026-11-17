@@ -78,6 +78,18 @@ export const useExportacion = defineStore('exportacion', {
                     return null
                 }
 
+                if (res.status === 403) {
+                    let datos = null
+                    try { datos = await res.json() } catch (e) { /* respuesta sin cuerpo */ }
+                    avisar(
+                        '#f59e0b',
+                        datos?.message
+                        || 'No cuentas con permisos para realizar esta exportación..',
+                        4500
+                    )
+                    return null
+                }
+
                 if (!res.ok) throw new Error(`Error al iniciar la exportación: ${res.status}`)
 
                 const json = await res.json()

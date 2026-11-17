@@ -67,6 +67,7 @@ export const useVarView = defineStore('varView', {
         //layout
         expandido: false,
         permisoTemporal: false,
+        showBreadCrumb: false,
     }),
 
     getters: {

@@ -1,6 +1,7 @@
 import { traerdatosProfesion } from '~/Core/Empresa/Datos/Profesion/GETProfesion';
 import { traerdatosSecciones } from '~/Core/Empresa/Datos/Profesion/GETSecciones';
 import { guardarEnDB } from '~/composables/Formulario/useIndexedDBManager';
+import { esPermisoOculto } from '~/data/permisos';
 
 // Estructura de datos de Profesion
 const estructuraDatosProfesion = {
@@ -44,7 +45,7 @@ export const useDatosProfesionStore = defineStore('DatosProfesion', {
             const mapa = {}
 
             permisos.forEach(({ id, nombre }) => {
-                if (nombre === 'Diagnosticos_view' || nombre === 'ListaPacientes') return
+                if (nombre === 'Diagnosticos_view' || nombre === 'ListaPacientes' || esPermisoOculto(nombre)) return
                 const [modulo, accion] = nombre.split('_')
 
                 if (!mapa[modulo]) {
@@ -75,7 +76,9 @@ export const useDatosProfesionStore = defineStore('DatosProfesion', {
                 view: "Visualizar"
             };
 
-            secciones = secciones.map(s => {
+            secciones = secciones
+                .filter(s => !esPermisoOculto(s.nombre))
+                .map(s => {
             // Dividir en [modulo, accion]
             const [modulo, accion] = s.nombre.split("_");
             

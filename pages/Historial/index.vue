@@ -558,6 +558,7 @@ const columnasHistorias = [
             icon: 'i-lucide-arrow-right',
             color: 'primary',
             variant: 'ghost',
+            loadingAuto: true,
             onClick: () => seleccionarPaciente(row.original)
         }))
     },

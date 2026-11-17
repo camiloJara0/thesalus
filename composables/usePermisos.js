@@ -10,7 +10,7 @@
  *   if (canPost('Insumos')) { ... }
  */
 
-import { MODULOS, ACCIONES, groupPermissions } from '~/data/permisos'
+import { MODULOS, ACCIONES, groupPermissions, PERMISOS_BASE } from '~/data/permisos'
 
 export function usePermisos() {
     const varView = useVarView()
@@ -21,29 +21,36 @@ export function usePermisos() {
 
     const isAdmin = computed(() => rol.value === 'Admin')
     const isProfesional = computed(() => rol.value === 'Profesional')
+    const isSuperAdmin = computed(() => rol.value === 'SuperAdmin')
+
+    /**
+     * Acceso al panel Backoffice: solo SuperAdmin con Backoffice_view.
+     */
+    const puedeBackoffice = computed(() => isSuperAdmin.value && hasPermiso('Backoffice_view'))
 
     // ─── Checks base ────────────────────────────────────
 
     /**
      * Verifica si el usuario tiene un permiso específico.
+     * Los permisos base (PERMISOS_BASE) siempre son verdaderos.
      * Ej: hasPermiso('Insumos_delete')
      */
     function hasPermiso(permiso) {
-        return permisos.value.includes(permiso)
+        return PERMISOS_BASE.includes(permiso) || permisos.value.includes(permiso)
     }
 
     /**
      * Verifica si el usuario tiene TODOS los permisos dados.
      */
     function hasAllPermisos(...lista) {
-        return lista.every(p => permisos.value.includes(p))
+        return lista.every(p => hasPermiso(p))
     }
 
     /**
      * Verifica si el usuario tiene AL MENOS UNO de los permisos dados.
      */
     function hasAnyPermiso(...lista) {
-        return lista.some(p => permisos.value.includes(p))
+        return lista.some(p => hasPermiso(p))
     }
 
     // ─── Checks por módulo ──────────────────────────────
@@ -127,6 +134,8 @@ export function usePermisos() {
         rol,
         isAdmin,
         isProfesional,
+        isSuperAdmin,
+        puedeBackoffice,
         permisosPorModulo,
         modulosAccesibles,
         // Methods

@@ -17,6 +17,7 @@ export default defineNuxtConfig({
       SECRET_KEY: process.env.NUXT_SECRET_KEY || 'THESALUS943875PL',
       api: process.env.NUXT_PUBLIC_API_URL || 'https://api2.ctsantaisabel.com',
       login: 'api/v1/login',
+      backoffice: 'api/v1/backoffice',
       eps: 'api/v1/eps',
       professions: 'api/v1/professions',
       empresas: 'api/v1/empresas',

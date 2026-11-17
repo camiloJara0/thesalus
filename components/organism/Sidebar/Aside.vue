@@ -19,7 +19,7 @@ const { numeroPendientes } = storeToRefs(historiaStore)
 onMounted(() => {
     storeAside.sessionActive();
     const permisosStore = varView.getPermisos
-    buttons.value = storeAside.getbuttons(permisosStore);
+    buttons.value = storeAside.getbuttons(permisosStore).filter(b => b.nombre !== 'Backoffice' || varView.getRol === 'SuperAdmin');
 });
 
 // Funcion para Responsive, si aside esta activo se oculta navbar

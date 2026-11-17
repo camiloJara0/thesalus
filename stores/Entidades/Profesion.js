@@ -5,6 +5,7 @@ import { enviarProfesion } from "~/Core/Empresa/Datos/Profesion/POSTProfesion";
 import { actualizarProfesion } from "~/Core/Empresa/Datos/Profesion/PUTProfesion";
 import { useApiRest } from "~/stores/apiRest";
 import { useIndexedDBStore } from "~/stores/indexedDB";
+import { esPermisoOculto } from "~/data/permisos";
 
 export const useProfesionStore = defineStore('Profesion', {
     state: () => ({
@@ -139,7 +140,7 @@ export const useProfesionStore = defineStore('Profesion', {
             const mapa = {}
 
             permisos.forEach(({ id, nombre }) => {
-                if (nombre === 'Diagnosticos_view' || nombre === 'ListaPacientes') return
+                if (nombre === 'Diagnosticos_view' || nombre === 'ListaPacientes' || esPermisoOculto(nombre)) return
                 const [modulo, accion] = nombre.split('_')
 
                 if (!mapa[modulo]) {

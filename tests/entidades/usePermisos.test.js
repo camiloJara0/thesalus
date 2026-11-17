@@ -6,6 +6,10 @@ import {
     generateAllPermissions,
     extractModule,
     groupPermissions,
+    PERMISOS_BASE,
+    PERMISOS_NO_APLICA,
+    PERMISOS_OCULTOS,
+    esPermisoOculto,
 } from '~/data/permisos'
 
 // ==================== CONSTANTES ====================
@@ -116,5 +120,80 @@ describe('groupPermissions', () => {
         expect(grouped.Historias).toContain('put')
         expect(grouped.Historias).toContain('delete')
         expect(grouped.Historias).toContain('view')
+    })
+})
+
+// ==================== PERMISOS BASE ====================
+describe('PERMISOS_BASE', () => {
+    it('Tiene exactamente los 7 permisos base', () => {
+        expect(PERMISOS_BASE).toEqual([
+            'Datos_get',
+            'Citas_view',
+            'Citas_get',
+            'Pacientes_view',
+            'Pacientes_get',
+            'Historias_view',
+            'Historias_get',
+        ])
+    })
+
+    it('No contiene duplicados', () => {
+        expect(new Set(PERMISOS_BASE).size).toBe(PERMISOS_BASE.length)
+    })
+})
+
+// ==================== PERMISOS NO APLICA ====================
+describe('PERMISOS_NO_APLICA', () => {
+    it('Tiene exactamente los 24 permisos que no aplican', () => {
+        expect(PERMISOS_NO_APLICA).toHaveLength(24)
+    })
+
+    it('No se solapa con los permisos base', () => {
+        const interseccion = PERMISOS_NO_APLICA.filter(p => PERMISOS_BASE.includes(p))
+        expect(interseccion).toEqual([])
+    })
+
+    it('Incluye los permisos esperados', () => {
+        expect(PERMISOS_NO_APLICA).toContain('Codigos_delete')
+        expect(PERMISOS_NO_APLICA).toContain('Citas_delete')
+        expect(PERMISOS_NO_APLICA).toContain('Pacientes_delete')
+        expect(PERMISOS_NO_APLICA).toContain('Historias_post')
+        expect(PERMISOS_NO_APLICA).toContain('Evoluciones_get')
+        expect(PERMISOS_NO_APLICA).toContain('Notas_post')
+        expect(PERMISOS_NO_APLICA).toContain('Medicacion_get')
+        expect(PERMISOS_NO_APLICA).toContain('MedicinaGeneral_post')
+        expect(PERMISOS_NO_APLICA).toContain('TrabajoSocial_get')
+        expect(PERMISOS_NO_APLICA).toContain('Terapias_post')
+        expect(PERMISOS_NO_APLICA).toContain('Tratamientos_get')
+    })
+})
+
+// ==================== PERMISOS OCULTOS ====================
+describe('PERMISOS_OCULTOS y esPermisoOculto', () => {
+    it('Es la unión de base y no-aplica sin duplicados (31)', () => {
+        expect(PERMISOS_OCULTOS).toHaveLength(31)
+        expect(new Set(PERMISOS_OCULTOS).size).toBe(31)
+    })
+
+    it('esPermisoOculto detecta permisos base', () => {
+        PERMISOS_BASE.forEach(p => expect(esPermisoOculto(p)).toBe(true))
+    })
+
+    it('esPermisoOculto detecta permisos no-aplica', () => {
+        PERMISOS_NO_APLICA.forEach(p => expect(esPermisoOculto(p)).toBe(true))
+    })
+
+    it('esPermisoOculto deja pasar permisos operativos', () => {
+        expect(esPermisoOculto('Insumos_get')).toBe(false)
+        expect(esPermisoOculto('Kardex_post')).toBe(false)
+        expect(esPermisoOculto('ListaPacientes')).toBe(false)
+        expect(esPermisoOculto('Diagnosticos_view')).toBe(false)
+    })
+
+    it('esPermisoOculto oculta todo el prefijo Backoffice_', () => {
+        expect(esPermisoOculto('Backoffice_view')).toBe(true)
+        expect(esPermisoOculto('Backoffice_errores')).toBe(true)
+        expect(esPermisoOculto('Backoffice_respaldos')).toBe(true)
+        expect(esPermisoOculto('Backoffice')).toBe(false)
     })
 })

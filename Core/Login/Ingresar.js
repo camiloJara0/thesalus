@@ -62,7 +62,9 @@ const enviarFormulario = async (datos) => {
                 window.location.href = ultimaSeccion ||
                     (respuesta.user.rol === 'Profesional'
                         ? '/Usuarios/Citas'
-                        : '/Home')
+                        : respuesta.user.rol === 'SUPERADMIN' ? '/Backoffice'
+                        : '/Home'
+                    )
                 notificacionesStore.close()
                 return true
             } else {

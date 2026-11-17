@@ -41,6 +41,61 @@ export const ACCIONES = {
 }
 
 /**
+ * Permisos base: siempre otorgados por el backend (login los inyecta)
+ * y no se muestran en el formulario de permisos. Espejo de
+ * backendThesalusv1/config/permisos.php — mantener sincronizados.
+ */
+export const PERMISOS_BASE = [
+    'Datos_get',
+    'Citas_view',
+    'Citas_get',
+    'Pacientes_view',
+    'Pacientes_get',
+    'Historias_view',
+    'Historias_get',
+]
+
+/**
+ * Permisos que no aplican a la operación actual (90 → 59 secciones).
+ * Se ocultan del formulario de permisos.
+ */
+export const PERMISOS_NO_APLICA = [
+    'Codigos_get',
+    'Codigos_post',
+    'Codigos_put',
+    'Codigos_delete',
+    'Codigos_view',
+    'Citas_delete',
+    'Pacientes_delete',
+    'Historias_post',
+    'Historias_put',
+    'Historias_delete',
+    'Evoluciones_get',
+    'Evoluciones_post',
+    'Notas_get',
+    'Notas_post',
+    'Medicacion_get',
+    'Medicacion_post',
+    'MedicinaGeneral_get',
+    'MedicinaGeneral_post',
+    'TrabajoSocial_get',
+    'TrabajoSocial_post',
+    'Terapias_get',
+    'Terapias_post',
+    'Tratamientos_get',
+    'Tratamientos_post',
+]
+
+/**
+ * Permisos ocultos del formulario de permisos (base + no-aplica).
+ */
+export const PERMISOS_OCULTOS = [...new Set([...PERMISOS_BASE, ...PERMISOS_NO_APLICA])]
+
+export function esPermisoOculto(nombre) {
+    return PERMISOS_OCULTOS.includes(nombre) || nombre.startsWith('Backoffice_')
+}
+
+/**
  * Genera todas las cadenas de permiso para un módulo.
  * Ej: generateModulePermissions('Insumos') → ['Insumos_get', 'Insumos_post', ...]
  */

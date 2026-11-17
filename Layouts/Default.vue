@@ -56,6 +56,7 @@ const visibilidadExportaciones = () => {
 };
 
 onMounted(async() => {
+    varView.showBreadCrumb = false
     const permisos = JSON.parse(localStorage.getItem('permisosTemporales') ?? "[]");
     varView.permisoTemporal = permisos.length > 0 ? true : false
 

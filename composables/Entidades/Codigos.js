@@ -87,8 +87,8 @@ export function useCodigosActions({
         mapCamposLimpios(servicioStore.Formulario)
     }
 
-    const eliminarServicio = async (servicio) => {
-        const convenio = store.Formulario.Convenio;
+    const eliminarServicio = async (s) => {
+        const servicio = s;
 
         notificaciones.options = {
             icono: "warning",
@@ -102,7 +102,7 @@ export function useCodigosActions({
         if (respuesta !== "confirmado") return;
 
         const eliminado = await servicioStore.eliminar(servicio);
-        if (!eliminado.success) {
+        if (!eliminado) {
             notificaciones.options = {
                 position: "top-end",
                 texto: "Error al eliminar",
@@ -115,7 +115,7 @@ export function useCodigosActions({
 
         notificaciones.options = {
             position: "top-end",
-            texto: "Convenio eliminado con éxito.",
+            texto: "Servicio eliminado con éxito.",
             background: "#6bc517",
             tiempo: 1500
         };

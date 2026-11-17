@@ -71,6 +71,18 @@ export const buttons = ref([
         showUp: true,
         active: false,
     },
+    {
+        id: 4,
+        nombre: "Backoffice",
+        secciones: [
+            { titulo: 'Backoffice', ruta: '/Backoffice', icon: 'fa-shield-halved' },
+            { titulo: 'Errores', ruta: '/Backoffice/Errores', icon: 'fa-bug' },
+            { titulo: 'Exportaciones', ruta: '/Backoffice/Trabajos?tab=exportaciones', icon: 'fa-file-zipper' },
+        ],
+        icon: "fa-shield-halved",
+        tamaño: 'max-h-[55vh]',
+        active: false,
+    },
 ]);
 
 export const secciones = ['Configuracion','Resoluciones','Inventarios','Datos','Usuarios','Negocios','Productos','Formas de pago','Impuestos','Cajas','Historias','Consultas','Análisis','Evoluciones','Notas','Tratamientos','Medicacion',

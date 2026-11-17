@@ -22,8 +22,10 @@ INDICE
  14. Modo Offline y PWA
  15. API REST y Comunicacion con Backend
  16. Componentes Principales
- 17. Despliegue y Build
- 18. Guia de Mantenimiento
+  17. Despliegue y Build
+  18. Guia de Mantenimiento
+  19. Backoffice (SuperAdmin)
+
 
 
 ================================================================================
@@ -794,6 +796,39 @@ Flujo:
   6. Se redirige al Home
 
 
+--- 12.4 PERMISOS BASE Y ALCANCE DE LECTURAS ---
+
+Los 7 permisos base se otorgan siempre en el login y no se
+muestran en el formulario de permisos
+(backend: config/permisos.php | frontend: data/permisos.js,
+PERMISOS_BASE):
+  Datos_get, Citas_view, Citas_get, Pacientes_view,
+  Pacientes_get, Historias_view, Historias_get
+
+El formulario de permisos oculta ademas 24 permisos que no
+aplican (PERMISOS_NO_APLICA): de 90 secciones quedan 59.
+Ambas listas se mantienen sincronizadas entre backend y
+frontend.
+
+hasPermiso() (composables/usePermisos.js) devuelve true
+para los permisos base aunque el usuario no los tenga
+asignados explicitamente.
+
+Scoping backend de lecturas (helper App\Support\Acceso):
+  - Pacientes: el profesional solo ve los que ha atendido
+    (citas.id_medico = yo), salvo permiso ListaPacientes.
+  - Citas: el profesional solo ve las propias
+    (id_medico = yo), sin excepcion.
+  - Analisis, Notas y Terapias: solo los de pacientes
+    atendidos (o todos si tiene ListaPacientes).
+  - show/update/destroy de paciente y show/imprimir de
+    registros clinicos devuelven 403 si el registro no es
+    accesible.
+  - Exportaciones PDF/Excel: los filtros se sanitizan en el
+    controller (403 o id_profesional forzado); el job de
+    exportacion corre sin Auth y no aplica scoping.
+
+
 ================================================================================
 13. AUTENTICACION Y SEGURIDAD
 ================================================================================
@@ -1119,6 +1154,105 @@ Flujo:
   - La variable SECRET_KEY esta hardcodeada en nuxt.config.ts
   - Hay una variableaccionesVademecum sin inicializar en
     Empresas/Codigos/Vadecum.vue linea 144 (deberia ser accionesVademecum)
+
+
+================================================================================
+19. BACKOFFICE (SUPERADMIN)
+================================================================================
+
+  Panel de administracion para el rol SuperAdmin. Ningun endpoint HTTP crea
+  ni modifica roles a SuperAdmin: unico alta via CLI.
+
+--- 19.1 ALTA DE SUPERADMIN ---
+
+  Opcion A - Seeder (crea o actualiza el usuario, rota la contraseña):
+
+    1. En backend/.env definir:
+         SUPERADMIN_CORREO=superadmin@santaisabel.com   (opcional, tiene default)
+         SUPERADMIN_PASSWORD=tu_contraseña             (OBLIGATORIA)
+    2. php artisan db:seed --class=SuperadminSeeder
+
+    - Si el correo ya existe: rota la contraseña y fuerza rol SuperAdmin.
+    - Sin SUPERADMIN_PASSWORD el seeder avisa y no hace nada.
+    - Tambien se registra en php artisan db:seed (DatabaseSeeder).
+
+  Opcion B - Solo cambiar el rol de un usuario existente:
+
+    php artisan superadmin:assign usuario@correo.com
+
+  - Verifica que el usuario exista; si ya es SuperAdmin no hace nada.
+  - Requiere acceso a servidor (terminal), nunca por HTTP.
+
+--- 19.2 SEGURIDAD (DOBLE GATE) ---
+
+  Todas las rutas /api/v1/backoffice/* exigen:
+    1. auth:sanctum + check.token.expiration (grupos existentes)
+    2. Middleware backoffice.access  -> rol === 'SuperAdmin' (403 si no)
+    3. Middleware permiso:Backoffice_X -> Acceso::tienePermiso (403 si no)
+
+  - El rol Admin recibe todos los permisos en login, pero falla backoffice.access.
+  - Secciones Backoffice_* estan ocultas del formulario de permisos (FE:
+    esPermisoOculto) y bloqueadas en solicitarPermiso/aprobarPermiso (403).
+  - Login: rama in_array(rol, ['Admin','SuperAdmin']) otorga todas las secciones.
+
+--- 19.3 SECCIONES (11) ---
+
+  Backoffice_view, Backoffice_salud, Backoffice_bd, Backoffice_errores,
+  Backoffice_trabajos, Backoffice_exportaciones, Backoffice_auditoria,
+  Backoffice_metricas, Backoffice_usuarios, Backoffice_limpieza,
+  Backoffice_respaldos   (migracion idempotente insertOrIgnore)
+
+--- 19.4 ENDPOINTS (20 + ping) ---
+
+  GET    /api/v1/backoffice/ping                  Backoffice_view  (infra)
+  GET    /api/v1/backoffice/salud                 Backoffice_salud
+  GET    /api/v1/backoffice/metricas              Backoffice_metricas
+  GET    /api/v1/backoffice/errores               Backoffice_errores
+  GET    /api/v1/backoffice/errores/{id}          Backoffice_errores
+  DELETE /api/v1/backoffice/errores               Backoffice_errores (filtro obligatorio)
+  GET    /api/v1/backoffice/trabajos              Backoffice_trabajos
+  GET    /api/v1/backoffice/trabajos/failed/{id}  Backoffice_trabajos
+  POST   /api/v1/backoffice/trabajos/failed/{id}/reintentar  Backoffice_trabajos
+                                                     (solo ExportZipJob; otros 400)
+  GET    /api/v1/backoffice/exportaciones         Backoffice_trabajos
+  GET    /api/v1/backoffice/auditoria             Backoffice_auditoria
+  GET    /api/v1/backoffice/auditoria/{id}        Backoffice_auditoria
+  GET    /api/v1/backoffice/usuarios              Backoffice_usuarios
+  GET    /api/v1/backoffice/usuarios/{id}         Backoffice_usuarios
+  POST   /api/v1/backoffice/usuarios/{id}/tokens/purgar   Backoffice_usuarios
+  POST   /api/v1/backoffice/limpieza/temporales   Backoffice_limpieza
+  POST   /api/v1/backoffice/limpieza/logs         Backoffice_limpieza
+  POST   /api/v1/backoffice/limpieza/tokens       Backoffice_limpieza
+  GET    /api/v1/backoffice/respaldos             Backoffice_respaldos
+  POST   /api/v1/backoffice/respaldos             Backoffice_respaldos (501 sin MYSQLDUMP_PATH)
+  GET    /api/v1/backoffice/respaldos/{archivo}/descargar  Backoffice_respaldos
+
+  Escrituras con throttle:30,1. Toda escritura genera audit_logs.
+
+--- 19.5 TABLAS Y COMANDOS NUEVOS ---
+
+  - error_logs: captura automatica en App\Exceptions\Handler::reportable
+    (fingerprint sha1, contexto con payload enmascarado <= 2KB).
+  - audit_logs: helper App\Support\Audit::log() (nunca lanza excepciones);
+    hooks en login (exito/fallo), solicitar/aprobar permiso, guardas
+    Backoffice_*, superadmin:assign, purga de errores, reintento de trabajos,
+    limpieza y creacion de respaldos.
+  - metricas_api_dias: middleware MetricasApi (grupo api) acumula contadores
+    en cache; comando metricas:flush (schedule diario 00:05) consolida.
+  - Comandos: superadmin:assign, metricas:flush.
+  - Config: database.mysqldump_path <- env MYSQLDUMP_PATH (respaldos).
+
+--- 19.6 FRONTEND ---
+
+  - Rutas: pages/Backoffice/*.vue con guard BackofficeGate
+    (rol SuperAdmin + hasPermiso('Backoffice_view'); si no <Restringido/>).
+  - Menu Aside: boton "Backoffice" (data/Buttons.js, id 4) filtrado en
+    Aside.vue por rol SuperAdmin.
+  - Pantallas: index (panel), Errores, Trabajos (pestanas cola/exportaciones),
+    Auditoria, Metricas, Usuarios, Limpieza, Respaldos, Salud
+    (pestanas estado/tablas).
+  - Nucleo: Core/Backoffice/BackofficeAPI.js (GET/POST/DELETE/descargar con
+    token decryptado).
 
 
 ================================================================================
