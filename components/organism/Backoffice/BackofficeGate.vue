@@ -1,4 +1,6 @@
 <script setup>
+import FondoDefault from '~/components/atoms/Fondos/FondoDefault.vue';
+import Breadcrumb from '~/components/molecules/BreadCrumbs/Breadcrumb.vue';
 import Restringido from '~/components/organism/NoEnviados/Restringido.vue'
 
 defineProps({
@@ -11,7 +13,8 @@ const { puedeBackoffice } = usePermisos()
 
 <template>
     <Restringido v-if="!puedeBackoffice" />
-    <div v-else class="p-4 md:p-6 space-y-5">
+    <FondoDefault v-else class="p-4 md:p-6 space-y-5">
+        <Breadcrumb :navbar="false" :show="true"></Breadcrumb>
         <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -23,5 +26,5 @@ const { puedeBackoffice } = usePermisos()
             <UBadge color="warning" variant="soft">SuperAdmin</UBadge>
         </div>
         <slot />
-    </div>
+    </FondoDefault>
 </template>

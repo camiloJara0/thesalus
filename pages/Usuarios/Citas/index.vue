@@ -34,10 +34,10 @@ const infoCitas = ref({})
 const preferencias = usePreferencias()
 preferencias.cargar()
 
-const esAdmin = computed(() => varView.getRol === 'Admin')
+const esAdmin = computed(() => varView.getRol === 'Admin' || varView.getRol === 'SuperAdmin')
 
 function resolverVistaInicial() {
-    if (varView.getRol === 'Admin') return 'tabla'
+    if (varView.getRol === 'Admin' || varView.getRol === 'SuperAdmin') return 'tabla'
     const guardada = preferencias.vistaInicial
     if (guardada === 'lista' || guardada === 'tabla') return 'tabla'
     if (guardada === 'calendario') return 'calendario'

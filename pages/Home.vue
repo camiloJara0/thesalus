@@ -77,7 +77,9 @@ onMounted(async () => {
     let citas = [];
     let Historias = [];
 
-    if (rol.value === 'Admin') {
+    if (rol.value === 'SuperAdmin'){
+        navigateTo('/Backoffice')
+    } else if (rol.value === 'Admin') {
         const historiaStore = useHistoriasStore();
         Historias = await historiaStore.ultimasHistorias();
         citas = await citasStore.listCitas();

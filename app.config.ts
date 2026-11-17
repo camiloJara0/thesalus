@@ -5,12 +5,10 @@ export default defineAppConfig({
       secondary: 'green'
     },
     breadcrumb: {
-      slots: {
-        link: 'group relative flex items-center gap-1.5 text-sm min-w-0 focus-visible:outline-primary text-red-500'
-      },
+
       variants: {
         false: {
-          link: 'text-gray-400 font-medium'
+          link: 'text-red-400 font-medium'
         }
       }
     },

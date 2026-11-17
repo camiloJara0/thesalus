@@ -62,7 +62,7 @@ const enviarFormulario = async (datos) => {
                 window.location.href = ultimaSeccion ||
                     (respuesta.user.rol === 'Profesional'
                         ? '/Usuarios/Citas'
-                        : respuesta.user.rol === 'SUPERADMIN' ? '/Backoffice'
+                        : respuesta.user.rol === 'SuperAdmin' ? '/Backoffice'
                         : '/Home'
                     )
                 notificacionesStore.close()

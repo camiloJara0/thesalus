@@ -1,4 +1,14 @@
 <script setup>
+const props = defineProps({
+  navbar: {
+    type: Boolean,
+    default: true
+  },
+  show: {
+    type: Boolean,
+    default: false
+  }
+})
 import { computed } from 'vue'
 
 const route = useRoute()
@@ -36,8 +46,8 @@ const breadcrumbItems = computed(() => {
 
 <template>
   <!-- Desktop View with Breadcrumb -->
-  <div v-if="varView.showBreadCrumb" class="flex items-center gap-1">
-    <UBreadcrumb :items="breadcrumbItems" :ui="{ link: 'text-gray-300 text-xs', separatorIcon: 'text-gray-400' }" />
+  <div v-if="varView.showBreadCrumb || props.show" class="flex items-center gap-1">
+    <UBreadcrumb :items="breadcrumbItems" :ui=" props.navbar ? { link: 'text-gray-300 text-xs', separatorIcon: 'text-gray-400' } : {}" />
   </div>
 
   <!-- Mobile View with Dropdown -->

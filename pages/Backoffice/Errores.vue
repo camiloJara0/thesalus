@@ -1,7 +1,4 @@
 <script setup>
-definePageMeta({
-    layout: 'backoffice'
-});
 import BackofficeGate from '~/components/organism/Backoffice/BackofficeGate.vue'
 import { backofficeGet, backofficeDelete } from '~/Core/Backoffice/BackofficeAPI'
 
