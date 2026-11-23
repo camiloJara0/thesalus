@@ -364,7 +364,7 @@ defineExpose({
     <div class="md:block"
         :class="[{ 'hidden': cardConfig }, preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : '']">
         <UTable ref="table" sticky :loading="loading" loading-color="primary" loading-animation="carousel"
-            :data="datosOrdenados" :columns="columns" class="flex-1 max-h-[62vh]"
+            :data="datosOrdenados" :columns="columns" class="flex-1 max-h-[62vh]" :class="[preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : preferencias.densidadTablas === 'extensa' ? 'extensa' : 'densidad']"
             :ui="{
                 tbody: `
                         divide-y divide-default
@@ -442,5 +442,15 @@ defineExpose({
 .densidad-compacta :deep(th) {
     padding-top: 0.3rem !important;
     padding-bottom: 0.3rem !important;
+}
+
+.densidad :deep(td) {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
+}
+
+.densidad :deep(th) {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
 }
 </style>

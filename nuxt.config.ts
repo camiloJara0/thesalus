@@ -101,6 +101,7 @@ export default defineNuxtConfig({
       pacientesInactivos: 'api/v1/pacientesInactivos',
       profesionalesInactivos: 'api/v1/profesionalesInactivos',
       infoCitas: 'api/v1/infoCitas',
+      citaDetalle: 'api/v1/citasDetalle',
       logout: 'api/v1/logout'
     }
   },

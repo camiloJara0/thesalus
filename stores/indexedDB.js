@@ -345,6 +345,8 @@ export const useIndexedDBStore = defineStore("indexeddb", {
             if (!this.bd) {
                 await this.initialize();
             }
+            if(!almacen) return
+
             return new Promise((resolve, reject) => {
                 let transaccion = this.bd.transaction(nombre, "readonly");
                 let store = transaccion.objectStore(nombre);

@@ -204,7 +204,7 @@ const esTrabajoSocial = computed(() => plantilla.value === 'Trabajo Social');
 const tituloPlantilla = computed(() => {
     const mapa = {
         'Medicina': 'Consulta Médica',
-        'Evolucion': 'Evolución / Nutrición',
+        'Evolucion': 'Evolución',
         'Trabajo Social': 'Trabajo Social',
         'Nota': 'Nota de Enfermería',
         'Terapia': 'Terapia',
@@ -227,7 +227,7 @@ const tituloPlantilla = computed(() => {
             <UAlert icon="i-lucide-triangle-alert" color="error" variant="subtle"
                 title="Registro no disponible" :description="errorCarga">
                 <template #footer>
-                    <UButton color="error" variant="soft" @click="irAtras">
+                    <UButton color="error" variant="soft" @click="irAHistorialPaciente">
                         <i class="fa-solid fa-arrow-left mr-2"></i>Volver al historial
                     </UButton>
                 </template>
@@ -241,7 +241,7 @@ const tituloPlantilla = computed(() => {
             <UCard class="bg-linear-to-r from-(--color-default-500) to-(--color-default-600) text-white shadow-lg border-0">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div class="flex items-start gap-4">
-                        <button @click="irAtras" title="Volver al historial"
+                        <button @click="irAHistorialPaciente" title="Volver al historial"
                             class="mt-1 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition cursor-pointer shrink-0">
                             <i class="fa-solid fa-arrow-left"></i>
                         </button>
@@ -258,14 +258,14 @@ const tituloPlantilla = computed(() => {
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
-                        <UButton color="neutral" variant="soft" class="text-gray-800 dark:text-gray-100"
+                        <!-- <UButton color="neutral" variant="soft" class="text-gray-800 dark:text-gray-100"
                             @click="irACita">
                             <i class="fa-solid fa-calendar-day mr-2"></i>Agenda
-                        </UButton>
-                        <UButton v-if="registro.historia?.id_paciente" color="neutral" variant="outline"
+                        </UButton> -->
+                        <!-- <UButton v-if="registro.historia?.id_paciente" color="neutral" variant="outline"
                             class="text-gray-800 dark:text-gray-100" @click="irAHistorialPaciente">
                             <i class="fa-solid fa-folder-open mr-2"></i>Historia del paciente
-                        </UButton>
+                        </UButton> -->
                         <UButton color="neutral" variant="soft" class="text-gray-800 dark:text-gray-100" @click="verPDF">
                             <i class="fa-solid fa-file-pdf mr-2"></i>Ver PDF
                         </UButton>
@@ -370,6 +370,11 @@ const tituloPlantilla = computed(() => {
                             <p class="text-gray-400 text-xs">Servicio</p>
                             <p class="font-medium text-gray-800 dark:text-gray-100">
                                 {{ registro.servicio?.name || '—' }}
+                            </p>
+
+                            <p class="text-gray-400 text-xs mt-4">Plantilla</p>
+                            <p class="font-medium text-gray-800 dark:text-gray-100">
+                                {{ registro.servicio?.plantilla || '—' }}
                             </p>
                         </div>
                         <div>

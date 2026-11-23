@@ -4,6 +4,7 @@ import { useCitaActions } from '~/composables/Entidades/Cita';
 import { storeToRefs } from 'pinia';
 import { useHistoriaStore } from '~/stores/Entidades/Historia';
 import { estadoDeCita, esVencida, railEstado } from '~/data/estadosCita';
+import { disabled } from 'happy-dom/lib/PropertySymbol';
 
 const calendarioCitasStore = useCalendarioCitas()
 const historiasStore = useHistoriaStore()
@@ -37,6 +38,9 @@ const {
 const estado = computed(() => estadoDeCita(props.cita))
 const rail = computed(() => railEstado(props.cita))
 const vencida = computed(() => esVencida(props.cita))
+const { hasPermiso } = usePermisos()
+const puedePut = hasPermiso('Citas_put')
+const puedeDelete = hasPermiso('Citas_delete')
 
 // Hora de la cita (conserva la lógica existente para citas sin hora)
 const hora = computed(() => {
@@ -72,6 +76,63 @@ function historiaPendiente(id) {
 
 function irHistorial(cita) {
     navigateTo({ path: '/Historial', query: { paciente: cita.id_paciente } });
+}
+
+
+const getMenuInactiva = (cita) => {
+    const items = []
+
+    if (cita.motivo_edicion) {
+        items.push({
+            label: 'Ver motivo de edición',
+            icon: 'i-lucide-info',
+            onSelect: () => showMotivoEdicion(cita)
+        })
+    }
+
+    items.push({
+        label: 'Ver detalle',
+        icon: 'i-lucide-eye',
+        onSelect: () => navigateTo(`/Usuarios/Citas/${cita.id}`)
+    })
+
+    items.push({
+        label: 'Cancelar cita',
+        icon: 'i-lucide-circle-x',
+        color: 'error',
+        disabled: !puedeDelete,
+        onSelect: () => cancelarCita(cita)
+    })
+
+    return items
+}
+
+const getMenuRealizada = (cita) => {
+    const items = []
+
+    items.push({
+        label: 'Ver observación',
+        icon: 'i-lucide-info',
+        onSelect: () => showObservacion(cita)
+    })
+
+    items.push({
+        label: 'Ver detalle',
+        icon: 'i-lucide-eye',
+        onSelect: () => navigateTo(`/Usuarios/Citas/${cita.id}`)
+    })
+
+    return items
+}
+
+const getMenuCancelada = (cita) => {
+    return [
+        {
+            label: 'Motivo de cancelación',
+            icon: 'i-lucide-info',
+            onSelect: () => showMotivoCancelacion(cita)
+        }
+    ]
 }
 </script>
 
@@ -118,36 +179,74 @@ function irHistorial(cita) {
             </div>
         </div>
 
-        <!-- Acciones -->
+        <!-- ACCIONES -->
         <div
-            class="flex flex-col items-center justify-center gap-0.5 px-1.5 border-l border-gray-100 dark:border-gray-700 shrink-0">
-            <div v-if="props.cita.estado === 'Inactiva'">
-                <UButton icon="i-lucide-square-pen" color="neutral" variant="ghost" square size="sm"
-                    aria-label="Editar cita" @click="actualizarCita(props.cita)" />
-                <UButton icon="i-lucide-circle-x" color="error" variant="ghost" square size="sm" aria-label="Cancelar cita"
-                    @click="cancelarCita(props.cita)" />
-                <UButton v-if="citaPendiente(props.cita.id)" icon="i-lucide-check" color="success" variant="soft" square
-                    size="sm" aria-label="Continuar historia" @click="actualizarHistoria(historiaPendiente(props.cita.id))" />
-                <UButton v-else icon="i-lucide-check" color="success" variant="soft" square size="sm"
-                    aria-label="Realizar cita" @click="activarCita(props.cita)" />
-                <UButton v-if="props.cita.motivo_edicion" icon="i-lucide-info" color="warning" variant="ghost" square
-                    size="sm" aria-label="Ver motivo de edición" @click="showMotivoEdicion(props.cita)" />
-            </div>
-            <div v-else-if="props.cita.estado === 'Realizada'">
-                <NuxtLink v-if="props.cita.id_analisis" :to="`/Historial/${props.cita.id_analisis}`"
-                    title="Ver historia clínica">
-                    <UButton icon="i-lucide-file-heart" color="primary" variant="ghost" square size="sm" />
+            class="flex flex-col items-center justify-center gap-1 px-2 border-l border-gray-100 dark:border-gray-700 shrink-0">
+
+            <template v-if="props.cita.estado === 'Inactiva'">
+
+                <!-- Acción principal -->
+                <UButton v-if="citaPendiente(props.cita.id)" icon="i-lucide-check" color="success" variant="soft"
+                    size="sm" aria-label="Continuar historia"
+                    @click="actualizarHistoria(historiaPendiente(props.cita.id))">
+                    Continuar
+                </UButton>
+
+                <UButton v-else icon="i-lucide-play" color="success" variant="soft" size="sm" aria-label="Realizar cita"
+                    @click="activarCita(props.cita)">
+                    Realizar
+                </UButton>
+
+                <div class="flex gap-2">
+                    <!-- Editar -->
+                    <UButton icon="i-lucide-square-pen" color="neutral" variant="ghost" square size="sm"
+                        aria-label="Editar cita" @click="actualizarCita(props.cita)" :disabled="!puedePut" />
+    
+                    <!-- Menú -->
+                    <UDropdownMenu :items="getMenuInactiva(props.cita)">
+                        <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" square size="sm" />
+                    </UDropdownMenu>
+                </div>
+            </template>
+
+            <template v-else-if="props.cita.estado === 'Realizada'">
+
+                <!-- Historia Clínica -->
+                <NuxtLink v-if="props.cita.id_analisis" :to="`/Historial/${props.cita.id_analisis}`">
+                    <UButton icon="i-lucide-file-heart" color="primary" variant="soft" size="sm">
+                        Historia
+                    </UButton>
                 </NuxtLink>
-                <NuxtLink v-else @click="irHistorial(props.cita)" title="Ver historia clínica">
-                    <UButton icon="i-lucide-file" color="primary" variant="ghost" square size="sm" />
-                </NuxtLink>
-                <UButton icon="i-lucide-info" color="primary" variant="ghost" square size="sm"
-                    aria-label="Ver observación" @click="showObservacion(props.cita)" />
-            </div>
-            <div v-else-if="props.cita.estado === 'cancelada'">
-                <UButton icon="i-lucide-info" color="neutral" variant="ghost" square size="sm"
-                    aria-label="Ver motivo de cancelación" @click="showMotivoCancelacion(props.cita)" />
-            </div>
+
+                <UButton v-else icon="i-lucide-file" color="primary" variant="soft" size="sm"
+                    @click="irHistorial(props.cita)">
+                    Historia
+                </UButton>
+
+                <div class="flex gap-2">
+                    <!-- Detalle -->
+                    <UButton icon="i-lucide-eye" color="neutral" variant="ghost" square size="sm" aria-label="Ver detalle"
+                        @click="navigateTo(`/Usuarios/Citas/${props.cita.id}`)" />
+    
+                    <!-- Menú -->
+                    <UDropdownMenu :items="getMenuRealizada(props.cita)">
+                        <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" square size="sm" />
+                    </UDropdownMenu>
+                </div>
+            </template>
+
+            <template v-else-if="props.cita.estado === 'cancelada'">
+
+                <UButton icon="i-lucide-eye" color="neutral" variant="soft" size="sm"
+                    @click="navigateTo(`/Usuarios/Citas/${props.cita.id}`)">
+                    Detalle
+                </UButton>
+
+                <UDropdownMenu :items="getMenuCancelada(props.cita)">
+                    <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" square size="sm" />
+                </UDropdownMenu>
+            </template>
+
         </div>
     </article>
 </template>

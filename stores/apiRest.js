@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { decryptData } from "~/composables/Formulario/crypto";
+import { mensajeErrorApi } from "~/composables/Formulario/erroresApi";
 
 // Store para loader
 export const useApiRest = defineStore('apiRest', {
@@ -98,12 +99,11 @@ export const useApiRest = defineStore('apiRest', {
                         errorData = { message: 'Error en la solicitud' };
                     }
 
-                    let mensajeCorto = errorData.message || 'Error en la solicitud';
-
-                    if (errorData.errors) {
-                        const primerCampo = Object.keys(errorData.errors)[0];
-                        mensajeCorto = errorData.errors[primerCampo][0];
-                    }
+                    const { codigo, titulo, texto } = mensajeErrorApi(
+                        response.status,
+                        errorData,
+                        'Error en la solicitud'
+                    )
 
                     // Validar si es Unauthorized (401) o Forbidden (403)
                     if (response.status === 401) {
@@ -123,14 +123,14 @@ export const useApiRest = defineStore('apiRest', {
                         return
                     }
 
-                    // Notificación con el mensaje del backend o fallback
+                    // Notificación con el mensaje especifico del backend o fallback
                     notificacionesStore.options.icono = 'warning';
-                    notificacionesStore.options.titulo = '¡Ha ocurrido un problema!';
-                    notificacionesStore.options.texto = mensajeCorto;
+                    notificacionesStore.options.titulo = titulo;
+                    notificacionesStore.options.texto = texto;
                     notificacionesStore.options.tiempo = 5000;
                     notificacionesStore.simple();
 
-                    throw new Error(errorData.message || 'Error en la solicitud');
+                    throw new Error(texto);
 
                 }
             } catch (error) {

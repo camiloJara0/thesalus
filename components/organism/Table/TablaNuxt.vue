@@ -238,7 +238,7 @@ function getRowActions(row) {
     <!-- Tabla Desktop -->
     <div class="hidden md:block">
         <UTable v-model:column-pinning="columnPinning" sticky :loading="!props.Propiedades.data || varView.cargando || varView.actualizando" loading-color="primary" loading-animation="carousel" :data="datosPaginados" :columns="columns"
-            class="flex-1 max-h-[62vh] tableNuxt" :class="[preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : '']"   
+            class="flex-1 max-h-[62vh] tableNuxt" :class="[preferencias.densidadTablas === 'compacta' ? 'densidad-compacta' : preferencias.densidadTablas === 'extensa' ? 'extensa' : 'densidad']"   
             :ui="{
                 tbody: `
                         divide-y divide-default
@@ -333,5 +333,15 @@ function getRowActions(row) {
 .densidad-compacta :deep(th) {
     padding-top: 0.3rem !important;
     padding-bottom: 0.3rem !important;
+}
+
+.densidad :deep(td) {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
+}
+
+.densidad :deep(th) {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
 }
 </style>

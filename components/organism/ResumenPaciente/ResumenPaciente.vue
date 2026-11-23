@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
     <!-- Tarjeta Principal - Datos del Paciente -->
-    <UCard class="bg-gradient-to-br from-[var(--color-default-400)] to-[var(--color-default-600)] text-white md:col-span-2">
+    <UCard class="bg-linear-to-br from-(--color-default-400) to-(--color-default-600) text-white md:col-span-2">
       <template #header>
         <div class="flex items-start justify-between -m-4 mb-0">
           <div>
@@ -61,23 +61,23 @@
     <UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="emit('verRegistros')">
       <template #header>
         <div class="flex items-center gap-2">
-          <i class="fa-solid fa-clipboard-list text-[var(--color-default-600)]"></i>
+          <i class="fa-solid fa-clipboard-list text-(--color-default-600)"></i>
           <h3 class="font-semibold text-sm">Registros</h3>
         </div>
       </template>
       <div class="space-y-2">
         <div class="text-center">
-          <p class="text-3xl font-bold text-[var(--color-default-600)]">{{ estadisticas.consultas }}</p>
+          <p class="text-3xl font-bold text-(--color-default-600)">{{ estadisticas.consultas }}</p>
           <p class="text-xs text-gray-500 mt-1">Consultas</p>
         </div>
         <UDivider />
         <div class="flex justify-around text-center text-xs">
           <div>
-            <p class="font-semibold text-[var(--color-default-500)]">{{ estadisticas.diagnosticos }}</p>
+            <p class="font-semibold text-(--color-default-500)">{{ estadisticas.diagnosticos }}</p>
             <p class="text-gray-500">Diagnósticos</p>
           </div>
           <div>
-            <p class="font-semibold text-[var(--color-default-500)]">{{ estadisticas.tratamientos }}</p>
+            <p class="font-semibold text-(--color-default-500)">{{ estadisticas.tratamientos }}</p>
             <p class="text-gray-500">Tratamientos</p>
           </div>
         </div>
@@ -88,17 +88,17 @@
     <UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="emit('verMedicamentos')">
       <template #header>
         <div class="flex items-center gap-2">
-          <i class="fa-solid fa-pills text-[var(--color-green)]"></i>
+          <i class="fa-solid fa-pills text-(--color-green)"></i>
           <h3 class="font-semibold text-sm">Medicamentos</h3>
         </div>
       </template>
       <div class="space-y-2">
-        <p class="text-3xl font-bold text-[var(--color-green)]">{{ estadisticas.medicamentos }}</p>
+        <p class="text-3xl font-bold text-(--color-green)">{{ estadisticas.medicamentos }}</p>
         <p class="text-xs text-gray-500">Registrados</p>
         <div class="pt-2">
           <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
-              class="bg-[var(--color-green)] h-2 rounded-full"
+              class="bg-(--color-green) h-2 rounded-full"
               :style="{ width: Math.min((estadisticas.medicamentos / 5) * 100, 100) + '%' }"
             ></div>
           </div>
@@ -109,7 +109,7 @@
     <!-- Tarjeta: Alertas -->
     <UCard 
       class="hover:shadow-lg transition-shadow cursor-pointer"
-      :class="estadisticas.alertas > 0 ? 'border-l-4 border-[var(--color-warning)]' : ''"
+      :class="estadisticas.alertas > 0 ? 'border-l-4 border-(--color-warning)' : ''"
       @click="emit('verAlertas')"
     >
       <template #header>
@@ -117,7 +117,7 @@
           <i 
             :class="[
               'fa-solid', 
-              estadisticas.alertas > 0 ? 'fa-triangle-exclamation text-[var(--color-warning)]' : 'fa-check-circle text-[var(--color-green)]'
+              estadisticas.alertas > 0 ? 'fa-triangle-exclamation text-(--color-warning)' : 'fa-check-circle text-(--color-green)'
             ]"
           ></i>
           <h3 class="font-semibold text-sm">Estado</h3>
@@ -126,7 +126,7 @@
       <div class="space-y-2">
         <p 
           class="text-3xl font-bold"
-          :class="estadisticas.alertas > 0 ? 'text-[var(--color-warning)]' : 'text-[var(--color-green)]'"
+          :class="estadisticas.alertas > 0 ? 'text-(--color-warning)' : 'text-(--color-green)'"
         >
           {{ estadisticas.alertas || '✓' }}
         </p>

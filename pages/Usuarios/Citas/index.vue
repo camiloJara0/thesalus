@@ -213,6 +213,12 @@ function getRowItems(row) {
         {
             type: 'label',
             label: 'Acciones'
+        },
+        {
+            label: 'Ver detalle',
+            onSelect() {
+                navigateTo(`/Usuarios/Citas/${cita.id}`)
+            }
         }
     ]
 

@@ -25,6 +25,7 @@ const opcionesGranularidad = [
 
 const opcionesDensidad = [
     { id: 'normal', label: 'Normal', icon: 'i-lucide-rows-3' },
+    { id: 'extensa', label: 'Extensa', icon: 'i-lucide-rows-2' },
     { id: 'compacta', label: 'Compacta', icon: 'i-lucide-list' },
 ]
 

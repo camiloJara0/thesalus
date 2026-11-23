@@ -98,7 +98,7 @@ export const useHistoriasStore = defineStore('HistoriaClinica', {
         },
 
         numeroPendientes(state) {
-            return state.NoEnviados.length;
+            return state.NoEnviados?.length || 0;
         }
     },
 
